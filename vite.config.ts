@@ -7,6 +7,7 @@ dotenv.config();
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: "app",
   server: {
     host: "localhost",
     port: 3000,

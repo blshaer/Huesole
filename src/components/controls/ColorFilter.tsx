@@ -105,12 +105,12 @@ export function ColorFilter({
   };
 
   return (
-    <div className={cn("flex w-full flex-col gap-2", className)}>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <div className={cn("flex h-full  w-full flex-col gap-2", className)}>
+      <DropdownMenu  open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between text-left font-normal hover:bg-accent"
+            className="w-full h-full justify-between text-left font-normal hover:bg-accent"
           >
             <div className="flex items-center gap-2">
               {selectedColors.length > 0 && selectedColors.length <= 3 && (

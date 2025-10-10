@@ -240,11 +240,11 @@ p {
   @apply text-gray-700;
 }
 
-.nofocus {
+.nofocus, .nofocus:hover, .nofocus:focus , .nofocus:active {
   @apply focus:border-none focus:outline-none;
 }
 
-.nohover {
+.nohover, .nohover:hover, .nohover:focus , .nohover:active {
   @apply hover:border-none hover:outline-none;
 }
 
@@ -257,5 +257,7 @@ p {
 
 .codefont{
     font-family: 'Google Sans Code', monospace;
-
 }
+
+
+

@@ -108,7 +108,7 @@ export function CopyHistorySection({ onGradientSelect }: CopyHistorySectionProps
                   <Copy className="h-3 w-3" />
                 </Button>
               </div>
-              <div className="flex items-center gap-2 text-xs text-white/70 w-full">
+              <div className="flex items-center gap-2 text-xs  text-white/70 w-full">
                 <span className="capitalize">{item.copyType}</span>
                 <span>•</span>
                 <span>{formatTimestamp(item.timestamp)}</span>

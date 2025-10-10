@@ -1,9 +1,9 @@
-import { motion } from "framer-motion";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 interface ColorSwatchesProps {
   colors: string[];
@@ -29,7 +29,7 @@ export const ColorSwatches: React.FC<ColorSwatchesProps> = ({
           />
         </TooltipTrigger>
         <TooltipContent>
-          <p className="text-foreground/90">
+          <p className="text-white">
             Click to copy: {getColorInFormat(color)}
           </p>
         </TooltipContent>

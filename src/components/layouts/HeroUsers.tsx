@@ -1,6 +1,6 @@
-import { useState, memo } from "react";
-import { Skeleton } from "../ui/skeleton";
+import { memo, useState } from "react";
 import { NumberTicker } from "../ui/NumberTicker";
+import { Skeleton } from "../ui/skeleton";
 
 // Memoized StarIcon
 const StarIcon = memo(() => (

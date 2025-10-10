@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 interface GradientPreviewProps {
   style: React.CSSProperties;
-  gradientType: "background" | "text";
+  gradientType: "background" | "text" | "image";
   gradient: { name: string; colors: string[] };
   isAnimated?: boolean;
   animationSpeed?: number;
@@ -42,7 +42,9 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
         }}
       />
       <motion.div
-        className="relative left-0 right-0 m-auto mt-6 flex h-48 w-48 items-center justify-center overflow-hidden rounded-full"
+        className={`relative left-0 right-0 m-auto mt-6 flex h-48 w-48 items-center justify-center overflow-hidden ${
+          gradientType === "image" ? "rounded-[12px]" : "rounded-full"
+        }`}
         style={gradientType === "background" ? animatedStyle : {}}
         transition={{ duration: 0.3 }}
       >
@@ -56,6 +58,21 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
           >
             {gradient.name}
           </motion.span>
+        ) : gradientType === "image" ? (
+          <motion.div
+            className="relative w-48 h-48 overflow-hidden rounded-lg border-4 border-white/20 shadow-lg"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            style={{
+              background: animatedStyle.backgroundImage || style.backgroundImage,
+              backgroundSize: isAnimated ? "400% 400%" : "100% 100%",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              animation: isAnimated ? `gradientShift ${4 / animationSpeed}s ease infinite` : undefined,
+            }}
+          >
+          </motion.div>
         ) : (
           <motion.span
             className="text-2xl font-bold text-white"

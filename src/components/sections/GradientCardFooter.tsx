@@ -1,20 +1,20 @@
-import { ColorSwatches } from "../controls/ColorSwatches";
 import { AngleSlider } from "../controls/AngleSlider";
-import { GradientControls } from "./GradientControls";
-import { CopyCodeSection } from "./CopyCodeSection";
-import { ColorPalette } from "./ColorPalette";
 import { AnimatedCheckbox } from "../controls/AnimatedCheckbox";
 import { AnimationSpeedControl } from "../controls/AnimationSpeedControl";
+import { ColorSwatches } from "../controls/ColorSwatches";
+import { ColorPalette } from "./ColorPalette";
+import { CopyCodeSection } from "./CopyCodeSection";
+import { GradientControls } from "./GradientControls";
 
 interface GradientCardFooterProps {
   gradient: { name: string; colors: string[] };
   getColorInFormat: (color: string) => string;
-  copyToClipboard: (text: string, key: "tailwind" | "css" | "sass" | "bootstrap" | "xml" | "svg" | "json" | "colors") => void;
+  copyToClipboard: (text: string, key: "tailwind" | "css" | "sass" | "bootstrap" | "react-native" | "flutter" | "swiftui" | "kotlin" | "vue" | "angular" | "react" | "xml" | "svg" | "json" | "colors") => void;
   selectedColorFormat: string;
   setSelectedColorFormat: (format: string) => void;
   colorFormats: string[];
-  gradientType: "background" | "text";
-  setGradientType: (type: "background" | "text") => void;
+  gradientType: "background" | "text" | "image";
+  setGradientType: (type: "background" | "text" | "image") => void;
   angle: number;
   setAngle: (angle: number) => void;
   getCode: (format: string) => string;
@@ -74,7 +74,6 @@ export const GradientCardFooter: React.FC<GradientCardFooterProps> = ({
       <AnimatedCheckbox
         checked={isAnimated}
         onChange={setIsAnimated}
-        label="Animate Gradient"
       />
 
       <AnimationSpeedControl

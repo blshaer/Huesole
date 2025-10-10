@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
 import { useCopyHistory } from "./useCopyHistory";
 
 export const useCopyState = (gradientName?: string, gradientColors?: string[]) => {
@@ -9,6 +9,13 @@ export const useCopyState = (gradientName?: string, gradientColors?: string[]) =
     css: false,
     sass: false,
     bootstrap: false,
+    "react-native": false,
+    flutter: false,
+    swiftui: false,
+    kotlin: false,
+    vue: false,
+    angular: false,
+    react: false,
     xml: false,
     svg: false,
     json: false,
@@ -36,6 +43,13 @@ export const useCopyState = (gradientName?: string, gradientColors?: string[]) =
         css: false,
         sass: false,
         bootstrap: false,
+        "react-native": false,
+        flutter: false,
+        swiftui: false,
+        kotlin: false,
+        vue: false,
+        angular: false,
+        react: false,
         xml: false,
         svg: false,
         json: false,

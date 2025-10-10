@@ -5,8 +5,8 @@ interface GradientControlsProps {
   selectedColorFormat: string;
   setSelectedColorFormat: (format: string) => void;
   colorFormats: string[];
-  gradientType: "background" | "text";
-  setGradientType: (type: "background" | "text") => void;
+  gradientType: "background" | "text" | "image";
+  setGradientType: (type: "background" | "text" | "image") => void;
 }
 
 export const GradientControls: React.FC<GradientControlsProps> = ({

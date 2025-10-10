@@ -154,7 +154,7 @@ export function ExportModal({
           </div>
 
           {/* Gradient Preview */}
-          <div className="space-y-3">
+          <div className="space-y-3 ">
         
 
             {/* Frame-like preview container */}

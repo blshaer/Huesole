@@ -1,6 +1,7 @@
-import { ArrowRightIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import AnimatedShinyText from "@/components/ui/animated-shiny-text";
+import { cn } from "@/lib/utils";
+import { ArrowRightIcon } from "lucide-react";
+import { AnimatedNumber } from "../ui/animated-number";
 
 export const HeroHeader: React.FC = () => (
   <div className="space-y-6">
@@ -47,7 +48,15 @@ export const HeroHeader: React.FC = () => (
 
     {/* Subtitle */}
     <p className="mx-auto max-w-[600px] text-center text-white/80">
-      Discover beautiful CSS gradients for your next project. Copy, export, and use them anywhere.
+      Discover + <span>
+        
+           <AnimatedNumber
+        springOptions={{
+          bounce: 0,
+          duration: 1000,
+        }}
+        value={1000}
+      /></span> beautiful gradients for your next project. Copy, export, and use them anywhere.
     </p>
   </div>
 );

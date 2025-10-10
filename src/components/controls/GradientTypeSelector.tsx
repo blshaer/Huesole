@@ -1,14 +1,14 @@
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
 interface GradientTypeSelectorProps {
-  gradientType: "background" | "text";
-  setGradientType: (type: "background" | "text") => void;
+  gradientType: "background" | "text" | "image";
+  setGradientType: (type: "background" | "text" | "image") => void;
 }
 
 export const GradientTypeSelector: React.FC<GradientTypeSelectorProps> = ({
@@ -28,10 +28,10 @@ export const GradientTypeSelector: React.FC<GradientTypeSelectorProps> = ({
       align="end"
       className="w-32 rounded-md border border-border bg-secondary p-1"
     >
-      {["background", "text"].map((type) => (
+      {["background", "text", "image"].map((type) => (
         <DropdownMenuItem
           key={type}
-          onSelect={() => setGradientType(type as "background" | "text")}
+          onSelect={() => setGradientType(type as "background" | "text" | "image")}
           className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
         >
           {type.charAt(0).toUpperCase() + type.slice(1)}
