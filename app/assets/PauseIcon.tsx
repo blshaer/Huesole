@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
-import type { Variants } from 'framer-motion';
-import { motion, useAnimation } from 'framer-motion';
-import type { HTMLAttributes } from 'react';
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import { cn } from "@/lib/utils";
+import type { Variants } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import type { HTMLAttributes } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
 export interface PauseIconHandle {
   startAnimation: () => void;
@@ -55,31 +55,31 @@ const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
       isControlledRef.current = true;
 
       return {
-        startAnimation: () => controls.start('animate'),
-        stopAnimation: () => controls.start('normal'),
+        startAnimation: () => controls.start("animate"),
+        stopAnimation: () => controls.start("normal"),
       };
     });
 
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (!isControlledRef.current) {
-          controls.start('animate');
+          controls.start("animate");
         } else {
           onMouseEnter?.(e);
         }
       },
-      [controls, onMouseEnter]
+      [controls, onMouseEnter],
     );
 
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (!isControlledRef.current) {
-          controls.start('normal');
+          controls.start("normal");
         } else {
           onMouseLeave?.(e);
         }
       },
-      [controls, onMouseLeave]
+      [controls, onMouseLeave],
     );
 
     return (
@@ -121,9 +121,9 @@ const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
         </svg>
       </div>
     );
-  }
+  },
 );
 
-PauseIcon.displayName = 'PauseIcon';
+PauseIcon.displayName = "PauseIcon";
 
 export { PauseIcon };

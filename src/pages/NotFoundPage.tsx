@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 
-import { RetroGrid } from "@/components/ui/RetroGrid";
+import { RetroGrid } from "@/shared/ui/RetroGrid";
 
 export function NotFoundPage() {
   return (

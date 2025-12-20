@@ -1,10 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;700&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 @layer base {
   * {
@@ -67,11 +65,21 @@
 
   /* Gradient Animation Keyframes */
   @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    25% { background-position: 100% 50%; }
-    50% { background-position: 100% 100%; }
-    75% { background-position: 0% 100%; }
-    100% { background-position: 0% 50%; }
+    0% {
+      background-position: 0% 50%;
+    }
+    25% {
+      background-position: 100% 50%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    75% {
+      background-position: 0% 100%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 
   /* Gradient Animation Utilities */
@@ -240,24 +248,28 @@ p {
   @apply text-gray-700;
 }
 
-.nofocus, .nofocus:hover, .nofocus:focus , .nofocus:active {
+.nofocus,
+.nofocus:hover,
+.nofocus:focus,
+.nofocus:active {
   @apply focus:border-none focus:outline-none;
 }
 
-.nohover, .nohover:hover, .nohover:focus , .nohover:active {
+.nohover,
+.nohover:hover,
+.nohover:focus,
+.nohover:active {
   @apply hover:border-none hover:outline-none;
 }
 
 @layer base {
-  *, ::after, ::before {
+  *,
+  ::after,
+  ::before {
     border-color: var(--color-gray-200, currentColor);
   }
 }
 
-
-.codefont{
-    font-family: 'Google Sans Code', monospace;
+.codefont {
+  font-family: "Google Sans Code", monospace;
 }
-
-
-

@@ -17,6 +17,7 @@ Gradients CSS is a modern, open-source React application for browsing, searching
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher recommended)
 - pnpm, npm, or yarn
 
@@ -24,7 +25,7 @@ Gradients CSS is a modern, open-source React application for browsing, searching
 
 ```bash
 # Clone the repository
-git clone https://github.com/balshaer/gradients-css.git
+git clone https://github.com/blshaer/gradients-css.git
 cd gradients-css
 
 # Install dependencies
@@ -77,4 +78,4 @@ This project is licensed under the MIT License.
 
 ---
 
-Developed by [balshaer](https://github.com/balshaer) and contributors.
+Developed by [blshaer](https://github.com/blshaer) and contributors.

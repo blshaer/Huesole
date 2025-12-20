@@ -1,19 +1,20 @@
 import "animate.css";
 import "../app/css/globals.css";
-import AppRoutes from "@/routes/__routes";
+import AppRoutes from "@/shared/routes/__routes";
 import { inject } from "@vercel/analytics";
-import { Toaster } from "@/components/ui/toaster";
-import GridBackground from "@/components/ui/GridBackground";
-import Support from "./components/layouts/Support";
-import { SupportWidget } from "./components/layouts/SupportWidget";
+import { Toaster } from "@/shared/ui/toaster";
+import GridBackground from "@/shared/ui/GridBackground";
+import Support from "./features/landing/components/Support";
 
 const App: React.FC = () => {
   inject();
 
   return (
-    <div dir="ltr" className="App pb-[30px] relative min-h-screen overflow-x-hidden">
-    <SupportWidget  />
-      <Support/>
+    <div
+      dir="ltr"
+      className="App relative min-h-screen overflow-x-hidden pb-[30px]"
+    >
+      <Support />
       <GridBackground />
       <Toaster />
       <AppRoutes />

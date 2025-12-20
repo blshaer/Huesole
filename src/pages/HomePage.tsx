@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useMemo } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import GradientGrid from "@/components/sections/GradientGrid";
-import Pagination from "@/components/layouts/Pagination";
-import Footer from "@/components/layouts/Footer";
-import { HeroSection } from "@/components/sections/HeroSection";
-import { SearchAndFilters } from "@/components/sections/SearchAndFilters";
-import { FilterStatus } from "@/components/sections/FilterStatus";
-import { ErrorDisplay } from "@/components/sections/ErrorDisplay";
-import { colorUtils } from "@/utils/colorUtils";
-import { useGradients } from "@/hooks/useGradients";
-import { useFavorites } from "@/hooks/useFavorites";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { useGradientFilter } from "@/hooks/useGradientFilter";
+import { TooltipProvider } from "@/shared/ui/tooltip";
+import GradientGrid from "@/features/gradients/components/GradientGrid";
+import Pagination from "@/features/landing/components/Pagination";
+import Footer from "@/features/footer/components/Footer";
+import { HeroSection } from "@/features/landing/components/HeroSection";
+import { SearchAndFilters } from "@/features/search/components/SearchAndFilters";
+import { FilterStatus } from "@/features/search/components/FilterStatus";
+import { ErrorDisplay } from "@/features/landing/components/ErrorDisplay";
+import { colorUtils } from "@/features/gradients/utils/colorUtils";
+import { useGradients } from "@/features/gradients/hooks/useGradients";
+import { useFavorites } from "@/features/gradients/hooks/useFavorites";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useGradientFilter } from "@/features/gradients/hooks/useGradientFilter";
 
 // --- Main Component ---
 const HomePage: React.FC = () => {
@@ -48,11 +48,12 @@ const HomePage: React.FC = () => {
     const start = (currentPage - 1) * gradientsPerPage;
     return filteredGradients
       .slice(start, start + gradientsPerPage)
-      .filter((gradient): gradient is { name: string; colors: string[] } =>
-        gradient.name !== undefined &&
-        gradient.colors !== undefined &&
-        gradient.name.length > 0 &&
-        gradient.colors.length > 0
+      .filter(
+        (gradient): gradient is { name: string; colors: string[] } =>
+          gradient.name !== undefined &&
+          gradient.colors !== undefined &&
+          gradient.name.length > 0 &&
+          gradient.colors.length > 0,
       );
   }, [currentPage, filteredGradients, gradientsPerPage]);
 
@@ -64,8 +65,8 @@ const HomePage: React.FC = () => {
   // --- Render ---
   return (
     <TooltipProvider>
-      <div className="container relative " style={{ background }}>
-        <div className="mx-auto  space-y-2 pt-12">
+      <div className="container relative" style={{ background }}>
+        <div className="mx-auto space-y-2 pt-12">
           <HeroSection />
 
           <div className="flex flex-col gap-4">
@@ -98,9 +99,9 @@ const HomePage: React.FC = () => {
           </div>
 
           {error && (
-            <ErrorDisplay 
-              error={error} 
-              onRetry={() => window.location.reload()} 
+            <ErrorDisplay
+              error={error}
+              onRetry={() => window.location.reload()}
             />
           )}
 

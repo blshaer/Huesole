@@ -7,7 +7,7 @@ import "./index.css";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
-import BrandConsole from "./components/status/BrandConsole.tsx";
+import BrandConsole from "./shared/components/BrandConsole.tsx";
 AOS.init();
 
 ReactDOM.render(
