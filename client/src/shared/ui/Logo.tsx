@@ -29,20 +29,18 @@ export default function Logo() {
 
       <Link to={"/"}>
         <div className="logo-wrapper relative inline-block cursor-pointer select-none">
-          <h1 className="text-2xl font-bold text-[var(--headline)] relative z-10">
+          <h1 className="relative z-10 text-2xl font-bold text-[var(--headline)]">
             GradientsCSS
           </h1>
-          
+
           {/* Blurred gradient shadow - appears on hover */}
-          <div 
-            className="underline-shadow absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#CF77F3] via-[#009BFF] to-[#2AC9DB] bg-[length:400%_400%] animate-gradient"
-          />
-          
+          <div className="underline-shadow animate-gradient absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#CF77F3] via-[#009BFF] to-[#2AC9DB] bg-[length:400%_400%]" />
+
           {/* Main animated gradient underline */}
           <motion.div
-            className="absolute bottom-[-4px] w-[50px] mx-auto rounded-full left-0 right-0 h-1 bg-gradient-to-r from-[#CF77F3] via-[#009BFF] to-[#2AC9DB] bg-[length:400%_400%] animate-gradient"
-            whileHover={{ 
-              height: "4px"
+            className="animate-gradient absolute bottom-[-4px] left-0 right-0 mx-auto h-1 w-[50px] rounded-full bg-gradient-to-r from-[#CF77F3] via-[#009BFF] to-[#2AC9DB] bg-[length:400%_400%]"
+            whileHover={{
+              height: "4px",
             }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           />

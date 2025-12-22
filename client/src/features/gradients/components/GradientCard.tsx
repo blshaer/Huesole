@@ -1,4 +1,3 @@
-// @TODO : Make a new feat allow users copy code as animation
 
 import {
   DropdownMenu,
@@ -115,6 +114,8 @@ export default function GradientCard({
   gradient,
   isFavorite,
   onFavoriteToggle,
+  editable = false,
+  onColorsChange,
 }: GradientCardProps) {
   const [activeTab, setActiveTab] = useState("tailwind");
   const [angle, setAngle] = useState(90);
@@ -128,6 +129,12 @@ export default function GradientCard({
     setGradientType,
   } = useColorFormat();
   const { copiedStates, copyToClipboard } = useCopyState();
+
+  const handleColorChange = (index: number, newColor: string) => {
+    const newColors = [...gradient.colors];
+    newColors[index] = newColor;
+    onColorsChange?.(newColors);
+  };
 
   const colorFormats = ["HEX", "RGB", "HSL"];
 
@@ -143,27 +150,27 @@ export default function GradientCard({
       return gradientType === "background"
         ? { backgroundImage: gradientStyle }
         : {
-          color: "transparent",
-          backgroundImage: gradientStyle,
-          WebkitBackgroundClip: "text",
-        };
+            color: "transparent",
+            backgroundImage: gradientStyle,
+            WebkitBackgroundClip: "text",
+          };
     }
 
     // Animated gradient preview
     const animationDuration = `${4 / animationSpeed}s`;
     return gradientType === "background"
       ? {
-        backgroundImage: gradientStyle,
-        backgroundSize: "400% 400%",
-        animation: `gradientShift ${animationDuration} ease infinite`,
-      }
+          backgroundImage: gradientStyle,
+          backgroundSize: "400% 400%",
+          animation: `gradientShift ${animationDuration} ease infinite`,
+        }
       : {
-        color: "transparent",
-        backgroundImage: gradientStyle,
-        backgroundSize: "400% 400%",
-        WebkitBackgroundClip: "text",
-        animation: `gradientShift ${animationDuration} ease infinite`,
-      };
+          color: "transparent",
+          backgroundImage: gradientStyle,
+          backgroundSize: "400% 400%",
+          WebkitBackgroundClip: "text",
+          animation: `gradientShift ${animationDuration} ease infinite`,
+        };
   };
 
   const getCode = (format: string) => {
@@ -211,19 +218,19 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}">
+        .map((color, index) => {
+          const offset =
+            formattedColors.length === 1
+              ? 0
+              : (index / (formattedColors.length - 1)) * 100;
+          return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
                  values="${color};${formattedColors[(index + 1) % formattedColors.length]};${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-            })
-            .join("\n      ")}
+        })
+        .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -238,14 +245,14 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}" />`;
-            })
-            .join("\n      ")}
+        .map((color, index) => {
+          const offset =
+            formattedColors.length === 1
+              ? 0
+              : (index / (formattedColors.length - 1)) * 100;
+          return `<stop offset="${offset}%" stop-color="${color}" />`;
+        })
+        .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
@@ -332,6 +339,8 @@ export default function GradientCard({
           <ColorSwatches
             colors={gradient.colors}
             getColorInFormat={getColorInFormat}
+            editable={editable}
+            onColorChange={handleColorChange}
           />
 
           <div className="flex gap-1">

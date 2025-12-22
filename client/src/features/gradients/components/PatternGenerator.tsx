@@ -132,12 +132,12 @@ export function PatternGenerator({ gradient, onClose }: PatternGeneratorProps) {
     return `/* ${currentPattern.name} Pattern - Generated from ${gradient.name} */
 .pattern {
   ${Object.entries(style)
-        .filter(([key]) => typeof key === "string" && !key.startsWith("&"))
-        .map(
-          ([key, value]) =>
-            `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`,
-        )
-        .join("\n  ")}
+    .filter(([key]) => typeof key === "string" && !key.startsWith("&"))
+    .map(
+      ([key, value]) =>
+        `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`,
+    )
+    .join("\n  ")}
 }`;
   };
 
@@ -284,10 +284,11 @@ module.exports = {
                             variant={
                               selectedPattern === key ? "default" : "outline"
                             }
-                            className={`flex h-auto w-full flex-col items-center gap-3 p-6 transition-all duration-200 ${selectedPattern === key
+                            className={`flex h-auto w-full flex-col items-center gap-3 p-6 transition-all duration-200 ${
+                              selectedPattern === key
                                 ? "shadow-lg ring-2 ring-primary ring-offset-2"
                                 : "hover:shadow-md"
-                              }`}
+                            }`}
                             onClick={() =>
                               setSelectedPattern(
                                 key as keyof typeof patternTypes,

@@ -85,15 +85,15 @@ const FeatureBadge: React.FC<FeatureBadgeProps> = memo(
 
 export const HeroFeatures: React.FC = () => {
   const features = [
-    { icon: <FaMobileAlt size={16} color="#007aff" />, text: "iOS & Android" },
+    { icon: <FaMobileAlt size={16} color="#fff" />, text: "iOS & Android" },
     {
-      icon: <FaPaintBrush size={16} color="#e95946" />,
+      icon: <FaPaintBrush size={16} color="#fff" />,
       text: "Figma & Sketch",
     },
-    { icon: <FaLaptopCode size={16} color="#20c997" />, text: "CSS & SCSS" },
-    { icon: <FaImage size={16} color="#f9ca24" />, text: "PNG & SVG" },
-    { icon: <FaGlobe size={16} color="#845ef7" />, text: "JSON Export" },
-    { icon: null, text: "and more soon", highlight: true }, // Highlight this one!
+    { icon: <FaLaptopCode size={16} color="#fff" />, text: "CSS & SCSS" },
+    { icon: <FaImage size={16} color="#fff" />, text: "PNG & SVG" },
+    { icon: <FaGlobe size={16} color="#fff" />, text: "JSON Export" },
+    { icon: null, text: "and more", highlight: true }, // Highlight this one!
   ];
 
   return (

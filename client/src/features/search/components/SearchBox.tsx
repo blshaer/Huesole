@@ -98,8 +98,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
   // Keyboard shortcuts and navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Focus search with Cmd/Ctrl + K
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      // Focus search with Cmd/Ctrl + K using metaKey property
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         inputRef.current?.focus();
         return;
@@ -187,7 +187,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
           onBlur={handleBlur}
           className={cn(
             "h-12 w-full rounded-lg border px-4 pr-20 transition-all duration-200",
-            "hover:border-border focus:border-border focus:ring-0 focus:ring-offset-0",
+            "hover:border-border focus:border-blue-400 focus:outline-none focus:ring-0 focus:ring-offset-0",
             "placeholder:text-muted-foreground/60",
             isOpen && "rounded-b-none border-b-0",
           )}

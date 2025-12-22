@@ -68,15 +68,19 @@
     0% {
       background-position: 0% 50%;
     }
+
     25% {
       background-position: 100% 50%;
     }
+
     50% {
       background-position: 100% 100%;
     }
+
     75% {
       background-position: 0% 100%;
     }
+
     100% {
       background-position: 0% 50%;
     }
@@ -174,6 +178,7 @@
       opacity: 0;
       transform: translateX(100%);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -185,6 +190,7 @@
       opacity: 1;
       transform: translateX(0);
     }
+
     to {
       opacity: 0;
       transform: translateX(100%);
@@ -208,6 +214,7 @@
     50% {
       width: 100%;
     }
+
     100% {
       width: 0;
       right: 0;
@@ -226,9 +233,11 @@
 ::-webkit-scrollbar {
   width: 7px;
 }
+
 ::-webkit-scrollbar-track {
   background-color: var(--background);
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: var(--headline);
   border-radius: 10px;
@@ -263,6 +272,7 @@ p {
 }
 
 @layer base {
+
   *,
   ::after,
   ::before {
@@ -272,4 +282,10 @@ p {
 
 .codefont {
   font-family: "Google Sans Code", monospace;
+}
+
+
+.test {
+  background-color: greenyellow !important;
+  border: 2px solid #000 !important;
 }

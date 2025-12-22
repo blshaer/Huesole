@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
+import path from "path";
 import authRoutes from "./routes/authRoutes";
+import aiRoutes from "./routes/aiRoutes";
 
 dotenv.config();
 
@@ -13,7 +15,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Set static folder
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 

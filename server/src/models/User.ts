@@ -71,6 +71,16 @@ const UserSchema: Schema = new Schema({
             type: String,
         },
     ],
+    createdGradients: [
+        {
+            id: { type: String, required: true },
+            name: { type: String, required: true },
+            colors: [{ type: String, required: true }],
+            type: { type: String, enum: ["linear", "radial", "conic"], required: true },
+            angle: { type: Number },
+            createdAt: { type: Date, default: Date.now },
+        },
+    ],
 });
 
 // Encrypt password using bcrypt

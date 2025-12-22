@@ -25,10 +25,7 @@ export default function GradientGrid({
             <motion.div
               key={`skeleton-${index}`}
               layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+          
             >
               <SkeletonGradientCard />
             </motion.div>
@@ -37,10 +34,7 @@ export default function GradientGrid({
           <motion.div
             key="no-gradients"
             layout
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+        
             className="col-span-full flex min-h-[20vh] items-center justify-center gap-1 pt-16 text-center text-muted-foreground"
           >
             <FileWarningIcon />

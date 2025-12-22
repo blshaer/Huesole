@@ -1,12 +1,10 @@
-import AnimatedShinyText from "@/shared/ui/animated-shiny-text";
-import { cn } from "@/shared/lib/utils";
-import { ArrowRightIcon } from "lucide-react";
+
 import { AnimatedNumber } from "@/shared/ui/animated-number";
 
 export const HeroHeader: React.FC = () => (
   <div className="space-y-6">
     {/* GitHub Link */}
-    <a
+    {/* <a
       href="https://github.com/blshaer/gradients-css"
       target="_blank"
       rel="noopener noreferrer"
@@ -23,7 +21,7 @@ export const HeroHeader: React.FC = () => (
           </AnimatedShinyText>
         </div>
       </div>
-    </a>
+    </a> */}
 
     {/* Main Title */}
     <h1 className="pt-6 text-center text-3xl font-medium text-primary dark:text-gray-50 sm:text-6xl">

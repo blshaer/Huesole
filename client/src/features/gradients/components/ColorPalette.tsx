@@ -112,17 +112,16 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
                   key={index}
                   className="bg-muted/30 hover:bg-muted/50 flex items-center gap-3 rounded p-2 transition-colors"
                 >
-                  <ColorSwatch
-                    color={colorInfo.hex}
-                    shape="square"
-                    size="sm"
-                  />
+                  <ColorSwatch color={colorInfo.hex} shape="square" size="sm" />
                   <div className="min-w-0 flex-1">
                     <div className="flex gap-4 text-xs text-white/90">
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(colorInfo.hex);
-                          toast({ title: "Copied!", description: colorInfo.hex });
+                          toast({
+                            title: "Copied!",
+                            description: colorInfo.hex,
+                          });
                         }}
                         className="font-mono transition-colors hover:text-white"
                         title="Click to copy HEX"
@@ -132,7 +131,10 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(colorInfo.rgb);
-                          toast({ title: "Copied!", description: colorInfo.rgb });
+                          toast({
+                            title: "Copied!",
+                            description: colorInfo.rgb,
+                          });
                         }}
                         className="font-mono transition-colors hover:text-white"
                         title="Click to copy RGB"
@@ -142,7 +144,10 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(colorInfo.hsl);
-                          toast({ title: "Copied!", description: colorInfo.hsl });
+                          toast({
+                            title: "Copied!",
+                            description: colorInfo.hsl,
+                          });
                         }}
                         className="font-mono transition-colors hover:text-white"
                         title="Click to copy HSL"

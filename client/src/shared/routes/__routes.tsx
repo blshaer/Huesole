@@ -6,12 +6,31 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 
 // Lazy load components for better performance
 const HomePage = React.lazy(() => import("@/pages/HomePage"));
-const VerifyEmail = React.lazy(() => import("@/features/auth/pages/VerifyEmail"));
-const ResetPassword = React.lazy(() => import("@/features/auth/pages/ResetPassword"));
-const ProfilePage = React.lazy(() => import("@/features/auth/pages/ProfilePage"));
+const VerifyEmail = React.lazy(
+  () => import("@/features/auth/pages/VerifyEmail"),
+);
+const ResetPassword = React.lazy(
+  () => import("@/features/auth/pages/ResetPassword"),
+);
+const ProfilePage = React.lazy(
+  () => import("@/features/auth/pages/ProfilePage"),
+);
 const LoginPage = React.lazy(() => import("@/features/auth/pages/LoginPage"));
-const RegisterPage = React.lazy(() => import("@/features/auth/pages/RegisterPage"));
-const ForgotPassword = React.lazy(() => import("@/features/auth/pages/ForgotPassword"));
+const RegisterPage = React.lazy(
+  () => import("@/features/auth/pages/RegisterPage"),
+);
+const ForgotPassword = React.lazy(
+  () => import("@/features/auth/pages/ForgotPassword"),
+);
+const FavoritesPage = React.lazy(
+  () => import("@/features/gradients/pages/FavoritesPage"),
+);
+const MyGradientsPage = React.lazy(
+  () => import("@/features/gradients/pages/MyGradientsPage"),
+);
+const AIGeneratorPage = React.lazy(
+  () => import("@/features/gradients/pages/AIGeneratorPage"),
+);
 
 const AppRoutes: React.FC = () => {
   // Loading component
@@ -43,6 +62,9 @@ const AppRoutes: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/my-gradients" element={<MyGradientsPage />} />
+        <Route path="/ai-generator" element={<AIGeneratorPage />} />
         {/* 404 page */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
