@@ -105,9 +105,7 @@ const RegisterPage = () => {
   };
 
   if (isSuccess) {
-    return (
-      <VerifyDialog />
-    );
+    return <VerifyDialog />;
   }
 
   return (

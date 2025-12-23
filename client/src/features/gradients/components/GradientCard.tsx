@@ -123,7 +123,9 @@ export default function GradientCard({
   const [showAngleController, setShowAngleController] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [showEditTooltip, setShowEditTooltip] = useState(false);
-  const [gradientShape, setGradientShape] = useState<"linear" | "radial" | "conic">("linear");
+  const [gradientShape, setGradientShape] = useState<
+    "linear" | "radial" | "conic"
+  >("linear");
   const {
     selectedColorFormat,
     setSelectedColorFormat,
@@ -228,26 +230,26 @@ export default function GradientCard({
       return gradientType === "background"
         ? { backgroundImage: gradientStyle }
         : {
-          color: "transparent",
-          backgroundImage: gradientStyle,
-          WebkitBackgroundClip: "text",
-        };
+            color: "transparent",
+            backgroundImage: gradientStyle,
+            WebkitBackgroundClip: "text",
+          };
     }
 
     const animationDuration = `${4 / animationSpeed}s`;
     return gradientType === "background"
       ? {
-        backgroundImage: gradientStyle,
-        backgroundSize: "400% 400%",
-        animation: `gradientShift ${animationDuration} ease infinite`,
-      }
+          backgroundImage: gradientStyle,
+          backgroundSize: "400% 400%",
+          animation: `gradientShift ${animationDuration} ease infinite`,
+        }
       : {
-        color: "transparent",
-        backgroundImage: gradientStyle,
-        backgroundSize: "400% 400%",
-        WebkitBackgroundClip: "text",
-        animation: `gradientShift ${animationDuration} ease infinite`,
-      };
+          color: "transparent",
+          backgroundImage: gradientStyle,
+          backgroundSize: "400% 400%",
+          WebkitBackgroundClip: "text",
+          animation: `gradientShift ${animationDuration} ease infinite`,
+        };
   };
 
   const getCode = (format: string) => {
@@ -295,22 +297,21 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}">
+        .map((color, index) => {
+          const offset =
+            formattedColors.length === 1
+              ? 0
+              : (index / (formattedColors.length - 1)) * 100;
+          return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
-                 values="${color};${formattedColors[
-                (index + 1) % formattedColors.length
-                ]
-                };${color}" 
+                 values="${color};${
+                   formattedColors[(index + 1) % formattedColors.length]
+                 };${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-            })
-            .join("\n      ")}
+        })
+        .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -325,14 +326,14 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}" />`;
-            })
-            .join("\n      ")}
+        .map((color, index) => {
+          const offset =
+            formattedColors.length === 1
+              ? 0
+              : (index / (formattedColors.length - 1)) * 100;
+          return `<stop offset="${offset}%" stop-color="${color}" />`;
+        })
+        .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
@@ -357,8 +358,9 @@ export default function GradientCard({
             animationSpeed: animationSpeed,
             css: gradientStyle,
             animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
-              }s ease infinite;`
+              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${
+                  4 / animationSpeed
+                }s ease infinite;`
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
@@ -404,10 +406,11 @@ export default function GradientCard({
                 backgroundColor: isLightGradient
                   ? "rgba(0,0,0,0.18)"
                   : "rgba(255,255,255,0.18)",
-                border: `1px solid ${isLightGradient
+                border: `1px solid ${
+                  isLightGradient
                     ? "rgba(0,0,0,0.25)"
                     : "rgba(255,255,255,0.25)"
-                  }`,
+                }`,
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -448,10 +451,11 @@ export default function GradientCard({
                 backgroundColor: isLightGradient
                   ? "rgba(0,0,0,0.18)"
                   : "rgba(255,255,255,0.18)",
-                border: `1px solid ${isLightGradient
+                border: `1px solid ${
+                  isLightGradient
                     ? "rgba(0,0,0,0.25)"
                     : "rgba(255,255,255,0.25)"
-                  }`,
+                }`,
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -482,7 +486,10 @@ export default function GradientCard({
                     transition={{ duration: 0.15 }}
                     className="flex"
                   >
-                    <EyeOff className="h-4 w-4" style={{ color: controlColor }} />
+                    <EyeOff
+                      className="h-4 w-4"
+                      style={{ color: controlColor }}
+                    />
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -540,7 +547,7 @@ export default function GradientCard({
                   />
 
                   <svg
-                    className="absolute pointer-events-auto"
+                    className="pointer-events-auto absolute"
                     width={size}
                     height={size}
                     style={{ overflow: "visible", touchAction: "none" }}
@@ -558,9 +565,9 @@ export default function GradientCard({
                     onPointerUp={(e) => {
                       isDraggingRef.current = false;
                       try {
-                        (e.currentTarget as SVGSVGElement).releasePointerCapture(
-                          e.pointerId,
-                        );
+                        (
+                          e.currentTarget as SVGSVGElement
+                        ).releasePointerCapture(e.pointerId);
                       } catch {
                         // ignore
                       }
@@ -643,7 +650,7 @@ export default function GradientCard({
           />
         </div>
 
-        <div className="flex w-full items-start justify-between gap-2 flex-col">
+        <div className="flex w-full flex-col items-start justify-between gap-2">
           <ColorSwatches
             colors={gradient.colors}
             getColorInFormat={getColorInFormat}
@@ -681,7 +688,8 @@ export default function GradientCard({
               <DropdownMenuTrigger className="nofocus inline-flex">
                 <div className="flex w-28 items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
                   <span>
-                    {gradientShape.charAt(0).toUpperCase() + gradientShape.slice(1)}
+                    {gradientShape.charAt(0).toUpperCase() +
+                      gradientShape.slice(1)}
                   </span>
                   <ChevronDown className="h-4 w-4" />
                 </div>

@@ -13,10 +13,8 @@ const FavoritesPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--background)] container py-6">
+    <div className="container min-h-screen bg-[var(--background)] py-6">
       <div className="mx-auto max-w-7xl space-y-8">
- 
-
         {favoriteGradients.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 pt-6 sm:grid-cols-2 lg:grid-cols-3">
             {favoriteGradients.map((gradient, index) => (

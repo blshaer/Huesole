@@ -2,7 +2,7 @@ import { HeroFeatures } from "./HeroFeatures";
 import { HeroHeader } from "./HeroHeader";
 
 export const HeroSection: React.FC = () => (
-  <header className="relative w-full h-[60vh] flex justify-center items-center overflow-hidden">
+  <header className="relative flex h-[60vh] w-full items-center justify-center overflow-hidden">
     {/* Background video */}
     <video
       autoPlay
@@ -18,7 +18,7 @@ export const HeroSection: React.FC = () => (
     <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
 
     {/* Foreground content */}
-    <div className="relative z-10 container mx-auto max-w-6xl space-y-2 pb-6 pt-[40px]">
+    <div className="container relative z-10 mx-auto max-w-6xl space-y-2 pb-6 pt-[40px]">
       <HeroHeader />
       <HeroFeatures />
       <div className="flex w-full items-center justify-center pb-6" />

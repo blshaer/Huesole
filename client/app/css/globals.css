@@ -272,7 +272,6 @@ p {
 }
 
 @layer base {
-
   *,
   ::after,
   ::before {
@@ -283,7 +282,6 @@ p {
 .codefont {
   font-family: "Google Sans Code", monospace;
 }
-
 
 .test {
   background-color: greenyellow !important;

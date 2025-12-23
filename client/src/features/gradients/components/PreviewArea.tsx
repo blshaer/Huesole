@@ -66,7 +66,7 @@ export const PreviewArea = ({
       setCurrentAngle(roundedAngle);
       onAngleChange?.(roundedAngle);
     },
-    [onAngleChange, result?.type]
+    [onAngleChange, result?.type],
   );
 
   const displayAngle = currentAngle;
@@ -218,14 +218,14 @@ export const PreviewArea = ({
                       />
 
                       <svg
-                        className="absolute pointer-events-auto"
+                        className="pointer-events-auto absolute"
                         width={size}
                         height={size}
                         style={{ overflow: "visible", touchAction: "none" }}
                         onPointerDown={(e) => {
                           isDraggingRef.current = true;
                           (e.currentTarget as SVGSVGElement).setPointerCapture(
-                            e.pointerId
+                            e.pointerId,
                           );
                           handlePointer(e.clientX, e.clientY);
                         }}
@@ -236,9 +236,9 @@ export const PreviewArea = ({
                         onPointerUp={(e) => {
                           isDraggingRef.current = false;
                           try {
-                            (e.currentTarget as SVGSVGElement).releasePointerCapture(
-                              e.pointerId
-                            );
+                            (
+                              e.currentTarget as SVGSVGElement
+                            ).releasePointerCapture(e.pointerId);
                           } catch {
                             // ignore
                           }
@@ -290,7 +290,9 @@ export const PreviewArea = ({
 
                       <div
                         className="absolute"
-                        style={{ transform: `translate(${labelX}px, ${labelY}px)` }}
+                        style={{
+                          transform: `translate(${labelX}px, ${labelY}px)`,
+                        }}
                       >
                         <motion.div
                           className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
@@ -312,8 +314,8 @@ export const PreviewArea = ({
             </motion.div>
           ) : (
             <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-10 w-10 animate-spin text-foreground/20" />
-              <p className="text-sm font-medium text-foreground/40">
+              <Loader2 className="text-foreground/20 h-10 w-10 animate-spin" />
+              <p className="text-foreground/40 text-sm font-medium">
                 Booting Creative Studio...
               </p>
             </div>

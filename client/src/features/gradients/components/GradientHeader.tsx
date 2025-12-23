@@ -25,7 +25,6 @@ export const GradientHeader: React.FC<GradientHeaderProps> = ({
       <h3 className="truncate text-lg font-bold leading-tight text-primary sm:text-xl">
         {name}
       </h3>
-    
     </div>
     <div className="flex flex-shrink-0 items-center gap-1">
       {onExport && (

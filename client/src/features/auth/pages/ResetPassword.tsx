@@ -43,7 +43,9 @@ const ResetPassword = () => {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match. Please ensure both fields are identical.");
+      setError(
+        "Passwords do not match. Please ensure both fields are identical.",
+      );
       return;
     }
 
@@ -64,7 +66,7 @@ const ResetPassword = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          "Something went wrong while resetting your password."
+          "Something went wrong while resetting your password.",
       );
     } finally {
       setLoading(false);
@@ -113,7 +115,7 @@ const ResetPassword = () => {
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="password" className="font-semibold text-sm">
+                <Label htmlFor="password" className="text-sm font-semibold">
                   New Password
                 </Label>
                 <Input
@@ -128,7 +130,10 @@ const ResetPassword = () => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="confirmPassword" className="font-semibold text-sm">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-semibold"
+                >
                   Confirm New Password
                 </Label>
                 <Input

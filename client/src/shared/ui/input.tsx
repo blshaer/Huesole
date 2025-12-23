@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/shared/lib/utils";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const EyeIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -51,7 +52,10 @@ const EyeOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, id, disabled, value, defaultValue, onChange, ...props }, ref) => {
+  (
+    { className, type, id, disabled, value, defaultValue, onChange, ...props },
+    ref,
+  ) => {
     const reactId = React.useId();
     const inputId = id ?? reactId;
 
@@ -125,13 +129,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               aria-controls={inputId}
               aria-pressed={isVisible}
               aria-label={isVisible ? "Hide password" : "Show password"}
-       className={cn(
-  "absolute inset-y-0 right-2 flex items-center rounded-md p-1.5 text-muted-foreground transition-colors",
-  "hover:text-foreground",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-  disabled && "pointer-events-none opacity-50",
-)}
-
+              className={cn(
+                "absolute inset-y-0 right-2 flex items-center rounded-md p-1.5 text-muted-foreground transition-colors",
+                "hover:text-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                disabled && "pointer-events-none opacity-50",
+              )}
               // Prevent input losing focus when clicking the icon
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => setIsVisible((v) => !v)}

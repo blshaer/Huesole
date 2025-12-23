@@ -1,5 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
-import { AnimatePresence, Reorder, useDragControls, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  Reorder,
+  useDragControls,
+  motion,
+} from "framer-motion";
 import { Copy, Edit2, GripVertical, Plus, Trash2 } from "lucide-react";
 
 import { toast } from "@/shared/hooks/use-toast";
@@ -50,7 +55,7 @@ function parseColorToRgb(input: string): RGB | null {
   }
 
   const rgbMatch = v.match(
-    /^rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)$/
+    /^rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)$/,
   );
   if (rgbMatch) {
     return {
@@ -114,7 +119,10 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
     lg: "h-10 w-10",
   };
 
-  const iconSizeClasses: Record<NonNullable<ColorSwatchProps["size"]>, string> = {
+  const iconSizeClasses: Record<
+    NonNullable<ColorSwatchProps["size"]>,
+    string
+  > = {
     sm: "h-3.5 w-3.5",
     md: "h-4 w-4",
     lg: "h-5 w-5",
@@ -149,7 +157,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
             "group relative cursor-pointer overflow-hidden border border-white/20",
             shapeClasses[shape],
             sizeClasses[size],
-            className
+            className,
           )}
           style={{ backgroundColor: color }}
           onClick={handleSwatchClick}
@@ -162,7 +170,9 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
             }
           }}
           aria-label={
-            editable ? `Change color: ${displayColor}` : `Copy color: ${displayColor}`
+            editable
+              ? `Change color: ${displayColor}`
+              : `Copy color: ${displayColor}`
           }
           initial={{ scale: 1 }}
           whileHover={{ scale: 1.08 }}
@@ -172,19 +182,31 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
           {shouldShowOverlay && (
             <motion.div
               className={cn(
-                "absolute inset-0 flex items-center justify-center pointer-events-none",
+                "pointer-events-none absolute inset-0 flex items-center justify-center",
                 shapeClasses[shape],
-                overlayBgClass
+                overlayBgClass,
               )}
               initial={{ opacity: 0 }}
               whileHover={{ opacity: 1 }}
               transition={{ duration: 0.15 }}
             >
               {editable ? (
-                <Edit2 className={cn(iconSizeClasses[size], iconColorClass, "drop-shadow-sm")} />
+                <Edit2
+                  className={cn(
+                    iconSizeClasses[size],
+                    iconColorClass,
+                    "drop-shadow-sm",
+                  )}
+                />
               ) : (
                 showIcon && (
-                  <Copy className={cn(iconSizeClasses[size], iconColorClass, "drop-shadow-sm")} />
+                  <Copy
+                    className={cn(
+                      iconSizeClasses[size],
+                      iconColorClass,
+                      "drop-shadow-sm",
+                    )}
+                  />
                 )
               )}
             </motion.div>
@@ -204,7 +226,9 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
 
       <TooltipContent>
         <p className="text-white">
-          {editable ? `Click to change color: ${displayColor}` : `Click to copy: ${displayColor}`}
+          {editable
+            ? `Click to change color: ${displayColor}`
+            : `Click to copy: ${displayColor}`}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -224,7 +248,9 @@ function uid() {
   // Works in modern browsers; fallback included.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const c = (globalThis as any).crypto;
-  return c?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  return (
+    c?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(16).slice(2)}`
+  );
 }
 
 // Hex <-> HSL helpers (enough for “next color based on last color”)
@@ -278,7 +304,7 @@ function hslToRgb(h: number, s: number, l: number): RGB {
   else if (120 <= h && h < 180) [r1, g1, b1] = [0, C, X];
   else if (180 <= h && h < 240) [r1, g1, b1] = [0, X, C];
   else if (240 <= h && h < 300) [r1, g1, b1] = [X, 0, C];
-  else[r1, g1, b1] = [C, 0, X];
+  else [r1, g1, b1] = [C, 0, X];
 
   return {
     r: Math.round((r1 + m) * 255),
@@ -325,7 +351,7 @@ export function ColorPaletteEditor({
   initialColors?: string[];
 }) {
   const [items, setItems] = useState<PaletteItem[]>(
-    initialColors.map((c) => ({ id: uid(), color: c }))
+    initialColors.map((c) => ({ id: uid(), color: c })),
   );
 
   const orderedIds = useMemo(() => items.map((i) => i.id), [items]);
@@ -343,7 +369,9 @@ export function ColorPaletteEditor({
   };
 
   const updateColor = (id: string, newColor: string) => {
-    setItems((prev) => prev.map((x) => (x.id === id ? { ...x, color: newColor } : x)));
+    setItems((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, color: newColor } : x)),
+    );
   };
 
   return (
@@ -358,13 +386,17 @@ export function ColorPaletteEditor({
           Add color
         </button>
 
-        <div className="text-xs text-white/60">Drag with the handle to reorder.</div>
+        <div className="text-xs text-white/60">
+          Drag with the handle to reorder.
+        </div>
       </div>
 
       <Reorder.Group
         axis="x"
         values={orderedIds}
-        onReorder={(newOrder) => setItems((prev) => reorderItemsByIds(prev, newOrder))}
+        onReorder={(newOrder) =>
+          setItems((prev) => reorderItemsByIds(prev, newOrder))
+        }
         className="flex flex-wrap items-center gap-2"
       >
         <AnimatePresence initial={false}>

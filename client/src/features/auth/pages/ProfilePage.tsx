@@ -136,7 +136,12 @@ const ProfilePage = () => {
       const response = await axios.put(
         "http://localhost:5000/api/auth/update-profile",
         formData,
-        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
       );
 
       toast({
@@ -151,7 +156,8 @@ const ProfilePage = () => {
       toast({
         title: "Error",
         description:
-          err.response?.data?.message || "Unable to update profile. Please try again.",
+          err.response?.data?.message ||
+          "Unable to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -185,7 +191,7 @@ const ProfilePage = () => {
       await axios.put(
         "http://localhost:5000/api/auth/updatepassword",
         { currentPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast({
         title: "Success",
@@ -223,7 +229,11 @@ const ProfilePage = () => {
   };
 
   const getMemberSinceDate = () =>
-    new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
 
   return (
     <div className="to-muted/20 relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background px-4 py-8 md:px-6 md:py-12">
@@ -245,7 +255,10 @@ const ProfilePage = () => {
                     className="relative z-10 h-40 w-40 border-4 border-background shadow-2xl"
                     onClick={triggerFileSelect}
                   >
-                    <AvatarImage src={getFullImageUrl(previewUrl)} alt={user.name} />
+                    <AvatarImage
+                      src={getFullImageUrl(previewUrl)}
+                      alt={user.name}
+                    />
                     <AvatarFallback
                       className="bg-cover bg-center text-4xl font-bold text-white"
                       style={{
@@ -257,7 +270,7 @@ const ProfilePage = () => {
                     </AvatarFallback>
                   </Avatar>
                   <Camera
-                    className="absolute bottom-1 right-1 z-30 h-6 w-6 text-primary cursor-pointer"
+                    className="absolute bottom-1 right-1 z-30 h-6 w-6 cursor-pointer text-primary"
                     onClick={triggerFileSelect}
                     title="Change Profile Picture"
                   />
@@ -271,7 +284,9 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="space-y-1 text-center">
-                  <CardTitle className="text-2xl font-bold">{user.name}</CardTitle>
+                  <CardTitle className="text-2xl font-bold">
+                    {user.name}
+                  </CardTitle>
                   <CardDescription className="flex items-center justify-center gap-2 text-sm">
                     <Mail className="h-3.5 w-3.5 text-primary" />
                     {user.email || "No email provided"}
@@ -281,7 +296,7 @@ const ProfilePage = () => {
 
               <Separator className="my-4" />
 
-              <CardContent className="space-y-4 flex justify-center items-center text-center pb-6">
+              <CardContent className="flex items-center justify-center space-y-4 pb-6 text-center">
                 <div className="bg-muted/40 flex items-center justify-center gap-3 rounded-lg p-3">
                   <div className="min-w-0 flex-1">
                     <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -298,10 +313,12 @@ const ProfilePage = () => {
 
           <div className="space-y-6 lg:col-span-2">
             <Card className="border-border/50 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
-              <CardHeader className="flex max-md:pt-0 flex-row max-md:flex-col gap-4 items-center justify-between space-y-0 pb-4">
+              <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 pb-4 max-md:flex-col max-md:pt-0">
                 <div className="space-y-1">
                   <CardTitle className="text-xl">General Information</CardTitle>
-                  <CardDescription>Update your public profile information</CardDescription>
+                  <CardDescription>
+                    Update your public profile information
+                  </CardDescription>
                 </div>
                 {!isEditingProfile && (
                   <Button
@@ -333,7 +350,11 @@ const ProfilePage = () => {
 
                   {isEditingProfile && (
                     <div className="flex items-center gap-3 pt-2">
-                      <Button type="submit" disabled={profileLoading} className="gap-2">
+                      <Button
+                        type="submit"
+                        disabled={profileLoading}
+                        className="gap-2"
+                      >
                         {profileLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
@@ -362,7 +383,7 @@ const ProfilePage = () => {
 
             {/* Password Change Card (unchanged) */}
             <Card className="border-border/50 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
-              <CardHeader className="space-y-3 max-md:pt-0 ">
+              <CardHeader className="space-y-3 max-md:pt-0">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <CardTitle className="text-xl">Change Password</CardTitle>
@@ -377,7 +398,10 @@ const ProfilePage = () => {
                 <form onSubmit={handleChangePassword} className="space-y-5">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword" className="text-sm font-semibold">
+                      <Label
+                        htmlFor="currentPassword"
+                        className="text-sm font-semibold"
+                      >
                         Current Password
                       </Label>
                       <div className="relative">
@@ -392,16 +416,25 @@ const ProfilePage = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                         >
-                          {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="text-sm font-semibold">
+                      <Label
+                        htmlFor="newPassword"
+                        className="text-sm font-semibold"
+                      >
                         New Password
                       </Label>
                       <div className="relative">
@@ -419,20 +452,26 @@ const ProfilePage = () => {
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                         >
-                          {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                       {newPassword.length > 0 && (
                         <div className="space-y-2 pt-1">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Password strength</span>
+                            <span className="text-muted-foreground">
+                              Password strength
+                            </span>
                             <span
                               className={`font-semibold capitalize ${
                                 passwordStrength.strength === "strong"
                                   ? "text-green-600"
                                   : passwordStrength.strength === "medium"
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
                               }`}
                             >
                               {passwordStrength.strength}
@@ -449,7 +488,10 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-sm font-semibold">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="text-sm font-semibold"
+                      >
                         Confirm New Password
                       </Label>
                       <div className="relative">
@@ -464,10 +506,16 @@ const ProfilePage = () => {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                         >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                       {confirmPassword && newPassword !== confirmPassword && (

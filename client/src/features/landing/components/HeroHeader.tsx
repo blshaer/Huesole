@@ -1,4 +1,3 @@
-
 import { AnimatedNumber } from "@/shared/ui/animated-number";
 
 export const HeroHeader: React.FC = () => (

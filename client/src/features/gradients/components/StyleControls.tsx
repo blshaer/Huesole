@@ -22,19 +22,19 @@ export const StyleControls = ({ result, setResult }: StyleControlsProps) => {
   return (
     <section className="space-y-6">
       <div className="flex items-center gap-2">
-        <Label className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">
+        <Label className="text-foreground/40 text-[11px] font-bold uppercase tracking-[0.2em]">
           Style & Type
         </Label>
       </div>
 
       <div className="flex flex-col gap-4">
         <div className="space-y-2">
-          <Label className="text-[10px] text-foreground/40">TYPE</Label>
+          <Label className="text-foreground/40 text-[10px]">TYPE</Label>
           <Select
             value={result.type}
             onValueChange={(val: any) => setResult({ ...result, type: val })}
           >
-            <SelectTrigger className="h-10 border-border bg-card/60 text-xs text-foreground">
+            <SelectTrigger className="bg-card/60 h-10 border-border text-xs text-foreground">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent className="border-border bg-background text-foreground">
@@ -44,7 +44,6 @@ export const StyleControls = ({ result, setResult }: StyleControlsProps) => {
             </SelectContent>
           </Select>
         </div>
-
       </div>
     </section>
   );

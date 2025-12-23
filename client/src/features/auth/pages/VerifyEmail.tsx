@@ -53,7 +53,7 @@ const VerifyEmail = () => {
         setStatus("error");
         setMessage(
           err.response?.data?.message ||
-          "Verification failed. The link may have expired.",
+            "Verification failed. The link may have expired.",
         );
       }
     };
@@ -69,7 +69,6 @@ const VerifyEmail = () => {
       <Card className="border">
         <CardHeader className="space-y-4 pb-4">
           <div className="flex flex-col items-center space-y-2">
-
             <CardTitle className="text-center text-3xl font-bold tracking-tight">
               {status === "loading"
                 ? "Verifying..."
@@ -77,22 +76,18 @@ const VerifyEmail = () => {
                   ? "All Set!"
                   : "Oops!"}
             </CardTitle>
-
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col items-center text-white/60 space-y-6 pb-8 pt-6">
-
+        <CardContent className="flex flex-col items-center space-y-6 pb-8 pt-6 text-white/60">
           {status === "loading"
             ? "Give us a moment while we validate your account."
             : status === "success"
               ? "Verification complete. Your journey begins here."
               : "We couldn't verify your email address."}
 
-
-
           {status === "success" && (
             <div className="w-full space-y-6 duration-500 animate-in fade-in slide-in-from-bottom-2">
-              <div >Start explore and creating gradients</div>
+              <div>Start explore and creating gradients</div>
               <Button
                 onClick={() => navigate("/")}
                 className="w-full text-white hover:text-white"
@@ -124,7 +119,6 @@ const VerifyEmail = () => {
             </div>
           )}
         </CardContent>
-
       </Card>
     </div>
   );

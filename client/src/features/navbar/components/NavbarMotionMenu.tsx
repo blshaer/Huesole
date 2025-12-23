@@ -58,8 +58,8 @@ export const NavbarMotionMenu = ({
             transition={{ duration: 0.12 }}
             className={`flex items-center gap-2 rounded-[8px] border px-3 py-2 text-sm font-medium transition-all ${
               isAnimated
-                ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
-                : "border-border bg-card text-foreground/70 hover:bg-white/5"
+                ? "border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary"
+                : "text-foreground/70 border-border bg-card hover:bg-white/5"
             }`}
             title={isAnimated ? "Animation Active" : "Animation Inactive"}
           >

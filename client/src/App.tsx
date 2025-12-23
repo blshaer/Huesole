@@ -12,14 +12,12 @@ import { Navbar } from "./features/navbar/components/Navbar";
 import Footer from "./features/footer/components/Footer";
 import { useLocation } from "react-router-dom";
 
-
 const App: React.FC = () => {
   inject();
   const location = useLocation();
-  
+
   // Hide navbar and footer on AI Generator page (navbar is inside the page component)
   const isAIGeneratorPage = location.pathname === "/ai-generator";
-
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
@@ -27,7 +25,7 @@ const App: React.FC = () => {
         <TooltipProvider>
           <div
             dir="ltr"
-            className={`App relative ${isAIGeneratorPage ? 'h-screen overflow-hidden' : 'min-h-screen overflow-x-hidden pb-[30px]'}`}
+            className={`App relative ${isAIGeneratorPage ? "h-screen overflow-hidden" : "min-h-screen overflow-x-hidden pb-[30px]"}`}
           >
             {!isAIGeneratorPage && <Navbar />}
             {!isAIGeneratorPage && <Support />}
@@ -41,6 +39,5 @@ const App: React.FC = () => {
     </GoogleOAuthProvider>
   );
 };
-
 
 export default App;

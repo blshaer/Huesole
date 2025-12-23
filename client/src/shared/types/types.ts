@@ -5,7 +5,6 @@ export interface GradientCardProps {
   editable?: boolean;
   onColorsChange?: (newColors: string[]) => void;
   onEditClick?: (gradient: { name: string; colors: string[] }) => void;
-
 }
 
 export interface Gradient {

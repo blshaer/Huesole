@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp, Mic, MicOff } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
@@ -13,7 +15,10 @@ interface AIPromptSectionProps {
   onGenerate: (prompt?: string) => Promise<void>;
 }
 
-export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) => {
+export const AIPromptSection = ({
+  loading,
+  onGenerate,
+}: AIPromptSectionProps) => {
   const [prompt, setPrompt] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -37,7 +42,8 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
   const isSecureContext = useMemo(() => {
     if (typeof window === "undefined") return true;
     const isLocalhost =
-      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
     return window.isSecureContext || isLocalhost;
   }, []);
 
@@ -124,7 +130,9 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
     }
 
     if (isMicrophoneAvailable === false) {
-      setVoiceError("Microphone permission is blocked. Allow it in browser settings.");
+      setVoiceError(
+        "Microphone permission is blocked. Allow it in browser settings.",
+      );
       return;
     }
 
@@ -146,7 +154,9 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
         language: "en-US",
       });
     } catch {
-      setVoiceError("Could not start voice input. Check permissions and try again.");
+      setVoiceError(
+        "Could not start voice input. Check permissions and try again.",
+      );
       voiceSessionRef.current = false;
     }
   };
@@ -169,31 +179,35 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
   return (
     <section className="space-y-3">
       {!browserSupportsSpeechRecognition && (
-        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
           Voice input is not supported in your browser. Try Chrome or Edge.
         </div>
       )}
 
       {isMicrophoneAvailable === false && (
-        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
           Microphone access is blocked. Enable it in your browser site settings.
         </div>
       )}
 
       {voiceError && (
-        <div className="rounded-lg bg-rose-500/10 border border-rose-500/20 px-3 py-2 text-xs text-rose-600 dark:text-rose-400">
+        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-600 dark:text-rose-400">
           {voiceError}
         </div>
       )}
 
       <motion.div
         layout
-        transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 22 }}
+        transition={
+          shouldReduceMotion
+            ? { duration: 0 }
+            : { type: "spring", stiffness: 260, damping: 22 }
+        }
         className={[
-          "group relative rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 p-[1px] transition-all duration-300",
+          "from-primary/20 via-primary/10 to-primary/20 group relative rounded-2xl bg-gradient-to-r p-[1px] transition-all duration-300",
           isFocused || listening
-            ? "shadow-lg shadow-primary/20"
-            : "shadow-sm hover:shadow-md hover:shadow-primary/10",
+            ? "shadow-primary/20 shadow-lg"
+            : "hover:shadow-primary/10 shadow-sm hover:shadow-md",
         ].join(" ")}
         animate={
           shouldReduceMotion
@@ -203,12 +217,11 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
               : { scale: 1 }
         }
       >
-        <div className="relative overflow-hidden bg-card/95 backdrop-blur-xl ">
+        <div className="bg-card/95 relative overflow-hidden backdrop-blur-xl">
           <AnimatePresence>
             {listening && (
               <motion.div
                 key="listening"
-       
                 className="absolute left-4 top-4 z-10 flex items-center gap-2 text-xs text-primary"
               >
                 <motion.span
@@ -227,7 +240,9 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }}
+                transition={
+                  shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
+                }
                 className="pointer-events-none absolute left-4 top-4 text-sm text-muted-foreground"
               >
                 <span className="flex items-center gap-1.5">
@@ -257,7 +272,7 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
             className={listening ? "pt-10" : ""}
           />
 
-          <div className="flex items-center justify-between border-t border-border/50 px-3 py-2">
+          <div className="border-border/50 flex items-center justify-between border-t px-3 py-2">
             {/* {browserSupportsSpeechRecognition && (
               <motion.div whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}>
                 <Button
@@ -285,14 +300,24 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
               </motion.div>
             )} */}
 
-            <motion.div whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }} className="ml-auto">
+            <motion.div
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+              className="ml-auto"
+            >
               <Button
                 onClick={() => void handleGenerate()}
-                disabled={loading || (!prompt.trim() && !finalTranscript.trim() && !interimTranscript.trim())}
+                disabled={
+                  loading ||
+                  (!prompt.trim() &&
+                    !finalTranscript.trim() &&
+                    !interimTranscript.trim())
+                }
                 size="sm"
                 className={[
                   "h-8 gap-2 rounded-lg px-3 font-semibold shadow-md transition-all",
-                  loading ? "bg-primary/90" : "hover:shadow-lg hover:shadow-primary/30",
+                  loading
+                    ? "bg-primary/90"
+                    : "hover:shadow-primary/30 hover:shadow-lg",
                 ].join(" ")}
               >
                 {loading ? (
@@ -301,8 +326,10 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
                   </TextShimmer>
                 ) : (
                   <>
-                    <span className="text-xs">{pendingGenerate ? "Finishing..." : "Generate"}</span>
-                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-primary-foreground/20">
+                    <span className="text-xs">
+                      {pendingGenerate ? "Finishing..." : "Generate"}
+                    </span>
+                    <div className="bg-primary-foreground/20 flex h-5 w-5 items-center justify-center rounded-md">
                       <ArrowUp className="h-3 w-3" />
                     </div>
                   </>
@@ -319,8 +346,10 @@ export const AIPromptSection = ({ loading, onGenerate }: AIPromptSectionProps) =
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.75 }}
               exit={{ opacity: 0 }}
-              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }}
-              className="pointer-events-none absolute -inset-1 -z-10 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 blur-xl"
+              transition={
+                shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
+              }
+              className="from-primary/20 via-primary/30 to-primary/20 pointer-events-none absolute -inset-1 -z-10 rounded-2xl bg-gradient-to-r blur-xl"
             />
           )}
         </AnimatePresence>

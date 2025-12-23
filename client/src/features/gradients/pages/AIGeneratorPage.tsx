@@ -13,7 +13,7 @@ const AIGeneratorPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const state = location.state as
     | { name: string; colors: string[] }
     | undefined;
@@ -98,16 +98,12 @@ const AIGeneratorPage = () => {
           colors: result.colors,
           type: result.type || "linear",
           angle: result.angle || 90,
-        }
+        },
       };
 
-      await axios.post(
-        "http://localhost:5000/api/ai/save",
-        payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post("http://localhost:5000/api/ai/save", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       toast({
         title: "Saved successfully!",
@@ -119,7 +115,7 @@ const AIGeneratorPage = () => {
       }, 1000);
     } catch (error: any) {
       console.error("Failed to save gradient", error);
-      
+
       if (error.response?.status === 401) {
         toast({
           title: "Session expired",
@@ -132,7 +128,7 @@ const AIGeneratorPage = () => {
         toast({
           title: "Save failed",
           description:
-            error.response?.data?.message || 
+            error.response?.data?.message ||
             error.response?.data?.error ||
             "Failed to save gradient to profile.",
           variant: "destructive",
@@ -198,7 +194,7 @@ const AIGeneratorPage = () => {
         />
       </div>
 
-      <div className="relative container p-0 flex flex-1 overflow-hidden">
+      <div className="container relative flex flex-1 overflow-hidden p-0">
         <Sidebar
           result={result}
           setResult={setResult}

@@ -61,13 +61,13 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="relative mt-2 max-w-full">
-        <pre className="w-full max-w-full overflow-hidden  text-blue-200/50 truncate whitespace-nowrap rounded-md border border-border bg-secondary p-2 pr-24 text-xs ">
+        <pre className="w-full max-w-full overflow-hidden truncate whitespace-nowrap rounded-md border border-border bg-secondary p-2 pr-24 text-xs text-blue-200/50">
           {code}
         </pre>
         <div className="absolute right-0 top-0 z-10 flex h-full items-stretch">
           <DialogTrigger asChild>
             <button
-              className="flex h-full w-[36px] items-center justify-center border border-border border-l-0 bg-secondary/95 p-0 text-primary"
+              className="bg-secondary/95 flex h-full w-[36px] items-center justify-center border border-l-0 border-border p-0 text-primary"
               type="button"
               aria-label="Open full code preview"
               title="Open full code preview"
@@ -76,7 +76,7 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
             </button>
           </DialogTrigger>
           <button
-            className="flex h-full w-[36px] items-center justify-center border border-border border-l-0 bg-secondary/95 p-0 text-primary"
+            className="bg-secondary/95 flex h-full w-[36px] items-center justify-center border border-l-0 border-border p-0 text-primary"
             onClick={() => copyToClipboard(code, activeTab)}
             type="button"
             aria-label="Copy code"
@@ -113,8 +113,11 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
             Preview • {String(activeTab).toUpperCase()}
           </DialogTitle>
         </DialogHeader>
-        <div className="max-h-[65vh] overflow-auto rounded-md border border-border bg-secondary/70 p-4 text-xs ">
-          <TextScramble className="font-mono whitespace-pre-wrap text-blue-200/50" trigger={open}>
+        <div className="bg-secondary/70 max-h-[65vh] overflow-auto rounded-md border border-border p-4 text-xs">
+          <TextScramble
+            className="whitespace-pre-wrap font-mono text-blue-200/50"
+            trigger={open}
+          >
             {code}
           </TextScramble>
         </div>

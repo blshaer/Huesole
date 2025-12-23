@@ -64,12 +64,11 @@ const HomePage: React.FC = () => {
   // --- Render ---
   return (
     <TooltipProvider>
-      <div className=" relative" style={{ background }}>
-        <div className="mx-auto space-y-2 ">
+      <div className="relative" style={{ background }}>
+        <div className="mx-auto space-y-2">
           <HeroSection />
 
           <div className="container max-md:pt-8">
-
             <div className="flex flex-col gap-4">
               <SearchAndFilters
                 searchTerm={searchTerm}
@@ -122,7 +121,6 @@ const HomePage: React.FC = () => {
               onPageChange={handlePageChange}
             />
           </div>
-
         </div>
       </div>
     </TooltipProvider>

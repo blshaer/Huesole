@@ -115,7 +115,7 @@ export const Navbar = ({
   const controlColor = isLightGradient ? "black" : "white";
 
   return (
-    <header className="disable-animation-on-theme-change sticky top-0 z-[100] w-full bg-background backdrop-blur-sm container">
+    <header className="disable-animation-on-theme-change container sticky top-0 z-[100] w-full bg-background backdrop-blur-sm">
       <style>{`
         @keyframes pulse {
           0%, 100% {
@@ -146,7 +146,7 @@ export const Navbar = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onToggleSidebar}
-              className="flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-sm border border-border"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border backdrop-blur-sm"
               style={{
                 backgroundColor: isLightGradient
                   ? "rgba(0,0,0,0.18)"

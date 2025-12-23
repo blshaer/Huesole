@@ -2,9 +2,7 @@ import { ExternalLinkIcon } from "lucide-react";
 
 export default function Footer() {
   return (
-
-    <div className=" container pt-8">
-
+    <div className="container pt-8">
       <div
         className="h-[1px] w-full opacity-50"
         style={{
@@ -31,8 +29,6 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} GradlyAI. All rights reserved.
         </p>
       </footer>
-
     </div>
-
   );
 }

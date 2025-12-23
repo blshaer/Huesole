@@ -40,19 +40,16 @@ const MyGradientsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] container py-6 ">
+    <div className="container min-h-screen bg-[var(--background)] py-6">
       <div className="mx-auto max-w-7xl space-y-8">
-  
-
         {gradients.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 pt-6 sm:grid-cols-2 lg:grid-cols-3">
             {gradients.map((gradient, index) => (
-      
-                <GradientCard
-                  gradient={gradient}
-                  isFavorite={favorites.includes(gradient.name)}
-                  onFavoriteToggle={toggleFavorite}
-                />
+              <GradientCard
+                gradient={gradient}
+                isFavorite={favorites.includes(gradient.name)}
+                onFavoriteToggle={toggleFavorite}
+              />
             ))}
           </div>
         ) : (

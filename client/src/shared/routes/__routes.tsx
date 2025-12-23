@@ -6,15 +6,31 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 import ErrorBoundary from "@/shared/components/ErrorBoundary"; // <-- add
 
 const HomePage = React.lazy(() => import("@/pages/HomePage"));
-const VerifyEmail = React.lazy(() => import("@/features/auth/pages/VerifyEmail"));
-const ResetPassword = React.lazy(() => import("@/features/auth/pages/ResetPassword"));
-const ProfilePage = React.lazy(() => import("@/features/auth/pages/ProfilePage"));
+const VerifyEmail = React.lazy(
+  () => import("@/features/auth/pages/VerifyEmail"),
+);
+const ResetPassword = React.lazy(
+  () => import("@/features/auth/pages/ResetPassword"),
+);
+const ProfilePage = React.lazy(
+  () => import("@/features/auth/pages/ProfilePage"),
+);
 const LoginPage = React.lazy(() => import("@/features/auth/pages/LoginPage"));
-const RegisterPage = React.lazy(() => import("@/features/auth/pages/RegisterPage"));
-const ForgotPassword = React.lazy(() => import("@/features/auth/pages/ForgotPassword"));
-const FavoritesPage = React.lazy(() => import("@/features/gradients/pages/FavoritesPage"));
-const MyGradientsPage = React.lazy(() => import("@/features/gradients/pages/MyGradientsPage"));
-const AIGeneratorPage = React.lazy(() => import("@/features/gradients/pages/AIGeneratorPage"));
+const RegisterPage = React.lazy(
+  () => import("@/features/auth/pages/RegisterPage"),
+);
+const ForgotPassword = React.lazy(
+  () => import("@/features/auth/pages/ForgotPassword"),
+);
+const FavoritesPage = React.lazy(
+  () => import("@/features/gradients/pages/FavoritesPage"),
+);
+const MyGradientsPage = React.lazy(
+  () => import("@/features/gradients/pages/MyGradientsPage"),
+);
+const AIGeneratorPage = React.lazy(
+  () => import("@/features/gradients/pages/AIGeneratorPage"),
+);
 
 const AppRoutes: React.FC = () => {
   const LoadingFallback = () => (
@@ -25,7 +41,10 @@ const AppRoutes: React.FC = () => {
       exit={{ opacity: 0 }}
     >
       <div className="text-base">
-        <Button isLoading={true} className="flex cursor-text gap-0 border-none bg-transparent">
+        <Button
+          isLoading={true}
+          className="flex cursor-text gap-0 border-none bg-transparent"
+        >
           Loading...
         </Button>
       </div>

@@ -200,20 +200,21 @@ export const ExportSection = ({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}">
+        .map((color, index) => {
+          const offset =
+            formattedColors.length === 1
+              ? 0
+              : (index / (formattedColors.length - 1)) * 100;
+          return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
-                 values="${color};${formattedColors[(index + 1) % formattedColors.length]
-                };${color}" 
+                 values="${color};${
+                   formattedColors[(index + 1) % formattedColors.length]
+                 };${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-            })
-            .join("\n      ")}
+        })
+        .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -228,14 +229,14 @@ export const ExportSection = ({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}" />`;
-            })
-            .join("\n      ")}
+        .map((color, index) => {
+          const offset =
+            formattedColors.length === 1
+              ? 0
+              : (index / (formattedColors.length - 1)) * 100;
+          return `<stop offset="${offset}%" stop-color="${color}" />`;
+        })
+        .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
@@ -257,8 +258,9 @@ export const ExportSection = ({
             animationSpeed,
             css: gradientStyle,
             animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
-              }s ease infinite;`
+              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${
+                  4 / animationSpeed
+                }s ease infinite;`
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
@@ -310,8 +312,9 @@ export const ExportSection = ({
 
       if (isAnimated) {
         tempContainer.style.backgroundSize = "400% 400%";
-        tempContainer.style.animation = `gradientShift ${4 / animationSpeed
-          }s ease infinite`;
+        tempContainer.style.animation = `gradientShift ${
+          4 / animationSpeed
+        }s ease infinite`;
       }
 
       document.body.appendChild(tempContainer);
@@ -334,8 +337,9 @@ export const ExportSection = ({
 
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `${result.name || "gradient"
-        }-${size.key}.${format.extension}`;
+      link.download = `${
+        result.name || "gradient"
+      }-${size.key}.${format.extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -354,9 +358,9 @@ export const ExportSection = ({
     IMAGE_SIZES.find((s) => s.key === selectedImageSize) ?? IMAGE_SIZES[1];
 
   return (
-    <section className="space-y-4 pt-4 pb-6">
+    <section className="space-y-4 pb-6 pt-4">
       <div className="flex items-center justify-between gap-2">
-        <Label className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">
+        <Label className="text-foreground/40 text-[11px] font-bold uppercase tracking-[0.2em]">
           Export Design
         </Label>
 
@@ -366,7 +370,7 @@ export const ExportSection = ({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 gap-1 rounded-md border-border bg-card/60 px-2 text-[11px] text-foreground/80 hover:bg-card/80"
+              className="bg-card/60 text-foreground/80 hover:bg-card/80 h-8 gap-1 rounded-md border-border px-2 text-[11px]"
               disabled={isExporting}
             >
               <ImageIcon className="h-3 w-3" />
@@ -378,7 +382,7 @@ export const ExportSection = ({
             align="end"
             className="w-56 rounded-md border border-border bg-secondary p-1"
           >
-            <div className="px-2 py-1.5 text-xs font-semibold text-foreground/60">
+            <div className="text-foreground/60 px-2 py-1.5 text-xs font-semibold">
               Format
             </div>
             {IMAGE_FORMATS.map((format) => (
@@ -388,12 +392,13 @@ export const ExportSection = ({
                   e.preventDefault();
                   setSelectedImageFormat(format.key);
                 }}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageFormat === format.key
+                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${
+                  selectedImageFormat === format.key
                     ? "bg-primary/10 text-primary"
                     : "text-foreground/80"
-                  }`}
+                }`}
               >
-                <div className="flex items-center justify-between w-full gap-2">
+                <div className="flex w-full items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />
                     <span>{format.label}</span>
@@ -420,7 +425,7 @@ export const ExportSection = ({
 
             <div className="my-1 h-px bg-border" />
 
-            <div className="px-2 py-1.5 text-xs font-semibold text-foreground/60">
+            <div className="text-foreground/60 px-2 py-1.5 text-xs font-semibold">
               Size
             </div>
             {IMAGE_SIZES.map((size) => (
@@ -430,12 +435,13 @@ export const ExportSection = ({
                   e.preventDefault();
                   setSelectedImageSize(size.key);
                 }}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageSize === size.key
+                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${
+                  selectedImageSize === size.key
                     ? "bg-primary/10 text-primary"
                     : "text-foreground/80"
-                  }`}
+                }`}
               >
-                <div className="flex items-center justify-between w-full">
+                <div className="flex w-full items-center justify-between">
                   <span>{size.label}</span>
                   <AnimatePresence mode="wait">
                     {selectedImageSize === size.key && (
