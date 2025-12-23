@@ -154,7 +154,7 @@ export const Sidebar = ({
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
                             onClick={toggleMobileSidebar}
-                            className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm"
+                            className="fixed inset-0 z-[55] bg-black/70 "
                         />
 
                         {/* Sidebar Panel */}
@@ -166,11 +166,11 @@ export const Sidebar = ({
                                 duration: 0.3,
                                 ease: [0.32, 0.72, 0, 1],
                             }}
-                            className="fixed top-0 left-0 bottom-0 z-[56] flex h-full w-[90vw] max-w-[420px] flex-col border-r border-border bg-background/95 backdrop-blur-3xl shadow-2xl"
+                            className="fixed top-0 left-0 bottom-0 z-[56] flex h-full w-[90vw] max-w-[420px] flex-col border-r border-border bg-black/95 backdrop-blur-3xl shadow-2xl"
                         >
                             {/* Close Button Inside Sidebar */}
                             <div className="flex items-center justify-between p-4 border-b border-border">
-                                <h2 className="text-lg font-semibold">Gradient Studio</h2>
+                                <h2 className="text-lg text-white font-semibold"></h2>
                                 <button
                                     onClick={toggleMobileSidebar}
                                     className="p-2 rounded-lg hover:bg-foreground/5 transition-colors"

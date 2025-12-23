@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { resetPassword } from "../services/authService";
 import { Button } from "@/shared/ui/button";
@@ -12,47 +12,48 @@ import {
   CardTitle,
   CardFooter,
 } from "@/shared/ui/card";
-import { KeyRound, Loader2, ArrowLeft } from "lucide-react";
-
-import { toast } from "@/shared/hooks/use-toast";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const ResetPassword = () => {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  // After reset, send user to login (safe route that exists in your router)
+  const redirectTo = "/login";
+
+  useEffect(() => {
+    if (!success) return;
+
+    const timer = setTimeout(() => {
+      navigate(redirectTo, { replace: true });
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [success, navigate, redirectTo]); // cleanup pattern is recommended for timers [web:101]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (password !== confirmPassword) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Passwords do not match. Please ensure both fields are identical.",
-        variant: "destructive",
-      });
+      setError("Passwords do not match. Please ensure both fields are identical.");
       return;
     }
 
     if (password.length < 6) {
-      toast({
-        title: "Validation Error",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     if (!token) {
-      toast({
-        title: "Error",
-        description:
-          "Invalid or expired reset token. Please request a new link.",
-        variant: "destructive",
-      });
+      setError("Invalid or expired reset token. Please request a new link.");
       return;
     }
 
@@ -60,21 +61,11 @@ const ResetPassword = () => {
     try {
       await resetPassword(password, token);
       setSuccess(true);
-      toast({
-        title: "Success",
-        description:
-          "Your password has been successfully reset. Redirecting to login...",
-      });
-      setTimeout(() => navigate("/login"), 1500);
     } catch (err: any) {
-      const errorMessage =
+      setError(
         err.response?.data?.message ||
-        "Something went wrong while resetting your password.";
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+          "Something went wrong while resetting your password."
+      );
     } finally {
       setLoading(false);
     }
@@ -82,7 +73,6 @@ const ResetPassword = () => {
 
   return (
     <div className="relative flex min-h-[90vh] items-center justify-center overflow-hidden p-6">
-      {/* Background elements */}
       <div className="bg-primary/5 absolute left-1/2 top-1/4 h-96 w-96 -translate-x-1/2 animate-pulse rounded-full blur-3xl" />
 
       <Card className="border-border/40 bg-background/60 z-10 w-full max-w-md shadow-2xl backdrop-blur-xl transition-all duration-300">
@@ -96,7 +86,9 @@ const ResetPassword = () => {
             </CardDescription>
           </div>
         </CardHeader>
+
         <CardContent className="grid gap-6">
+          {/* FIX: show success block when success === true (ternary rendering) [web:1] */}
           {success ? (
             <div className="space-y-6 duration-500 animate-in fade-in zoom-in">
               <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-4 text-center">
@@ -104,17 +96,24 @@ const ResetPassword = () => {
                   Password Reset Successful!
                 </p>
                 <p className="mt-1 text-sm text-white/60">
-                  You will be redirected to the login page shortly.
+                  Redirecting to login...
                 </p>
               </div>
+
               <Button className="w-full" asChild>
-                <Link to="/login">Sign In Now</Link>
+                <Link to={redirectTo}>Go Now</Link>
               </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="grid gap-5">
+              {error && (
+                <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-500">
+                  {error}
+                </div>
+              )}
+
               <div className="grid gap-2">
-                <Label htmlFor="password font-semibold text-sm">
+                <Label htmlFor="password" className="font-semibold text-sm">
                   New Password
                 </Label>
                 <Input
@@ -124,10 +123,12 @@ const ResetPassword = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
+
               <div className="grid gap-2">
-                <Label htmlFor="confirmPassword font-semibold text-sm">
+                <Label htmlFor="confirmPassword" className="font-semibold text-sm">
                   Confirm New Password
                 </Label>
                 <Input
@@ -137,8 +138,10 @@ const ResetPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
+
               <Button
                 type="submit"
                 className="mt-2 h-11 w-full text-base font-semibold shadow-lg transition-all active:scale-[0.98]"
@@ -156,6 +159,7 @@ const ResetPassword = () => {
             </form>
           )}
         </CardContent>
+
         <CardFooter className="border-border/40 flex justify-center border-t pt-6">
           <Link
             to="/login"

@@ -53,7 +53,7 @@ const VerifyEmail = () => {
         setStatus("error");
         setMessage(
           err.response?.data?.message ||
-            "Verification failed. The link may have expired.",
+          "Verification failed. The link may have expired.",
         );
       }
     };
@@ -66,20 +66,10 @@ const VerifyEmail = () => {
       {/* Background sparkle effect */}
       <div className="from-primary/5 absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] via-transparent to-transparent opacity-50" />
 
-      <Card className="border-border/40 bg-background/60 z-10 w-full max-w-md overflow-hidden shadow-2xl backdrop-blur-xl transition-all duration-500">
+      <Card className="border">
         <CardHeader className="space-y-4 pb-4">
           <div className="flex flex-col items-center space-y-2">
-            <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-2xl shadow-inner">
-              {status === "loading" && (
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              )}
-              {status === "success" && (
-                <Sparkles className="h-8 w-8 animate-pulse text-yellow-500" />
-              )}
-              {status === "error" && (
-                <XCircle className="h-8 w-8 text-red-500 transition-transform active:scale-90" />
-              )}
-            </div>
+
             <CardTitle className="text-center text-3xl font-bold tracking-tight">
               {status === "loading"
                 ? "Verifying..."
@@ -87,37 +77,25 @@ const VerifyEmail = () => {
                   ? "All Set!"
                   : "Oops!"}
             </CardTitle>
-            <CardDescription className="text-muted-foreground/80 text-center text-sm">
-              {status === "loading"
-                ? "Give us a moment while we validate your account."
-                : status === "success"
-                  ? "Verification complete. Your journey begins here."
-                  : "We couldn't verify your email address."}
-            </CardDescription>
+
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col items-center space-y-6 pb-8 pt-6">
-          {status === "loading" && (
-            <div className="flex flex-col items-center space-y-4">
-              <div className="bg-primary/10 h-2 w-48 overflow-hidden rounded-full">
-                <div className="animate-progress h-full w-full origin-left bg-primary" />
-              </div>
-              <p className="animate-pulse text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                Processing
-              </p>
-            </div>
-          )}
+        <CardContent className="flex flex-col items-center text-white/60 space-y-6 pb-8 pt-6">
+
+          {status === "loading"
+            ? "Give us a moment while we validate your account."
+            : status === "success"
+              ? "Verification complete. Your journey begins here."
+              : "We couldn't verify your email address."}
+
+
 
           {status === "success" && (
             <div className="w-full space-y-6 duration-500 animate-in fade-in slide-in-from-bottom-2">
-              <Alert className="border-green-500/30 bg-green-500/5 text-green-600">
-                <CheckCircle2 className="h-4 w-4" />
-                <AlertTitle>Verification Successful</AlertTitle>
-                <AlertDescription>{message}</AlertDescription>
-              </Alert>
+              <div >Start explore and creating gradients</div>
               <Button
                 onClick={() => navigate("/")}
-                className="group h-12 w-full text-base font-semibold shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full text-white hover:text-white"
               >
                 Start Creating
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -127,11 +105,7 @@ const VerifyEmail = () => {
 
           {status === "error" && (
             <div className="w-full space-y-6 duration-500 animate-in fade-in slide-in-from-bottom-2">
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{message}</AlertDescription>
-              </Alert>
+              <div className="text-white/60">Erorr</div>
               <div className="flex flex-col gap-3">
                 <Button
                   onClick={() => navigate("/login")}
@@ -150,11 +124,7 @@ const VerifyEmail = () => {
             </div>
           )}
         </CardContent>
-        <CardFooter className="bg-muted/5 border-border/40 border-t py-4">
-          <p className="text-muted-foreground/60 w-full text-center text-xs">
-            Securely powered by GradientsCSS
-          </p>
-        </CardFooter>
+
       </Card>
     </div>
   );

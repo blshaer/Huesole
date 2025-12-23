@@ -4,6 +4,8 @@ export interface GradientCardProps {
   onFavoriteToggle: (name: string) => void;
   editable?: boolean;
   onColorsChange?: (newColors: string[]) => void;
+  onEditClick?: (gradient: { name: string; colors: string[] }) => void;
+
 }
 
 export interface Gradient {

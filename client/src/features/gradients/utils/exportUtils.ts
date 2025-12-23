@@ -2,19 +2,19 @@
 
 export interface ExportOptions {
   format:
-    | "svg"
-    | "png"
-    | "jpg"
-    | "webp"
-    | "json"
-    | "css"
-    | "android"
-    | "ios"
-    | "less"
-    | "scss"
-    | "figma"
-    | "sketch"
-    | "mesh";
+  | "svg"
+  | "png"
+  | "jpg"
+  | "webp"
+  | "json"
+  | "css"
+  | "android"
+  | "ios"
+  | "less"
+  | "scss"
+  | "figma"
+  | "sketch"
+  | "mesh";
   width: number;
   height: number;
   quality?: number; // For JPG/WebP (0-1)
@@ -302,7 +302,7 @@ export const exportUtils = {
       format: "css",
       metadata: {
         exportedAt: new Date().toISOString(),
-        tool: "GradientsCSS",
+        tool: "GradlyAI",
         version: "1.0.0",
       },
     };

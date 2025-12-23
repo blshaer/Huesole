@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// ExportSection component (updated with persistent dropdown and animated checks)
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,7 +9,7 @@ import {
 } from "@/shared/ui/dropdown-menu";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
-import { ChevronDown, Download, Image as ImageIcon } from "lucide-react";
+import { ChevronDown, Download, Image as ImageIcon, Check } from "lucide-react";
 import { useCopyState } from "@/features/gradients/hooks/useCopyState";
 import { useColorFormat } from "@/features/gradients/hooks/useColorFormat";
 import { animatedGradientUtils } from "@/features/gradients/utils/animatedGradientUtils";
@@ -14,9 +17,9 @@ import { GeneratedGradient } from "../types";
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { CodePreviewInline } from "./CodePreviewInline";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Icon components (same as your original)
-
+// Icon components (same as before - keeping them for brevity)
 const TailwindIcon = () => (
   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12.001,4.8c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 C13.666,10.618,15.027,12,18.001,12c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C16.337,6.182,14.976,4.8,12.001,4.8z M6.001,12c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 C7.666,17.818,9.027,19.2,12.001,19.2c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C10.337,13.382,8.976,12,6.001,12z" />
@@ -101,8 +104,6 @@ const JSONIcon = () => (
   </svg>
 );
 
-// Format and image options
-
 const FORMAT_DEFS = [
   { key: "tailwind", label: "Tailwind CSS", icon: TailwindIcon },
   { key: "css", label: "CSS", icon: CSSIcon },
@@ -152,7 +153,6 @@ export const ExportSection = ({
   const [isExporting, setIsExporting] = useState(false);
   const previewRef = useRef<HTMLDivElement | null>(null);
 
-  // If no gradient, render nothing (no message)
   if (!result) return null;
 
   const formattedColors = result.colors.map((c) => getColorInFormat(c));
@@ -200,21 +200,20 @@ export const ExportSection = ({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}">
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
-                 values="${color};${
-                   formattedColors[(index + 1) % formattedColors.length]
-                 };${color}" 
+                 values="${color};${formattedColors[(index + 1) % formattedColors.length]
+                };${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-        })
-        .join("\n      ")}
+            })
+            .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -229,14 +228,14 @@ export const ExportSection = ({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}" />`;
-        })
-        .join("\n      ")}
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}" />`;
+            })
+            .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
@@ -258,13 +257,12 @@ export const ExportSection = ({
             animationSpeed,
             css: gradientStyle,
             animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${
-                  4 / animationSpeed
-                }s ease infinite;`
+              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
+              }s ease infinite;`
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
-              tool: "GradientsCSS",
+              tool: "GradlyAI",
               version: "1.0.0",
             },
           },
@@ -294,26 +292,31 @@ export const ExportSection = ({
       const format = IMAGE_FORMATS.find((f) => f.key === formatKey);
       const size = IMAGE_SIZES.find((s) => s.key === sizeKey);
 
-      if (!format || !size) return;
+      if (!format || !size) {
+        setIsExporting(false);
+        return;
+      }
 
       const tempContainer = document.createElement("div");
       tempContainer.style.width = `${size.width}px`;
       tempContainer.style.height = `${size.height}px`;
-      tempContainer.style.position = "absolute";
+      tempContainer.style.position = "fixed";
       tempContainer.style.left = "-9999px";
       tempContainer.style.top = "0";
+      tempContainer.style.zIndex = "-1";
       tempContainer.style.backgroundImage = `linear-gradient(${angle}deg, ${formattedColors.join(
         ", ",
       )})`;
 
       if (isAnimated) {
         tempContainer.style.backgroundSize = "400% 400%";
-        tempContainer.style.animation = `gradientShift ${
-          4 / animationSpeed
-        }s ease infinite`;
+        tempContainer.style.animation = `gradientShift ${4 / animationSpeed
+          }s ease infinite`;
       }
 
       document.body.appendChild(tempContainer);
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const canvas = await html2canvas(tempContainer, {
         width: size.width,
@@ -321,6 +324,8 @@ export const ExportSection = ({
         scale: 1,
         backgroundColor: null,
         logging: false,
+        useCORS: true,
+        allowTaint: true,
       });
 
       document.body.removeChild(tempContainer);
@@ -329,12 +334,14 @@ export const ExportSection = ({
 
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `${
-        result.name || "gradient"
-      }-${size.key}.${format.extension}`;
+      link.download = `${result.name || "gradient"
+        }-${size.key}.${format.extension}`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (error) {
       console.error("Error exporting image:", error);
+      alert("Failed to export image. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -353,7 +360,7 @@ export const ExportSection = ({
           Export Design
         </Label>
 
-        {/* Export as Image Dropdown */}
+        {/* Export as Image Dropdown - FIXED WITH PERSISTENT STATE */}
         <DropdownMenu>
           <DropdownMenuTrigger className="nofocus">
             <Button
@@ -377,16 +384,36 @@ export const ExportSection = ({
             {IMAGE_FORMATS.map((format) => (
               <DropdownMenuItem
                 key={format.key}
-                onSelect={() => setSelectedImageFormat(format.key)}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${
-                  selectedImageFormat === format.key
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setSelectedImageFormat(format.key);
+                }}
+                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageFormat === format.key
                     ? "bg-primary/10 text-primary"
                     : "text-foreground/80"
-                }`}
+                  }`}
               >
-                <div className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
-                  <span>{format.label}</span>
+                <div className="flex items-center justify-between w-full gap-2">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    <span>{format.label}</span>
+                  </div>
+                  <AnimatePresence mode="wait">
+                    {selectedImageFormat === format.key && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
+                      >
+                        <Check className="h-4 w-4 text-primary" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </DropdownMenuItem>
             ))}
@@ -399,14 +426,34 @@ export const ExportSection = ({
             {IMAGE_SIZES.map((size) => (
               <DropdownMenuItem
                 key={size.key}
-                onSelect={() => setSelectedImageSize(size.key)}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${
-                  selectedImageSize === size.key
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setSelectedImageSize(size.key);
+                }}
+                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageSize === size.key
                     ? "bg-primary/10 text-primary"
                     : "text-foreground/80"
-                }`}
+                  }`}
               >
-                <span>{size.label}</span>
+                <div className="flex items-center justify-between w-full">
+                  <span>{size.label}</span>
+                  <AnimatePresence mode="wait">
+                    {selectedImageSize === size.key && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0, rotate: -180 }}
+                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                        exit={{ scale: 0, opacity: 0, rotate: 180 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
+                      >
+                        <Check className="h-4 w-4 text-primary" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </DropdownMenuItem>
             ))}
 
@@ -473,23 +520,6 @@ export const ExportSection = ({
           onCopy={() => copyToClipboard(code, activeTab as any)}
         />
       </div>
-
-      {/* Hidden preview element for image export (optional / not used directly) */}
-      <div
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          width: "1920px",
-          height: "1080px",
-          backgroundImage: `linear-gradient(${angle}deg, ${formattedColors.join(
-            ", ",
-          )})`,
-          ...(isAnimated && {
-            backgroundSize: "400% 400%",
-            animation: `gradientShift ${4 / animationSpeed}s ease infinite`,
-          }),
-        }}
-      />
 
       {/* CSS for gradient animation */}
       <style>{`

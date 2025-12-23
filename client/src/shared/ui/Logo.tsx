@@ -30,7 +30,7 @@ export default function Logo() {
       <Link to={"/"}>
         <div className="logo-wrapper relative inline-block cursor-pointer select-none">
           <h1 className="relative z-10 text-2xl font-bold text-[var(--headline)]">
-            GradientsCSS
+            GradlyAI
           </h1>
 
           {/* Blurred gradient shadow - appears on hover */}

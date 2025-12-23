@@ -16,7 +16,7 @@ export default function Footer() {
 
       <footer className="container mx-auto flex h-16 items-center justify-between gap-2 px-0 py-4 max-md:h-auto max-md:flex-col max-md:items-center max-md:justify-center max-md:gap-2 max-md:text-center">
         <p className="flex items-center text-sm text-primary">
-          Developed by{" "}
+          Designed & Developed by{" "}
           <a
             target="_blank"
             rel="noopener noreferrer"
@@ -28,7 +28,7 @@ export default function Footer() {
           </a>
         </p>
         <p className="text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} GradientsCSS. All rights reserved.
+          &copy; {new Date().getFullYear()} GradlyAI. All rights reserved.
         </p>
       </footer>
 

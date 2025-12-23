@@ -18,7 +18,7 @@ const FavoritesPage = () => {
  
 
         {favoriteGradients.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 pt-6 sm:grid-cols-2 lg:grid-cols-3">
             {favoriteGradients.map((gradient, index) => (
               <motion.div
                 key={gradient.name}

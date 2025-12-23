@@ -50,7 +50,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
         />
       </div>
 
-      <div className="rounded-[12px]">
+      <div className="rounded-[12px] h-[48px]">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex h-full w-full items-center justify-between rounded-lg border-2 px-3 text-left font-normal hover:bg-accent sm:w-[180px]">
             {filter === "all"

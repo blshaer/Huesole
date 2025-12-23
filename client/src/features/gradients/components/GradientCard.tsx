@@ -1,4 +1,6 @@
-
+import { useColorFormat } from "@/features/gradients/hooks/useColorFormat";
+import { useCopyState } from "@/features/gradients/hooks/useCopyState";
+import { animatedGradientUtils } from "@/features/gradients/utils/animatedGradientUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,21 +8,17 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { MagicCard } from "@/shared/ui/MagicCard";
-import { useColorFormat } from "@/features/gradients/hooks/useColorFormat";
-import { useCopyState } from "@/features/gradients/hooks/useCopyState";
-import { animatedGradientUtils } from "@/features/gradients/utils/animatedGradientUtils";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Eye, EyeOff, Pencil } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
-import { AngleSlider } from "./AngleSlider";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
 import { AnimationSpeedControl } from "./AnimationSpeedControl";
 import { ColorSwatches } from "./ColorSwatches";
-import { GradientTypeSelector } from "./GradientTypeSelector";
-import { ImageDownloadControl } from "./ImageDownloadControl";
 import { GradientHeader } from "./GradientHeader";
 import { GradientPreview } from "./GradientPreview";
+import { GradientTypeSelector } from "./GradientTypeSelector";
+import { ImageDownloadControl } from "./ImageDownloadControl";
 
 import { GradientCardProps } from "@/shared/types/types";
 import { CodePreview } from "./CodePreview";
@@ -116,11 +114,16 @@ export default function GradientCard({
   onFavoriteToggle,
   editable = false,
   onColorsChange,
+  onEditClick,
 }: GradientCardProps) {
   const [activeTab, setActiveTab] = useState("tailwind");
   const [angle, setAngle] = useState(90);
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
+  const [showAngleController, setShowAngleController] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showEditTooltip, setShowEditTooltip] = useState(false);
+  const [gradientShape, setGradientShape] = useState<"linear" | "radial" | "conic">("linear");
   const {
     selectedColorFormat,
     setSelectedColorFormat,
@@ -129,6 +132,8 @@ export default function GradientCard({
     setGradientType,
   } = useColorFormat();
   const { copiedStates, copyToClipboard } = useCopyState();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const handleColorChange = (index: number, newColor: string) => {
     const newColors = [...gradient.colors];
@@ -137,40 +142,112 @@ export default function GradientCard({
   };
 
   const colorFormats = ["HEX", "RGB", "HSL"];
+  const gradientShapes: Array<"linear" | "radial" | "conic"> = [
+    "linear",
+    "radial",
+    "conic",
+  ];
 
-  // Formatted colors for current format
+  const isLightGradient = useMemo(() => {
+    return gradient.colors.every((color) => {
+      const hex = color.replace(/^#/, "");
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness > 200;
+    });
+  }, [gradient.colors]);
+
+  const handlePointer = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const dx = clientX - centerX;
+      const dy = clientY - centerY;
+
+      let calculatedAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+      if (calculatedAngle < 0) calculatedAngle += 360;
+
+      const roundedAngle = Math.round(calculatedAngle);
+      setAngle(roundedAngle);
+    },
+    [setAngle],
+  );
+
+  const controlColor = isLightGradient ? "black" : "white";
+  const lineLength = 80;
+  const pad = 70;
+  const size = (lineLength + pad) * 2;
+  const cx = lineLength + pad;
+  const cy = lineLength + pad;
+  const angleInRadians = ((angle - 90) * Math.PI) / 180;
+  const labelX = Math.cos(angleInRadians) * lineLength;
+  const labelY = Math.sin(angleInRadians) * lineLength;
+  const tooltipText = showAngleController
+    ? "Hide angle controller"
+    : "Show angle controller";
+  const editTooltipText = "Edit gradient";
+
+  const handleEditButtonClick = () => {
+    if (onEditClick) {
+      onEditClick(gradient);
+    } else {
+      console.warn("onEditClick prop is not provided");
+    }
+  };
+
   const formattedColors = gradient.colors.map((color) =>
     getColorInFormat(color),
   );
 
+  const getGradientStyle = () => {
+    if (gradientShape === "linear") {
+      return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
+    }
+
+    if (gradientShape === "conic") {
+      return `conic-gradient(from ${angle}deg, ${formattedColors.join(", ")})`;
+    }
+
+    const angleRad = ((angle - 90) * Math.PI) / 180;
+    const offset = 25;
+    const posX = 50 + Math.cos(angleRad) * offset;
+    const posY = 50 + Math.sin(angleRad) * offset;
+    return `radial-gradient(circle at ${posX}% ${posY}%, ${formattedColors.join(", ")})`;
+  };
+
   const getCodePreview = () => {
-    const gradientStyle = `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
+    const gradientStyle = getGradientStyle();
 
     if (!isAnimated) {
       return gradientType === "background"
         ? { backgroundImage: gradientStyle }
         : {
-            color: "transparent",
-            backgroundImage: gradientStyle,
-            WebkitBackgroundClip: "text",
-          };
+          color: "transparent",
+          backgroundImage: gradientStyle,
+          WebkitBackgroundClip: "text",
+        };
     }
 
-    // Animated gradient preview
     const animationDuration = `${4 / animationSpeed}s`;
     return gradientType === "background"
       ? {
-          backgroundImage: gradientStyle,
-          backgroundSize: "400% 400%",
-          animation: `gradientShift ${animationDuration} ease infinite`,
-        }
+        backgroundImage: gradientStyle,
+        backgroundSize: "400% 400%",
+        animation: `gradientShift ${animationDuration} ease infinite`,
+      }
       : {
-          color: "transparent",
-          backgroundImage: gradientStyle,
-          backgroundSize: "400% 400%",
-          WebkitBackgroundClip: "text",
-          animation: `gradientShift ${animationDuration} ease infinite`,
-        };
+        color: "transparent",
+        backgroundImage: gradientStyle,
+        backgroundSize: "400% 400%",
+        WebkitBackgroundClip: "text",
+        animation: `gradientShift ${animationDuration} ease infinite`,
+      };
   };
 
   const getCode = (format: string) => {
@@ -218,19 +295,22 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}">
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
-                 values="${color};${formattedColors[(index + 1) % formattedColors.length]};${color}" 
+                 values="${color};${formattedColors[
+                (index + 1) % formattedColors.length
+                ]
+                };${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-        })
-        .join("\n      ")}
+            })
+            .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -245,34 +325,40 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}" />`;
-        })
-        .join("\n      ")}
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}" />`;
+            })
+            .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
 </svg>`;
       }
       case "json": {
-        const gradientStyle = `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
+        const gradientStyle = getGradientStyle();
         return JSON.stringify(
           {
             name: gradient.name,
             colors: formattedColors,
             angle: angle,
-            type: "linear-gradient",
+            type:
+              gradientShape === "linear"
+                ? "linear-gradient"
+                : gradientShape === "radial"
+                  ? "radial-gradient"
+                  : "conic-gradient",
             format: selectedColorFormat,
             gradientType: gradientType,
             isAnimated: isAnimated,
             animationSpeed: animationSpeed,
             css: gradientStyle,
             animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed}s ease infinite;`
+              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
+              }s ease infinite;`
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
@@ -300,32 +386,254 @@ export default function GradientCard({
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
       className="relative overflow-hidden transition-all duration-300"
     >
-      {/* Animation Checkbox - Top Left (Hide for image type) */}
-      {gradientType !== "image" && (
-        <div className="absolute left-3 top-3 z-10">
+      {gradientType !== "image" && gradientShape === "linear" && (
+        <div className="absolute left-0 right-0 top-3 z-20 flex items-center justify-between px-4">
           <AnimatedCheckbox
             checked={isAnimated}
             onChange={setIsAnimated}
             className="text-white drop-shadow-lg"
           />
+
+          <div className="flex items-center gap-2">
+            {/* Edit Button */}
+            <motion.button
+              type="button"
+              aria-label={editTooltipText}
+              className="relative flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
+              style={{
+                backgroundColor: isLightGradient
+                  ? "rgba(0,0,0,0.18)"
+                  : "rgba(255,255,255,0.18)",
+                border: `1px solid ${isLightGradient
+                    ? "rgba(0,0,0,0.25)"
+                    : "rgba(255,255,255,0.25)"
+                  }`,
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onMouseEnter={() => setShowEditTooltip(true)}
+              onMouseLeave={() => setShowEditTooltip(false)}
+              onFocus={() => setShowEditTooltip(true)}
+              onBlur={() => setShowEditTooltip(false)}
+              onClick={handleEditButtonClick}
+            >
+              <Pencil className="h-4 w-4" style={{ color: controlColor }} />
+
+              <AnimatePresence>
+                {showEditTooltip && (
+                  <motion.div
+                    key="edit-tooltip"
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.85)",
+                      color: "white",
+                    }}
+                  >
+                    {editTooltipText}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+
+            {/* Eye/EyeOff Toggle Button */}
+            <motion.button
+              type="button"
+              aria-label={tooltipText}
+              className="relative flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
+              style={{
+                backgroundColor: isLightGradient
+                  ? "rgba(0,0,0,0.18)"
+                  : "rgba(255,255,255,0.18)",
+                border: `1px solid ${isLightGradient
+                    ? "rgba(0,0,0,0.25)"
+                    : "rgba(255,255,255,0.25)"
+                  }`,
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              onFocus={() => setShowTooltip(true)}
+              onBlur={() => setShowTooltip(false)}
+              onClick={() => setShowAngleController((v) => !v)}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {showAngleController ? (
+                  <motion.span
+                    key="eye-on"
+                    initial={{ opacity: 0, rotate: -20, scale: 0.9 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 20, scale: 0.9 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex"
+                  >
+                    <Eye className="h-4 w-4" style={{ color: controlColor }} />
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="eye-off"
+                    initial={{ opacity: 0, rotate: -20, scale: 0.9 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 20, scale: 0.9 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex"
+                  >
+                    <EyeOff className="h-4 w-4" style={{ color: controlColor }} />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {showTooltip && (
+                  <motion.div
+                    key="tooltip"
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.85)",
+                      color: "white",
+                    }}
+                  >
+                    {tooltipText}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
         </div>
       )}
 
       <AnimatePresence mode="wait">
-        <motion.div
-          key={gradientType}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <GradientPreview
-            style={getCodePreview()}
-            gradientType={gradientType}
-            gradient={gradient}
-          />
+        <motion.div key={gradientType}>
+          <div
+            className="relative mx-auto flex h-56 w-56 items-center justify-center"
+            ref={containerRef}
+          >
+            <GradientPreview
+              style={getCodePreview()}
+              gradientType={gradientType}
+              gradient={gradient}
+              isAnimated={isAnimated}
+              animationSpeed={animationSpeed}
+            />
+
+            <AnimatePresence initial={false}>
+              {showAngleController && gradientShape === "linear" && (
+                <motion.div
+                  key="angle-controller"
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+                >
+                  <div
+                    className="absolute h-2 w-2 rounded-full"
+                    style={{ backgroundColor: controlColor, opacity: 0.5 }}
+                  />
+
+                  <svg
+                    className="absolute pointer-events-auto"
+                    width={size}
+                    height={size}
+                    style={{ overflow: "visible", touchAction: "none" }}
+                    onPointerDown={(e) => {
+                      isDraggingRef.current = true;
+                      (e.currentTarget as SVGSVGElement).setPointerCapture(
+                        e.pointerId,
+                      );
+                      handlePointer(e.clientX, e.clientY);
+                    }}
+                    onPointerMove={(e) => {
+                      if (!isDraggingRef.current) return;
+                      handlePointer(e.clientX, e.clientY);
+                    }}
+                    onPointerUp={(e) => {
+                      isDraggingRef.current = false;
+                      try {
+                        (e.currentTarget as SVGSVGElement).releasePointerCapture(
+                          e.pointerId,
+                        );
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    onPointerCancel={() => {
+                      isDraggingRef.current = false;
+                    }}
+                  >
+                    <g transform={`rotate(${angle} ${cx} ${cy})`}>
+                      <line
+                        x1={cx}
+                        y1={cy}
+                        x2={cx}
+                        y2={cy - lineLength}
+                        stroke={controlColor}
+                        strokeWidth={2}
+                        opacity={0.4}
+                        pointerEvents="none"
+                      />
+
+                      <circle
+                        cx={cx}
+                        cy={cy - lineLength}
+                        r={20}
+                        fill={
+                          isLightGradient
+                            ? "rgba(0,0,0,0.15)"
+                            : "rgba(255,255,255,0.15)"
+                        }
+                        stroke={
+                          isLightGradient
+                            ? "rgba(0,0,0,0.3)"
+                            : "rgba(255,255,255,0.3)"
+                        }
+                        strokeWidth={2}
+                        style={{ cursor: "grab" }}
+                      />
+
+                      <circle
+                        cx={cx}
+                        cy={cy - lineLength}
+                        r={6}
+                        fill={controlColor}
+                        opacity={0.95}
+                        pointerEvents="none"
+                      />
+                    </g>
+                  </svg>
+
+                  <div
+                    className="absolute"
+                    style={{ transform: `translate(${labelX}px, ${labelY}px)` }}
+                  >
+                    <motion.div
+                      className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
+                      style={{
+                        backgroundColor: isLightGradient
+                          ? "rgba(0,0,0,0.75)"
+                          : "rgba(0,0,0,0.8)",
+                        color: "white",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {angle}°
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       </AnimatePresence>
+
       <footer className="flex flex-col items-start space-y-4 p-4">
         <div className="flex w-full items-center justify-between">
           <GradientHeader
@@ -335,7 +643,7 @@ export default function GradientCard({
           />
         </div>
 
-        <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex w-full items-start justify-between gap-2 flex-col">
           <ColorSwatches
             colors={gradient.colors}
             getColorInFormat={getColorInFormat}
@@ -369,7 +677,30 @@ export default function GradientCard({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div>{/* <Checkbox /> */}</div>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="nofocus inline-flex">
+                <div className="flex w-28 items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
+                  <span>
+                    {gradientShape.charAt(0).toUpperCase() + gradientShape.slice(1)}
+                  </span>
+                  <ChevronDown className="h-4 w-4" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-28 rounded-md border border-border bg-secondary p-1"
+              >
+                {gradientShapes.map((shape) => (
+                  <DropdownMenuItem
+                    key={shape}
+                    onSelect={() => setGradientShape(shape)}
+                    className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
+                  >
+                    {shape.charAt(0).toUpperCase() + shape.slice(1)}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <GradientTypeSelector
               gradientType={gradientType}
@@ -380,14 +711,6 @@ export default function GradientCard({
           </div>
         </div>
 
-        <AngleSlider
-          angle={angle}
-          setAngle={(newAngle) => {
-            setAngle(newAngle);
-          }}
-        />
-
-        {/* Animation Speed Control - shows/hides with opacity animation (Hide for image type) */}
         <AnimationSpeedControl
           speed={animationSpeed}
           onChange={setAnimationSpeed}
@@ -395,7 +718,6 @@ export default function GradientCard({
           visible={isAnimated && gradientType !== "image"}
         />
 
-        {/* Image Download Control - only show when gradient type is image */}
         <ImageDownloadControl
           colors={formattedColors}
           angle={angle}
@@ -404,7 +726,6 @@ export default function GradientCard({
           visible={gradientType === "image"}
         />
 
-        {/* Code Copy Section - Hide when gradient type is image */}
         {gradientType !== "image" && (
           <>
             <DropdownMenu>
@@ -519,7 +840,7 @@ export default function GradientCard({
             <CodePreview
               code={getCode(activeTab)}
               copiedStates={copiedStates}
-              activeTab={activeTab}
+              activeTab={activeTab as any}
               copyToClipboard={(text, key) => {
                 copyToClipboard(text, key);
               }}
@@ -528,7 +849,6 @@ export default function GradientCard({
         )}
       </footer>
 
-      {/* CSS for gradient animation */}
       <style>{`
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }

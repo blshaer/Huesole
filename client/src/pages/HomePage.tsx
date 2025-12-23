@@ -68,61 +68,60 @@ const HomePage: React.FC = () => {
         <div className="mx-auto space-y-2 ">
           <HeroSection />
 
-<div className="container">
+          <div className="container max-md:pt-8">
 
+            <div className="flex flex-col gap-4">
+              <SearchAndFilters
+                searchTerm={searchTerm}
+                onSearchChange={(value) => {
+                  setSearchTerm(value);
+                  setCurrentPage(1);
+                }}
+                availableColors={availableColors}
+                selectedColors={selectedColors}
+                onColorChange={(colors) => {
+                  setSelectedColors(colors);
+                  setCurrentPage(1);
+                }}
+                filter={filter}
+                onFilterChange={(value) => {
+                  setFilter(value);
+                  setCurrentPage(1);
+                }}
+                gradients={gradients}
+              />
 
-          <div className="flex flex-col gap-4">
-            <SearchAndFilters
-              searchTerm={searchTerm}
-              onSearchChange={(value) => {
-                setSearchTerm(value);
-                setCurrentPage(1);
-              }}
-              availableColors={availableColors}
-              selectedColors={selectedColors}
-              onColorChange={(colors) => {
-                setSelectedColors(colors);
-                setCurrentPage(1);
-              }}
-              filter={filter}
-              onFilterChange={(value) => {
-                setFilter(value);
-                setCurrentPage(1);
-              }}
-              gradients={gradients}
-            />
+              <FilterStatus
+                filteredCount={filteredGradients.length}
+                selectedColors={selectedColors}
+                searchTerm={searchTerm}
+                filter={filter}
+              />
+            </div>
 
-            <FilterStatus
-              filteredCount={filteredGradients.length}
-              selectedColors={selectedColors}
-              searchTerm={searchTerm}
-              filter={filter}
+            {error && (
+              <ErrorDisplay
+                error={error}
+                onRetry={() => window.location.reload()}
+              />
+            )}
+
+            {!error && (
+              <GradientGrid
+                gradients={currentGradients}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                setBackground={setBackground}
+                isLoading={isLoading}
+              />
+            )}
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
-
-          {error && (
-            <ErrorDisplay
-              error={error}
-              onRetry={() => window.location.reload()}
-            />
-          )}
-
-          {!error && (
-            <GradientGrid
-              gradients={currentGradients}
-              favorites={favorites}
-              toggleFavorite={toggleFavorite}
-              setBackground={setBackground}
-              isLoading={isLoading}
-            />
-          )}
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-</div>
 
         </div>
       </div>

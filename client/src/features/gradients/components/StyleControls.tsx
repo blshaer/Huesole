@@ -45,21 +45,6 @@ export const StyleControls = ({ result, setResult }: StyleControlsProps) => {
           </Select>
         </div>
 
-        {result.type === "linear" && (
-          <div className="space-y-2">
-            <Label className="text-[10px] text-foreground/40">
-              ANGLE ({result.angle}°)
-            </Label>
-            <div className="flex h-10 items-center">
-              <Slider
-                value={[result.angle || 0]}
-                max={360}
-                step={1}
-                onValueChange={([val]) => setResult({ ...result, angle: val })}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

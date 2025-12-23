@@ -34,18 +34,18 @@ export const register = async (req: Request, res: Response) => {
         const verificationToken = user.getVerificationToken();
         await user.save();
 
-        const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+        const CLIENT_URL = process.env.CLIENT_URL;
         const verifyLink = `${CLIENT_URL}/verify-email/${verificationToken}`;
 
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #6366f1; margin: 0;">GradientsCSS</h1>
+                    <h1 style="color: #6366f1; margin: 0;">GradlyAI</h1>
                 </div>
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <h2 style="color: #1e293b; margin-top: 0;">Verify Your Email</h2>
                     <p>Hi ${name},</p>
-                    <p>Welcome to GradientsCSS! We're excited to have you on board. To get started, please verify your email address by clicking the button below:</p>
+                    <p>Welcome to GradlyAI! We're excited to have you on board. To get started, please verify your email address by clicking the button below:</p>
                     <div style="text-align: center; margin: 35px 0;">
                         <a href="${verifyLink}" style="background-color: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: background-color 0.2s;">Verify Email Address</a>
                     </div>
@@ -55,7 +55,7 @@ export const register = async (req: Request, res: Response) => {
                     <p style="font-size: 0.8em; color: #94a3b8; margin-bottom: 0;">If you didn't create an account, you can safely ignore this email.</p>
                 </div>
                 <div style="text-align: center; margin-top: 25px; color: #94a3b8; font-size: 0.8em;">
-                    &copy; ${new Date().getFullYear()} GradientsCSS. All rights reserved.
+                    &copy; ${new Date().getFullYear()} GradlyAI. All rights reserved.
                 </div>
             </div>
         `;
@@ -63,7 +63,7 @@ export const register = async (req: Request, res: Response) => {
         try {
             await sendEmail({
                 email: user.email,
-                subject: "Verify Your Email - GradientsCSS",
+                subject: "Verify Your Email - GradlyAI",
                 message: emailHtml,
             });
 
@@ -174,18 +174,18 @@ export const forgotPassword = async (req: Request, res: Response) => {
         const resetToken = user.getResetPasswordToken();
         await user.save();
 
-        const CLIENT_URL = req.headers.origin || "http://localhost:5173";
+        const CLIENT_URL = req.headers.origin;
         const resetUrl = `${CLIENT_URL}/reset-password/${resetToken}`;
 
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #6366f1; margin: 0;">GradientsCSS</h1>
+                    <h1 style="color: #6366f1; margin: 0;">GradlyAI</h1>
                 </div>
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <h2 style="color: #1e293b; margin-top: 0;">Reset Your Password</h2>
                     <p>Hi,</p>
-                    <p>You requested a password reset for your GradientsCSS account. Please click the button below to choose a new password:</p>
+                    <p>You requested a password reset for your GradlyAI account. Please click the button below to choose a new password:</p>
                     <div style="text-align: center; margin: 35px 0;">
                         <a href="${resetUrl}" style="background-color: #ef4444; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: background-color 0.2s;">Reset Password</a>
                     </div>
@@ -195,7 +195,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
                     <p style="font-size: 0.8em; color: #94a3b8; margin-bottom: 0;">If you didn't request this, please ignore this email or contact support if you have concerns.</p>
                 </div>
                 <div style="text-align: center; margin-top: 25px; color: #94a3b8; font-size: 0.8em;">
-                    &copy; ${new Date().getFullYear()} GradientsCSS. All rights reserved.
+                    &copy; ${new Date().getFullYear()} GradlyAI. All rights reserved.
                 </div>
             </div>
         `;
@@ -203,7 +203,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         try {
             await sendEmail({
                 email: user.email,
-                subject: "Password Reset Request - GradientsCSS",
+                subject: "Password Reset Request - GradlyAI",
                 message: emailHtml,
             });
 
@@ -268,13 +268,13 @@ export const resendVerification = async (req: Request, res: Response) => {
         const verificationToken = user.getVerificationToken();
         await user.save();
 
-        const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+        const CLIENT_URL = process.env.CLIENT_URL;
         const verifyLink = `${CLIENT_URL}/verify-email/${verificationToken}`;
 
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #6366f1; margin: 0;">GradientsCSS</h1>
+                    <h1 style="color: #6366f1; margin: 0;">GradlyAI</h1>
                 </div>
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <h2 style="color: #1e293b; margin-top: 0;">Verify Your Email</h2>
@@ -289,7 +289,7 @@ export const resendVerification = async (req: Request, res: Response) => {
                     <p style="font-size: 0.8em; color: #94a3b8; margin-bottom: 0;">If you didn't request this, you can safely ignore this email.</p>
                 </div>
                 <div style="text-align: center; margin-top: 25px; color: #94a3b8; font-size: 0.8em;">
-                    &copy; ${new Date().getFullYear()} GradientsCSS. All rights reserved.
+                    &copy; ${new Date().getFullYear()} GradlyAI. All rights reserved.
                 </div>
             </div>
         `;
@@ -297,7 +297,7 @@ export const resendVerification = async (req: Request, res: Response) => {
         try {
             await sendEmail({
                 email: user.email,
-                subject: "Verify Your Email - GradientsCSS",
+                subject: "Verify Your Email - GradlyAI",
                 message: emailHtml,
             });
 
