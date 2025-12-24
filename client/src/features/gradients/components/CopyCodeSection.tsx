@@ -207,21 +207,21 @@ export const CopyCodeSection: React.FC<CopyCodeSectionProps> = ({
           copyToClipboard(
             text,
             key as
-              | "tailwind"
-              | "css"
-              | "sass"
-              | "bootstrap"
-              | "react-native"
-              | "flutter"
-              | "swiftui"
-              | "kotlin"
-              | "vue"
-              | "angular"
-              | "react"
-              | "xml"
-              | "svg"
-              | "json"
-              | "colors",
+            | "tailwind"
+            | "css"
+            | "sass"
+            | "bootstrap"
+            | "react-native"
+            | "flutter"
+            | "swiftui"
+            | "kotlin"
+            | "vue"
+            | "angular"
+            | "react"
+            | "xml"
+            | "svg"
+            | "json"
+            | "colors",
           );
         }}
       />

@@ -20,21 +20,21 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
   // Create animated style if animation is enabled
   const animatedStyle = isAnimated
     ? {
-        ...style,
-        backgroundSize: "400% 400%",
-        animation: `gradientShift ${4 / animationSpeed}s ease infinite`,
-      }
+      ...style,
+      backgroundSize: "400% 400%",
+      animation: `gradientShift ${4 / animationSpeed}s ease infinite`,
+    }
     : style;
 
   // For text gradients, ensure proper text styling
   const textGradientStyle =
     gradientType === "text"
       ? {
-          ...animatedStyle,
-          color: "transparent",
-          backgroundClip: "text",
-          WebkitBackgroundClip: "text",
-        }
+        ...animatedStyle,
+        color: "transparent",
+        backgroundClip: "text",
+        WebkitBackgroundClip: "text",
+      }
       : animatedStyle;
 
   return (
@@ -47,9 +47,8 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
         }}
       />
       <motion.div
-        className={`relative left-0 right-0 m-auto mt-6 flex h-48 w-48 items-center justify-center overflow-hidden ${
-          gradientType === "image" ? "rounded-[12px]" : "rounded-full"
-        }`}
+        className={`relative left-0 right-0 m-auto mt-6 flex h-48 w-48 items-center justify-center overflow-hidden ${gradientType === "image" ? "rounded-[12px]" : "rounded-full"
+          }`}
         style={gradientType === "background" ? animatedStyle : {}}
         transition={{ duration: 0.3 }}
       >

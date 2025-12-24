@@ -13,7 +13,7 @@ import {
   CardFooter,
 } from "@/shared/ui/card";
 import { toast } from "@/shared/hooks/use-toast";
-import { Mail, Loader2, ArrowLeft, KeyRound } from "lucide-react";
+import { Mail, Loader2, ArrowLeft } from "lucide-react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");

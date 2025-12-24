@@ -28,6 +28,8 @@ interface AuthContextType {
   loading: boolean;
   login: (googleToken: string) => Promise<void>;
   emailLogin: (userData: any) => Promise<void>;
+  closeSignIn: any;
+  isSignInOpen: any;
   register: (userData: any) => Promise<void>;
   logout: () => void;
   setAuth: (data: AuthResponse) => void;

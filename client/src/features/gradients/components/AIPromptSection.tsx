@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, Mic, MicOff } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import SpeechRecognition, {
   useSpeechRecognition,

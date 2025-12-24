@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { resendVerification } from "../services/authService";
 import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
@@ -13,14 +12,8 @@ import {
   CardTitle,
   CardFooter,
 } from "@/shared/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
 import {
-  AlertCircle,
-  CheckCircle2,
-  Mail,
   Loader2,
-  ArrowLeft,
-  RefreshCw,
 } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "@/shared/hooks/use-toast";
@@ -47,27 +40,6 @@ const RegisterPage = () => {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const handleResendLink = async () => {
-    if (!email || cooldown > 0) return;
-
-    setLoading(true);
-    try {
-      await resendVerification(email);
-      toast({
-        title: "Link Sent",
-        description: "A fresh verification link has been sent to your email.",
-      });
-      setCooldown(60);
-    } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.response?.data?.message || "Failed to resend link.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

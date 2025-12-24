@@ -170,8 +170,7 @@ export function ExportModal({
                 <div className="relative">
                   {/* Dynamic height based on aspect ratio */}
                   <div
-                    className={`w-full ${
-                      selectedSize === "Large" || selectedSize === "4K"
+                    className={`w-full ${selectedSize === "Large" || selectedSize === "4K"
                         ? "h-24" // 16:9 aspect ratio
                         : selectedSize === "Small"
                           ? "h-32" // 1:1 aspect ratio
@@ -180,7 +179,7 @@ export function ExportModal({
                               ? "h-24"
                               : "h-32"
                             : "h-28" // Default medium
-                    }`}
+                      }`}
                     style={{
                       background: `linear-gradient(${gradientData.angle || 45}deg, ${gradientData.colors.join(", ")})`,
                     }}
@@ -249,23 +248,23 @@ export function ExportModal({
           {!["css", "ios", "less", "scss", "figma", "sketch", "json"].includes(
             selectedFormat,
           ) && (
-            <div className="space-y-2">
-              <Label>Size</Label>
-              <Select value={selectedSize} onValueChange={setSelectedSize}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sizePresets.map((preset) => (
-                    <SelectItem key={preset.name} value={preset.name}>
-                      {preset.name} ({preset.width} × {preset.height})
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="Custom">Custom Size</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+              <div className="space-y-2">
+                <Label>Size</Label>
+                <Select value={selectedSize} onValueChange={setSelectedSize}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizePresets.map((preset) => (
+                      <SelectItem key={preset.name} value={preset.name}>
+                        {preset.name} ({preset.width} × {preset.height})
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="Custom">Custom Size</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
           {/* Custom Size Inputs */}
           {selectedSize === "Custom" &&

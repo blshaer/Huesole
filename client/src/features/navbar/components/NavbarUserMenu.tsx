@@ -2,11 +2,9 @@
 
 import { Link } from "react-router-dom";
 import {
-  Heart,
-  Layers,
+
   LogOut,
-  Sparkles,
-  User as UserIcon,
+
 } from "lucide-react";
 
 import {

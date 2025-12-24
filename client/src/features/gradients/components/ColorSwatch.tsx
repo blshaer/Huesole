@@ -304,7 +304,7 @@ function hslToRgb(h: number, s: number, l: number): RGB {
   else if (120 <= h && h < 180) [r1, g1, b1] = [0, C, X];
   else if (180 <= h && h < 240) [r1, g1, b1] = [0, X, C];
   else if (240 <= h && h < 300) [r1, g1, b1] = [X, 0, C];
-  else [r1, g1, b1] = [C, 0, X];
+  else[r1, g1, b1] = [C, 0, X];
 
   return {
     r: Math.round((r1 + m) * 255),

@@ -28,11 +28,10 @@ export const AnimationSection = ({
           size="sm"
           variant={isAnimated ? "secondary" : "ghost"}
           onClick={() => setIsAnimated(!isAnimated)}
-          className={`h-8 gap-2 rounded-xl text-xs font-bold ${
-            isAnimated
+          className={`h-8 gap-2 rounded-xl text-xs font-bold ${isAnimated
               ? "bg-accent text-accent-foreground"
               : "text-foreground/40"
-          }`}
+            }`}
         >
           {isAnimated ? (
             <Pause className="h-3.5 w-3.5" />

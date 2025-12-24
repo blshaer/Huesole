@@ -200,21 +200,20 @@ export const ExportSection = ({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}">
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
-                 values="${color};${
-                   formattedColors[(index + 1) % formattedColors.length]
-                 };${color}" 
+                 values="${color};${formattedColors[(index + 1) % formattedColors.length]
+                };${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-        })
-        .join("\n      ")}
+            })
+            .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -229,14 +228,14 @@ export const ExportSection = ({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}" />`;
-        })
-        .join("\n      ")}
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}" />`;
+            })
+            .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
@@ -258,9 +257,8 @@ export const ExportSection = ({
             animationSpeed,
             css: gradientStyle,
             animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${
-                  4 / animationSpeed
-                }s ease infinite;`
+              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
+              }s ease infinite;`
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
@@ -312,9 +310,8 @@ export const ExportSection = ({
 
       if (isAnimated) {
         tempContainer.style.backgroundSize = "400% 400%";
-        tempContainer.style.animation = `gradientShift ${
-          4 / animationSpeed
-        }s ease infinite`;
+        tempContainer.style.animation = `gradientShift ${4 / animationSpeed
+          }s ease infinite`;
       }
 
       document.body.appendChild(tempContainer);
@@ -337,9 +334,8 @@ export const ExportSection = ({
 
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `${
-        result.name || "gradient"
-      }-${size.key}.${format.extension}`;
+      link.download = `${result.name || "gradient"
+        }-${size.key}.${format.extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -392,11 +388,10 @@ export const ExportSection = ({
                   e.preventDefault();
                   setSelectedImageFormat(format.key);
                 }}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${
-                  selectedImageFormat === format.key
+                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageFormat === format.key
                     ? "bg-primary/10 text-primary"
                     : "text-foreground/80"
-                }`}
+                  }`}
               >
                 <div className="flex w-full items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -435,11 +430,10 @@ export const ExportSection = ({
                   e.preventDefault();
                   setSelectedImageSize(size.key);
                 }}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${
-                  selectedImageSize === size.key
+                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageSize === size.key
                     ? "bg-primary/10 text-primary"
                     : "text-foreground/80"
-                }`}
+                  }`}
               >
                 <div className="flex w-full items-center justify-between">
                   <span>{size.label}</span>

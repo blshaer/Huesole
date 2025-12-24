@@ -66,7 +66,7 @@ const ResetPassword = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          "Something went wrong while resetting your password.",
+        "Something went wrong while resetting your password.",
       );
     } finally {
       setLoading(false);

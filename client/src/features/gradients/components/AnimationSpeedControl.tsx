@@ -41,11 +41,10 @@ export const AnimationSpeedControl: React.FC<AnimationSpeedControlProps> = ({
             {speedOptions.map((option) => (
               <motion.button
                 key={option.value}
-                className={`rounded px-2 py-1 text-xs transition-colors ${
-                  speed === option.value
+                className={`rounded px-2 py-1 text-xs transition-colors ${speed === option.value
                     ? "bg-blue-500 text-white"
                     : "hover:bg-primary/10 bg-secondary text-white/90"
-                } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+                  } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
                 onClick={() => !disabled && onChange(option.value)}
                 whileHover={!disabled ? { scale: 1.05 } : {}}
                 whileTap={!disabled ? { scale: 0.95 } : {}}

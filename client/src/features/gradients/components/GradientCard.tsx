@@ -230,26 +230,26 @@ export default function GradientCard({
       return gradientType === "background"
         ? { backgroundImage: gradientStyle }
         : {
-            color: "transparent",
-            backgroundImage: gradientStyle,
-            WebkitBackgroundClip: "text",
-          };
+          color: "transparent",
+          backgroundImage: gradientStyle,
+          WebkitBackgroundClip: "text",
+        };
     }
 
     const animationDuration = `${4 / animationSpeed}s`;
     return gradientType === "background"
       ? {
-          backgroundImage: gradientStyle,
-          backgroundSize: "400% 400%",
-          animation: `gradientShift ${animationDuration} ease infinite`,
-        }
+        backgroundImage: gradientStyle,
+        backgroundSize: "400% 400%",
+        animation: `gradientShift ${animationDuration} ease infinite`,
+      }
       : {
-          color: "transparent",
-          backgroundImage: gradientStyle,
-          backgroundSize: "400% 400%",
-          WebkitBackgroundClip: "text",
-          animation: `gradientShift ${animationDuration} ease infinite`,
-        };
+        color: "transparent",
+        backgroundImage: gradientStyle,
+        backgroundSize: "400% 400%",
+        WebkitBackgroundClip: "text",
+        animation: `gradientShift ${animationDuration} ease infinite`,
+      };
   };
 
   const getCode = (format: string) => {
@@ -297,21 +297,20 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}">
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}">
         <animate attributeName="stop-color" 
-                 values="${color};${
-                   formattedColors[(index + 1) % formattedColors.length]
-                 };${color}" 
+                 values="${color};${formattedColors[(index + 1) % formattedColors.length]
+                };${color}" 
                  dur="${4 / animationSpeed}s" 
                  repeatCount="indefinite"/>
       </stop>`;
-        })
-        .join("\n      ")}
+            })
+            .join("\n      ")}
       <animateTransform attributeName="gradientTransform"
                         type="rotate"
                         values="0 100 100;360 100 100;0 100 100"
@@ -326,14 +325,14 @@ export default function GradientCard({
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
       ${formattedColors
-        .map((color, index) => {
-          const offset =
-            formattedColors.length === 1
-              ? 0
-              : (index / (formattedColors.length - 1)) * 100;
-          return `<stop offset="${offset}%" stop-color="${color}" />`;
-        })
-        .join("\n      ")}
+            .map((color, index) => {
+              const offset =
+                formattedColors.length === 1
+                  ? 0
+                  : (index / (formattedColors.length - 1)) * 100;
+              return `<stop offset="${offset}%" stop-color="${color}" />`;
+            })
+            .join("\n      ")}
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#gradient)" />
@@ -358,9 +357,8 @@ export default function GradientCard({
             animationSpeed: animationSpeed,
             css: gradientStyle,
             animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${
-                  4 / animationSpeed
-                }s ease infinite;`
+              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
+              }s ease infinite;`
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
@@ -396,28 +394,26 @@ export default function GradientCard({
             className="text-white drop-shadow-lg"
           />
 
-          <div className="flex items-center gap-2">
+          <div aria-label={editTooltipText}
+            className="relative flex gap-4 px-2 py-2  items-center justify-center rounded-[8px] backdrop-blur-sm"
+            style={{
+              backgroundColor: isLightGradient
+                ? "rgba(0,0,0,0.18)"
+                : "rgba(255,255,255,0.18)",
+              border: `1px solid ${isLightGradient
+                ? "rgba(0,0,0,0.25)"
+                : "rgba(255,255,255,0.25)"
+                }`,
+            }}
+
+            onMouseEnter={() => setShowEditTooltip(true)}
+            onMouseLeave={() => setShowEditTooltip(false)}
+            onFocus={() => setShowEditTooltip(true)}
+            onBlur={() => setShowEditTooltip(false)}>
             {/* Edit Button */}
             <motion.button
               type="button"
-              aria-label={editTooltipText}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
-              style={{
-                backgroundColor: isLightGradient
-                  ? "rgba(0,0,0,0.18)"
-                  : "rgba(255,255,255,0.18)",
-                border: `1px solid ${
-                  isLightGradient
-                    ? "rgba(0,0,0,0.25)"
-                    : "rgba(255,255,255,0.25)"
-                }`,
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onMouseEnter={() => setShowEditTooltip(true)}
-              onMouseLeave={() => setShowEditTooltip(false)}
-              onFocus={() => setShowEditTooltip(true)}
-              onBlur={() => setShowEditTooltip(false)}
+
               onClick={handleEditButtonClick}
             >
               <Pencil className="h-4 w-4" style={{ color: controlColor }} />
@@ -446,23 +442,8 @@ export default function GradientCard({
             <motion.button
               type="button"
               aria-label={tooltipText}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm"
-              style={{
-                backgroundColor: isLightGradient
-                  ? "rgba(0,0,0,0.18)"
-                  : "rgba(255,255,255,0.18)",
-                border: `1px solid ${
-                  isLightGradient
-                    ? "rgba(0,0,0,0.25)"
-                    : "rgba(255,255,255,0.25)"
-                }`,
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onMouseEnter={() => setShowTooltip(true)}
-              onMouseLeave={() => setShowTooltip(false)}
-              onFocus={() => setShowTooltip(true)}
-              onBlur={() => setShowTooltip(false)}
+
+
               onClick={() => setShowAngleController((v) => !v)}
             >
               <AnimatePresence mode="wait" initial={false}>

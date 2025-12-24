@@ -10,7 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
+
 } from "@/shared/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
@@ -33,6 +33,15 @@ interface PasswordStrength {
   strength: "weak" | "medium" | "strong";
   score: number;
 }
+
+interface UpdateProfileResponse {
+  user: {
+    name: string;
+    email?: string;
+    picture?: string;
+  };
+}
+
 
 const ProfilePage = () => {
   const { user, token, loading, updateUser } = useAuth();
@@ -133,7 +142,8 @@ const ProfilePage = () => {
       formData.append("name", name);
       if (selectedFile) formData.append("picture", selectedFile);
 
-      const response = await axios.put(
+      const response = await axios.put<UpdateProfileResponse>(
+
         "http://localhost:5000/api/auth/update-profile",
         formData,
         {
@@ -272,7 +282,6 @@ const ProfilePage = () => {
                   <Camera
                     className="absolute bottom-1 right-1 z-30 h-6 w-6 cursor-pointer text-primary"
                     onClick={triggerFileSelect}
-                    title="Change Profile Picture"
                   />
                   <input
                     type="file"
@@ -466,13 +475,12 @@ const ProfilePage = () => {
                               Password strength
                             </span>
                             <span
-                              className={`font-semibold capitalize ${
-                                passwordStrength.strength === "strong"
-                                  ? "text-green-600"
-                                  : passwordStrength.strength === "medium"
-                                    ? "text-yellow-600"
-                                    : "text-red-600"
-                              }`}
+                              className={`font-semibold capitalize ${passwordStrength.strength === "strong"
+                                ? "text-green-600"
+                                : passwordStrength.strength === "medium"
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
+                                }`}
                             >
                               {passwordStrength.strength}
                             </span>

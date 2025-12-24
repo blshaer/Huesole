@@ -14,21 +14,21 @@ interface CodePreviewProps {
   code: string;
   copiedStates: Record<string, boolean>;
   activeTab:
-    | "tailwind"
-    | "css"
-    | "sass"
-    | "bootstrap"
-    | "react-native"
-    | "flutter"
-    | "swiftui"
-    | "kotlin"
-    | "vue"
-    | "angular"
-    | "react"
-    | "xml"
-    | "svg"
-    | "json"
-    | "colors";
+  | "tailwind"
+  | "css"
+  | "sass"
+  | "bootstrap"
+  | "react-native"
+  | "flutter"
+  | "swiftui"
+  | "kotlin"
+  | "vue"
+  | "angular"
+  | "react"
+  | "xml"
+  | "svg"
+  | "json"
+  | "colors";
   copyToClipboard: (
     text: string,
     key:

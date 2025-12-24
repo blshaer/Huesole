@@ -6,19 +6,11 @@ import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/shared/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
 import {
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  Sparkles,
   ArrowRight,
-  AlertCircle,
 } from "lucide-react";
 
 const VerifyEmail = () => {
@@ -53,7 +45,7 @@ const VerifyEmail = () => {
         setStatus("error");
         setMessage(
           err.response?.data?.message ||
-            "Verification failed. The link may have expired.",
+          "Verification failed. The link may have expired.",
         );
       }
     };

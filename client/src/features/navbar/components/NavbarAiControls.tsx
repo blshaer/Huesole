@@ -1,7 +1,6 @@
 // src/shared/layout/Navbar/NavbarAiControls.tsx
 
 import { AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
 
 import { GeneratedGradient } from "@/features/gradients/types";
 

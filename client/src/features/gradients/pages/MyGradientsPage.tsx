@@ -21,7 +21,7 @@ const MyGradientsPage = () => {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-        setGradients(response.data.data as any);
+        setGradients(response.data.data );
       } catch (error) {
         console.error("Failed to fetch custom gradients", error);
       } finally {

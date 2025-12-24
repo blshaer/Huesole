@@ -29,11 +29,8 @@ interface NavbarProps {
 export const Navbar = ({
   result = null,
   isAnimated = false,
-  setIsAnimated,
   animationSpeed = 1,
   setAnimationSpeed,
-  showAngleController = false,
-  onToggleAngleController,
   onToggleSidebar,
   isLightGradient = false,
 }: NavbarProps) => {
