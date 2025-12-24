@@ -1,8 +1,8 @@
 import { Button } from "@/shared/ui/button";
 import { HeroFeatures } from "./HeroFeatures";
 import { HeroHeader } from "./HeroHeader";
-import Link from "next/link"; // Add this import for Next.js
-// OR for React Router: import { Link } from "react-router-dom";
+
+import { Link } from "react-router-dom";
 
 export const HeroSection: React.FC = () => (
   <header className="relative flex h-[60vh] w-full items-center justify-center overflow-hidden">
@@ -25,7 +25,7 @@ export const HeroSection: React.FC = () => (
       <HeroHeader />
       <HeroFeatures />
       <div className="flex w-full items-center justify-center pb-6">
-        <Link href="/ai-generator">
+        <Link to="/ai-generator">
           <Button
             className="border-none mt-4"
 
