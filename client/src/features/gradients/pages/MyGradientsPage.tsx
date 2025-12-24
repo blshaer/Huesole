@@ -20,7 +20,7 @@ const MyGradientsPage = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get<{ data: Gradient[] }>(
-          "http://localhost:5000/api/ai/my-gradients",
+          "https://gradlyai.onrender.com/api/ai/my-gradients",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

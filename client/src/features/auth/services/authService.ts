@@ -13,7 +13,7 @@ export interface AuthResponse {
   message?: string;
 }
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "https://gradlyai.onrender.com/api/auth";
 
 export const googleLogin = async (token: string): Promise<AuthResponse> => {
   const response = await axios.post(`${API_URL}/google`, { token });

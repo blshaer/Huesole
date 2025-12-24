@@ -34,7 +34,7 @@ export const useGradientGeneration = ({
     setLoading(true);
     try {
       const response = await axios.post<{ data: GeneratedGradient }>(
-        "http://localhost:5000/api/ai/generate",
+        "https://gradlyai.onrender.com/api/ai/generate",
         { prompt: customPrompt }
       );
       setLocalResult(response.data.data); // store locally
@@ -63,7 +63,7 @@ export const useGradientGeneration = ({
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/ai/save",
+        "https://gradlyai.onrender.com/api/ai/save",
         { gradient: result },
         { headers: { Authorization: `Bearer ${token}` } }
       );

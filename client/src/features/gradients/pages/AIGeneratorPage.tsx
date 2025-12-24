@@ -101,7 +101,7 @@ const AIGeneratorPage = () => {
         },
       };
 
-      await axios.post("http://localhost:5000/api/ai/save", payload, {
+      await axios.post("https://gradlyai.onrender.com/api/ai/save", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

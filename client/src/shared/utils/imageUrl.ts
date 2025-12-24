@@ -7,7 +7,7 @@ export const getFullImageUrl = (path?: string) => {
   )
     return path;
 
-  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const baseUrl = import.meta.env.VITE_API_URL || "https://gradlyai.onrender.com";
   // Remove leading slash if present to avoid double slashes
   const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   return `${baseUrl}/${cleanPath}`;

@@ -144,7 +144,7 @@ const ProfilePage = () => {
 
       const response = await axios.put<UpdateProfileResponse>(
 
-        "http://localhost:5000/api/auth/update-profile",
+        "https://gradlyai.onrender.com/api/auth/update-profile",
         formData,
         {
           headers: {
@@ -199,7 +199,7 @@ const ProfilePage = () => {
     setLoadingState(true);
     try {
       await axios.put(
-        "http://localhost:5000/api/auth/updatepassword",
+        "https://gradlyai.onrender.com/api/auth/updatepassword",
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } },
       );
