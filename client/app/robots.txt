@@ -1,6 +1,0 @@
-User-agent: *
-Disallow: /src/
-Disallow: /node_modules/
-Allow: /
-
-Sitemap: https://gradlyai.free.nf/sitemap.xml
