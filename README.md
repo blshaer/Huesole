@@ -25,8 +25,8 @@ Gradients CSS is a modern, open-source React application for browsing, searching
 
 ```bash
 # Clone the repository
-git clone https://github.com/blshaer/gradients-css.git
-cd gradients-css
+git clone https://github.com/blshaer/gradlyai.git
+cd gradlyai
 
 # Install dependencies
 pnpm install # or npm install or yarn install

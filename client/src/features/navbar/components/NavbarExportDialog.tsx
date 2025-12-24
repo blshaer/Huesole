@@ -34,7 +34,7 @@ export const NavbarExportDialog = ({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -10 }}
       transition={{ duration: 0.2, delay: 0.1 }}
-      className="sm:block"
+      className="sm:block max-md:hidden"
     >
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
         <DialogTrigger asChild>
@@ -68,11 +68,15 @@ export const NavbarExportDialog = ({
             </DialogDescription>
           </DialogHeader>
 
+
+
+
           <ExportSection
             result={result}
             isAnimated={isAnimated}
             animationSpeed={animationSpeed}
           />
+
         </DialogContent>
       </Dialog>
     </motion.div>

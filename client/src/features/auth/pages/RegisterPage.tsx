@@ -28,6 +28,8 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -100,31 +102,49 @@ const RegisterPage = () => {
         <CardContent className="grid gap-6">
           <form onSubmit={handleRegister} className="grid gap-5">
             <div className="mx-auto">
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  if (credentialResponse.credential) {
-                    setLoading(true);
-                    try {
-                      await login(credentialResponse.credential);
-                      navigate("/");
-                    } finally {
-                      setLoading(false);
+              {googleLoading ? (
+                <Button
+                  className="h-11 w-[280px] font-medium"
+                  variant="outline"
+                  disabled
+                >
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting with Google...
+                </Button>
+              ) : (
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    if (credentialResponse.credential) {
+                      setGoogleLoading(true);
+                      try {
+                        await login(credentialResponse.credential);
+                        navigate("/");
+                      } catch (error) {
+                        toast({
+                          title: "Google Login Failed",
+                          description: "Please try again.",
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setGoogleLoading(false);
+                      }
                     }
-                  }
-                }}
-                onError={() => {
-                  toast({
-                    title: "Google Login Failed",
-                    description: "Please try manually.",
-                    variant: "destructive",
-                  });
-                }}
-                theme="outline"
-                shape="circle"
-                text="signin_with"
-                width="280px"
-              />
+                  }}
+                  onError={() => {
+                    toast({
+                      title: "Google Login Failed",
+                      description: "Please try manually.",
+                      variant: "destructive",
+                    });
+                  }}
+                  theme="outline"
+                  shape="circle"
+                  text="signin_with"
+                  width="280px"
+                />
+              )}
             </div>
+
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -188,7 +208,7 @@ const RegisterPage = () => {
             <Button
               className="mt-2 h-11 w-full text-base font-semibold shadow-lg transition-all"
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -199,6 +219,7 @@ const RegisterPage = () => {
                 "Join the Community"
               )}
             </Button>
+
           </form>
         </CardContent>
         <CardFooter className="border-border/40 flex flex-col gap-4 border-t pb-8 pt-6">

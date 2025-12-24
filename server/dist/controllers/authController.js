@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -25,21 +16,21 @@ const generateToken = (id, email) => {
         expiresIn: "30d",
     });
 };
-const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const register = async (req, res) => {
     const { name, email, password } = req.body;
     try {
-        const userExists = yield User_1.default.findOne({ email });
+        const userExists = await User_1.default.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: "User already exists" });
         }
-        const user = yield User_1.default.create({
+        const user = await User_1.default.create({
             name,
             email,
             password,
         });
         // Generate verification token
         const verificationToken = user.getVerificationToken();
-        yield user.save();
+        await user.save();
         const CLIENT_URL = process.env.CLIENT_URL;
         const verifyLink = `${CLIENT_URL}/verify-email/${verificationToken}`;
         const emailHtml = `
@@ -65,7 +56,7 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             </div>
         `;
         try {
-            yield (0, sendEmail_1.default)({
+            await (0, sendEmail_1.default)({
                 email: user.email,
                 subject: "Verify Your Email - GradlyAI",
                 message: emailHtml,
@@ -78,7 +69,7 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         catch (error) {
             console.error(error);
             user.verificationToken = undefined;
-            yield user.save();
+            await user.save();
             return res.status(500).json({ message: "Email could not be sent" });
         }
     }
@@ -86,17 +77,17 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.register = register;
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const login = async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = yield User_1.default.findOne({ email }).select("+password");
+        const user = await User_1.default.findOne({ email }).select("+password");
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
         // Check if password matches
-        const isMatch = yield user.matchPassword(password);
+        const isMatch = await user.matchPassword(password);
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
@@ -119,15 +110,15 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.login = login;
-const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const verifyEmail = async (req, res) => {
     const token = crypto_1.default
         .createHash("sha256")
         .update(req.params.token)
         .digest("hex");
     try {
-        const user = yield User_1.default.findOne({
+        const user = await User_1.default.findOne({
             verificationToken: token,
         });
         if (!user) {
@@ -135,7 +126,7 @@ const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         user.isVerified = true;
         user.verificationToken = undefined;
-        yield user.save();
+        await user.save();
         const tokenGenerated = user.getSignedJwtToken();
         res.status(200).json({
             success: true,
@@ -153,17 +144,17 @@ const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.verifyEmail = verifyEmail;
-const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const forgotPassword = async (req, res) => {
     const { email } = req.body;
     try {
-        const user = yield User_1.default.findOne({ email });
+        const user = await User_1.default.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
         const resetToken = user.getResetPasswordToken();
-        yield user.save();
+        await user.save();
         const CLIENT_URL = req.headers.origin;
         const resetUrl = `${CLIENT_URL}/reset-password/${resetToken}`;
         const emailHtml = `
@@ -189,7 +180,7 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
             </div>
         `;
         try {
-            yield (0, sendEmail_1.default)({
+            await (0, sendEmail_1.default)({
                 email: user.email,
                 subject: "Password Reset Request - GradlyAI",
                 message: emailHtml,
@@ -199,22 +190,22 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         catch (err) {
             user.resetPasswordToken = undefined;
             user.resetPasswordExpire = undefined;
-            yield user.save();
+            await user.save();
             return res.status(500).json({ message: "Email could not be sent" });
         }
     }
     catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.forgotPassword = forgotPassword;
-const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const resetPassword = async (req, res) => {
     const resetPasswordToken = crypto_1.default
         .createHash("sha256")
         .update(req.params.token)
         .digest("hex");
     try {
-        const user = yield User_1.default.findOne({
+        const user = await User_1.default.findOne({
             resetPasswordToken,
             resetPasswordExpire: { $gt: Date.now() },
         });
@@ -224,7 +215,7 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
-        yield user.save();
+        await user.save();
         res.status(200).json({
             success: true,
             token: generateToken(user._id.toString(), user.email),
@@ -234,12 +225,12 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.resetPassword = resetPassword;
-const resendVerification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const resendVerification = async (req, res) => {
     const { email } = req.body;
     try {
-        const user = yield User_1.default.findOne({ email });
+        const user = await User_1.default.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -247,7 +238,7 @@ const resendVerification = (req, res) => __awaiter(void 0, void 0, void 0, funct
             return res.status(400).json({ message: "Email is already verified" });
         }
         const verificationToken = user.getVerificationToken();
-        yield user.save();
+        await user.save();
         const CLIENT_URL = process.env.CLIENT_URL;
         const verifyLink = `${CLIENT_URL}/verify-email/${verificationToken}`;
         const emailHtml = `
@@ -273,7 +264,7 @@ const resendVerification = (req, res) => __awaiter(void 0, void 0, void 0, funct
             </div>
         `;
         try {
-            yield (0, sendEmail_1.default)({
+            await (0, sendEmail_1.default)({
                 email: user.email,
                 subject: "Verify Your Email - GradlyAI",
                 message: emailHtml,
@@ -288,12 +279,12 @@ const resendVerification = (req, res) => __awaiter(void 0, void 0, void 0, funct
     catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.resendVerification = resendVerification;
-const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const googleLogin = async (req, res) => {
     const { token } = req.body;
     try {
-        const ticket = yield client.verifyIdToken({
+        const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
@@ -305,20 +296,20 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (!email) {
             return res.status(400).json({ message: "Email not found in token" });
         }
-        let user = yield User_1.default.findOne({ googleId: sub });
+        let user = await User_1.default.findOne({ googleId: sub });
         if (!user) {
             // Check if user exists with email but no googleId (setup via email/password previously)
-            user = yield User_1.default.findOne({ email });
+            user = await User_1.default.findOne({ email });
             if (user) {
                 // Link google account
                 user.googleId = sub;
                 user.picture = picture || user.picture;
                 if (!user.isVerified)
                     user.isVerified = true;
-                yield user.save();
+                await user.save();
             }
             else {
-                user = yield User_1.default.create({
+                user = await User_1.default.create({
                     googleId: sub,
                     name,
                     email,
@@ -344,14 +335,13 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.error("Google Auth Error:", error);
         res.status(500).json({ message: "Server error during authentication" });
     }
-});
+};
 exports.googleLogin = googleLogin;
-const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const getMe = async (req, res) => {
     try {
         // @ts-ignore
-        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-        const user = yield User_1.default.findById(userId);
+        const userId = req.user?.id;
+        const user = await User_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -366,37 +356,35 @@ const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         res.status(500).json({ message: "Server error" });
     }
-});
+};
 exports.getMe = getMe;
-const updatePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const updatePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     try {
         // @ts-ignore
-        const user = yield User_1.default.findById((_a = req.user) === null || _a === void 0 ? void 0 : _a.id).select("+password");
+        const user = await User_1.default.findById(req.user?.id).select("+password");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
         // Check if current password is correct
-        const isMatch = yield user.matchPassword(currentPassword);
+        const isMatch = await user.matchPassword(currentPassword);
         if (!isMatch) {
             return res.status(401).json({ message: "Incorrect current password" });
         }
         user.password = newPassword;
-        yield user.save();
+        await user.save();
         res.status(200).json({ success: true, message: "Password updated" });
     }
     catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.updatePassword = updatePassword;
-const toggleFavorite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const toggleFavorite = async (req, res) => {
     const { gradientName } = req.body;
     try {
         // @ts-ignore
-        const user = yield User_1.default.findById((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
+        const user = await User_1.default.findById(req.user?.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -407,7 +395,7 @@ const toggleFavorite = (req, res) => __awaiter(void 0, void 0, void 0, function*
         else {
             user.favorites.splice(index, 1);
         }
-        yield user.save();
+        await user.save();
         res.status(200).json({
             success: true,
             favorites: user.favorites,
@@ -416,15 +404,14 @@ const toggleFavorite = (req, res) => __awaiter(void 0, void 0, void 0, function*
     catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
-});
+};
 exports.toggleFavorite = toggleFavorite;
-const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const updateProfile = async (req, res) => {
     try {
         // @ts-ignore
-        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+        const userId = req.user?.id;
         const { name } = req.body;
-        const user = yield User_1.default.findById(userId);
+        const user = await User_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -435,7 +422,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             // Store the path relative to the server (e.g., /uploads/picture-123.jpg)
             user.picture = `/uploads/${req.file.filename}`;
         }
-        yield user.save();
+        await user.save();
         res.status(200).json({
             success: true,
             user: {
@@ -452,5 +439,5 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         console.error("Update Profile Error:", error);
         res.status(500).json({ message: "Server error" });
     }
-});
+};
 exports.updateProfile = updateProfile;

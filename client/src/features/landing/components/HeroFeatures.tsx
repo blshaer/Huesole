@@ -93,12 +93,12 @@ export const HeroFeatures: React.FC = () => {
     { icon: <FaLaptopCode size={16} color="#fff" />, text: "CSS & SCSS" },
     { icon: <FaImage size={16} color="#fff" />, text: "PNG & SVG" },
     { icon: <FaGlobe size={16} color="#fff" />, text: "JSON Export" },
-    { icon: null, text: "and more", highlight: true }, // Highlight this one!
+    { icon: null, text: "and more soon", highlight: true }, // Highlight this one!
   ];
 
   return (
     <motion.div
-      className="flex flex-wrap items-center justify-center gap-2 pb-2 pt-4"
+      className="flex flex-wrap items-center justify-center gap-2 pb-2 pt-4 max-md:hidden"
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"

@@ -1,11 +1,7 @@
 // src/shared/layout/Navbar/NavbarUserMenu.tsx
 
 import { Link } from "react-router-dom";
-import {
-
-  LogOut,
-
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -16,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
 
 interface NavbarUserMenuProps {
@@ -25,9 +22,24 @@ interface NavbarUserMenuProps {
     picture?: string;
   } | null;
   onLogout: () => void;
+  loading?: boolean;
 }
 
-export const NavbarUserMenu = ({ user, onLogout }: NavbarUserMenuProps) => {
+export const NavbarUserMenu = ({
+  user,
+  onLogout,
+  loading = false
+}: NavbarUserMenuProps) => {
+  // Check loading FIRST before anything else
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-9 w-9 rounded-full" />
+      </div>
+    );
+  }
+
+  // Then check if user exists
   if (!user) {
     return (
       <div className="flex items-center gap-2">
@@ -41,6 +53,7 @@ export const NavbarUserMenu = ({ user, onLogout }: NavbarUserMenuProps) => {
     );
   }
 
+  // Finally, show the user menu
   return (
     <div className="relative flex items-center">
       <DropdownMenu>

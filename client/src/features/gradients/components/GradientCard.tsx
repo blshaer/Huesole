@@ -386,7 +386,6 @@ export default function GradientCard({
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
       className="relative overflow-hidden transition-all duration-300"
     >
-      {gradientType !== "image" && gradientShape === "linear" && (
         <div className="absolute left-0 right-0 top-3 z-20 flex items-center justify-between px-4">
           <AnimatedCheckbox
             checked={isAnimated}
@@ -496,7 +495,6 @@ export default function GradientCard({
             </motion.button>
           </div>
         </div>
-      )}
 
       <AnimatePresence mode="wait">
         <motion.div key={gradientType}>
@@ -513,7 +511,7 @@ export default function GradientCard({
             />
 
             <AnimatePresence initial={false}>
-              {showAngleController && gradientShape === "linear" && (
+              {showAngleController && (
                 <motion.div
                   key="angle-controller"
                   initial={{ opacity: 0, scale: 0.96 }}
@@ -714,7 +712,6 @@ export default function GradientCard({
           visible={gradientType === "image"}
         />
 
-        {gradientType !== "image" && (
           <>
             <DropdownMenu>
               <DropdownMenuTrigger className="nofocus relative w-full">
@@ -834,7 +831,6 @@ export default function GradientCard({
               }}
             />
           </>
-        )}
       </footer>
 
       <style>{`

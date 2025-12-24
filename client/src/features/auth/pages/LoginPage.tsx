@@ -25,6 +25,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [showResend, setShowResend] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -82,6 +83,8 @@ const LoginPage = () => {
     }
   };
 
+  const isAnyLoading = loading || googleLoading;
+
   return (
     <div className="relative flex min-h-[90vh] items-center justify-center overflow-hidden p-6">
       {/* Background elements for depth */}
@@ -100,30 +103,47 @@ const LoginPage = () => {
           </div>
 
           <div className="flex justify-center transition-opacity hover:opacity-90">
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                if (credentialResponse.credential) {
-                  setLoading(true);
-                  try {
-                    await login(credentialResponse.credential);
-                    navigate("/");
-                  } finally {
-                    setLoading(false);
+            {googleLoading ? (
+              <Button
+                className="h-11 w-[280px] font-medium"
+                variant="outline"
+                disabled
+              >
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Connecting with Google...
+              </Button>
+            ) : (
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  if (credentialResponse.credential) {
+                    setGoogleLoading(true);
+                    try {
+                      await login(credentialResponse.credential);
+                      navigate("/");
+                    } catch (error) {
+                      toast({
+                        title: "Google Login Failed",
+                        description: "Please try again.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setGoogleLoading(false);
+                    }
                   }
-                }
-              }}
-              onError={() => {
-                toast({
-                  title: "Google Login Failed",
-                  description: "Please try manually.",
-                  variant: "destructive",
-                });
-              }}
-              theme="outline"
-              shape="circle"
-              text="signin_with"
-              width="280px"
-            />
+                }}
+                onError={() => {
+                  toast({
+                    title: "Google Login Failed",
+                    description: "Please try manually.",
+                    variant: "destructive",
+                  });
+                }}
+                theme="outline"
+                shape="circle"
+                text="signin_with"
+                width="280px"
+              />
+            )}
           </div>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -148,6 +168,7 @@ const LoginPage = () => {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isAnyLoading}
                 required
               />
             </div>
@@ -167,13 +188,14 @@ const LoginPage = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isAnyLoading}
                 required
               />
             </div>
             <Button
               className="h-11 w-full text-base font-semibold transition-all hover:shadow-lg active:scale-[0.98]"
               type="submit"
-              disabled={loading}
+              disabled={isAnyLoading}
             >
               {loading && !showResend ? (
                 <span className="flex items-center gap-2">
@@ -191,7 +213,7 @@ const LoginPage = () => {
                 variant="outline"
                 className="border-primary/20 hover:border-primary/50 w-full gap-2"
                 onClick={handleResend}
-                disabled={loading || cooldown > 0}
+                disabled={isAnyLoading || cooldown > 0}
               >
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />

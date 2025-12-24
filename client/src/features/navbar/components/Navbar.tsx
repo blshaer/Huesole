@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { toast } from "@/shared/hooks/use-toast";
@@ -13,6 +12,7 @@ import { NavbarLogo } from "./NavbarLogo";
 import { NavbarAiControls } from "./NavbarAiControls";
 import { NavbarColorPicker } from "./NavbarColorPicker";
 import { NavbarUserMenu } from "./NavbarUserMenu";
+import { NavbarAngleToggle } from "./NavbarAngleToggle";
 
 interface NavbarProps {
   result?: GeneratedGradient | null;
@@ -23,7 +23,7 @@ interface NavbarProps {
   onToggleAngleController?: () => void;
   onToggleSidebar?: () => void;
   isLightGradient?: boolean;
-  showAngleController : boolean;
+  showAngleController?: boolean;
 }
 
 export const Navbar = ({
@@ -32,9 +32,10 @@ export const Navbar = ({
   animationSpeed = 1,
   setAnimationSpeed,
   onToggleSidebar,
-  isLightGradient = false,
+  onToggleAngleController,
+  showAngleController = false,
 }: NavbarProps) => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -109,8 +110,6 @@ export const Navbar = ({
     navigate("/ai-generator");
   };
 
-  const controlColor = isLightGradient ? "black" : "white";
-
   return (
     <header className="disable-animation-on-theme-change container sticky top-0 z-[100] w-full bg-background backdrop-blur-sm">
       <style>{`
@@ -137,22 +136,24 @@ export const Navbar = ({
         </nav>
 
         <div className="relative z-50 flex items-center gap-3 md:gap-3">
-          {/* Mobile Sidebar Toggle Button - Only on AI Generator page */}
-          {isMobile && isAIGeneratorPage && onToggleSidebar && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          {/* Sidebar Toggle Button - Only show on AI Generator page and mobile */}
+          {isAIGeneratorPage && isMobile && onToggleSidebar && (
+            <button
               onClick={onToggleSidebar}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border backdrop-blur-sm"
-              style={{
-                backgroundColor: isLightGradient
-                  ? "rgba(0,0,0,0.18)"
-                  : "rgba(255,255,255,0.18)",
-              }}
+              className="flex items-center justify-center rounded-lg border border-border bg-background/80 p-2 transition-colors hover:bg-background/90 backdrop-blur-xl"
               aria-label="Toggle sidebar"
             >
-              <Menu className="h-5 w-5" style={{ color: controlColor }} />
-            </motion.button>
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
+
+          {/* Angle Controller Toggle - Only show on AI Generator page with linear gradient */}
+          {isAIGeneratorPage && onToggleAngleController && (
+            <NavbarAngleToggle
+              showAngleController={showAngleController}
+              onToggle={onToggleAngleController}
+              isLinearGradient={result?.type === "linear"}
+            />
           )}
 
           <NavbarAiControls
@@ -170,7 +171,11 @@ export const Navbar = ({
             onPickColor={handleColorPick}
           />
 
-          <NavbarUserMenu user={user} onLogout={handleLogout} />
+          <NavbarUserMenu
+            user={user}
+            loading={loading}
+            onLogout={handleLogout}
+          />
         </div>
       </div>
 

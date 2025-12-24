@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import GradientCard from "@/features/gradients/components/GradientCard";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
+import { Button } from "@/shared/ui/button";
+import { motion } from 'framer-motion';
 
 interface Gradient {
   id: string;
@@ -14,6 +17,26 @@ const MyGradientsPage = () => {
   const { favorites, toggleFavorite } = useFavorites();
   const [gradients, setGradients] = useState<Gradient[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const setBackground = (background: string) => {
+    // Implement your background setting logic here
+    // For example: document.body.style.background = background;
+    // Or use a context/state management solution
+    console.log("Setting background:", background);
+  };
+
+  const handleEditGradient = (gradient: { name: string; colors: string[] }) => {
+    const css = `linear-gradient(90deg, ${gradient.colors.join(", ")})`;
+    setBackground(css);
+
+    navigate("/ai-generator", {
+      state: {
+        name: gradient.name,
+        colors: gradient.colors,
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchGradients = async () => {
@@ -38,9 +61,21 @@ const MyGradientsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center pt-20">
-        <Loader2 className="animate-spin text-primary" size={48} />
-      </div>
+      <motion.div
+        className="flex h-screen items-center justify-center bg-[var(--background)]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <div className="text-base">
+          <Button
+            isLoading={true}
+            className="flex cursor-text gap-0 border-none bg-transparent"
+          >
+            Loading...
+          </Button>
+        </div>
+      </motion.div>
     );
   }
 
@@ -55,6 +90,7 @@ const MyGradientsPage = () => {
                 gradient={gradient}
                 isFavorite={favorites.includes(gradient.name)}
                 onFavoriteToggle={toggleFavorite}
+                onEditClick={handleEditGradient}
               />
             ))}
           </div>

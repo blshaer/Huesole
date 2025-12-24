@@ -272,6 +272,7 @@ p {
 }
 
 @layer base {
+
   *,
   ::after,
   ::before {
@@ -286,4 +287,14 @@ p {
 .test {
   background-color: greenyellow !important;
   border: 2px solid #000 !important;
+}
+
+@keyframes fly-1 {
+  from {
+    transform: translateY(0.1em);
+  }
+
+  to {
+    transform: translateY(-0.1em);
+  }
 }

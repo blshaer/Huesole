@@ -21,11 +21,20 @@ const AIGeneratorPage = () => {
   const [result, setResult] = useState<GeneratedGradient | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
-  const [loading,] = useState(false);
+  const [loading] = useState(false);
+
   const [saving, setSaving] = useState(false);
-  const [showAngleController, setShowAngleController] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showAngleController, setShowAngleController] = useState(true);
+
   const [isLightGradient, setIsLightGradient] = useState(false);
+
+
+
+  const toggleAngleController = () => {
+    setShowAngleController(!showAngleController);
+  };
+
+
 
   const { handleGenerate } = useGradientGeneration({
     user,
@@ -163,12 +172,29 @@ const AIGeneratorPage = () => {
     setResult({ ...result, angle });
   };
 
-  const toggleAngleController = () => {
-    setShowAngleController((prev) => !prev);
-  };
+
+
+  useEffect(() => {
+    if (!result) return;
+
+    const isLight = result.colors.every((color) => {
+      const hex = color.replace(/^#/, "");
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness > 200;
+    });
+
+    setIsLightGradient(isLight);
+  }, [result]);
+
+
+
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen((prev) => !prev);
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
   return (
@@ -191,6 +217,7 @@ const AIGeneratorPage = () => {
           onToggleAngleController={toggleAngleController}
           onToggleSidebar={toggleMobileSidebar}
           isLightGradient={isLightGradient}
+
         />
       </div>
 
@@ -221,6 +248,7 @@ const AIGeneratorPage = () => {
           showAngleController={showAngleController}
           onToggleAngleController={toggleAngleController}
           isLightGradient={isLightGradient}
+          onGenerate={handleGenerate} loading={loading}
         />
       </div>
 

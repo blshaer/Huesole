@@ -1,10 +1,9 @@
-import { AnimatedNumber } from "@/shared/ui/animated-number";
 
 export const HeroHeader: React.FC = () => (
   <div className="space-y-6">
     {/* GitHub Link */}
     {/* <a
-      href="https://github.com/blshaer/gradients-css"
+      href="https://github.com/blshaer/gradlyai"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -50,18 +49,7 @@ export const HeroHeader: React.FC = () => (
 
     {/* Subtitle */}
     <p className="mx-auto max-w-[600px] text-center text-white/80">
-      Discover +{" "}
-      <span>
-        <AnimatedNumber
-          springOptions={{
-            bounce: 0,
-            duration: 1000,
-          }}
-          value={1000}
-        />
-      </span>{" "}
-      beautiful gradients for your next project. Copy, export, and use them
-      anywhere.
+      Generate beautiful gradients for free with AI or manual controls. Explore 1,000+ modern designs and instantly copy them in multiple code formats.
     </p>
   </div>
 );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "@/shared/hooks/use-toast";
 import { GeneratedGradient } from "../types";
@@ -17,6 +17,18 @@ export const useGradientGeneration = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [result, setLocalResult] = useState<GeneratedGradient | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleGenerate = async (customPrompt?: string) => {
     if (!user) {
@@ -37,12 +49,16 @@ export const useGradientGeneration = ({
         "https://gradlyai.onrender.com/api/ai/generate",
         { prompt: customPrompt }
       );
-      setLocalResult(response.data.data); // store locally
-      setResult(response.data.data); // call parent callback
-      toast({
-        title: "Masterpiece Created!",
-        description: "Gemini has painted a new gradient for you.",
-      });
+      setLocalResult(response.data.data);
+      setResult(response.data.data);
+
+      // Only show toast on desktop
+      if (!isMobile) {
+        toast({
+          title: "Masterpiece Created!",
+          description: "Gemini has painted a new gradient for you.",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Generation Failed",
@@ -57,7 +73,7 @@ export const useGradientGeneration = ({
   };
 
   const handleSave = async () => {
-    if (!result) return; // nothing to save
+    if (!result) return;
 
     setSaving(true);
     try {
@@ -67,10 +83,14 @@ export const useGradientGeneration = ({
         { gradient: result },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast({
-        title: "Gallery Updated!",
-        description: "Your gradient is now in 'My Gradients'.",
-      });
+
+      // Only show toast on desktop
+      if (!isMobile) {
+        toast({
+          title: "Gallery Updated!",
+          description: "Your gradient is now in 'My Gradients'.",
+        });
+      }
     } catch (error) {
       toast({
         title: "Save Failed",

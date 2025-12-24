@@ -1,9 +1,7 @@
 // src/shared/layout/Navbar/NavbarAiControls.tsx
 
 import { AnimatePresence } from "framer-motion";
-
 import { GeneratedGradient } from "@/features/gradients/types";
-
 import { NavbarMotionMenu } from "./NavbarMotionMenu";
 import { NavbarExportDialog } from "./NavbarExportDialog";
 
