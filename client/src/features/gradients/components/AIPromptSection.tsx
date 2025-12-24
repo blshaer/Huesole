@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ArrowUp } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import SpeechRecognition, {
@@ -39,13 +39,7 @@ export const AIPromptSection = ({
     clearTranscriptOnListen: true,
   });
 
-  const isSecureContext = useMemo(() => {
-    if (typeof window === "undefined") return true;
-    const isLocalhost =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-    return window.isSecureContext || isLocalhost;
-  }, []);
+
 
   // Keep prompt in sync ONLY during an active voice session.
   useEffect(() => {
@@ -119,47 +113,7 @@ export const AIPromptSection = ({
     }
   };
 
-  const toggleListening = async () => {
-    setVoiceError(null);
 
-    if (!browserSupportsSpeechRecognition) return;
-
-    if (!isSecureContext) {
-      setVoiceError("Microphone requires HTTPS (or localhost).");
-      return;
-    }
-
-    if (isMicrophoneAvailable === false) {
-      setVoiceError(
-        "Microphone permission is blocked. Allow it in browser settings.",
-      );
-      return;
-    }
-
-    try {
-      if (listening) {
-        // stopListening finishes processing speech in progress.
-        await SpeechRecognition.stopListening();
-        voiceSessionRef.current = false;
-        return;
-      }
-
-      // Start a fresh voice session.
-      resetTranscript();
-      setPrompt("");
-      voiceSessionRef.current = true;
-
-      await SpeechRecognition.startListening({
-        continuous: true,
-        language: "en-US",
-      });
-    } catch {
-      setVoiceError(
-        "Could not start voice input. Check permissions and try again.",
-      );
-      voiceSessionRef.current = false;
-    }
-  };
 
   const placeholderSuggestions = [
     "ocean sunset gradient...",

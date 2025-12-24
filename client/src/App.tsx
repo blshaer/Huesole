@@ -27,7 +27,7 @@ const App: React.FC = () => {
             dir="ltr"
             className={`App relative ${isAIGeneratorPage ? "h-screen overflow-hidden" : "min-h-screen overflow-x-hidden pb-[30px]"}`}
           >
-            {!isAIGeneratorPage && <Navbar />}
+            {!isAIGeneratorPage && <Navbar showAngleController={false} />}
             {!isAIGeneratorPage && <Support />}
             {!isAIGeneratorPage && <GridBackground />}
             <Toaster />

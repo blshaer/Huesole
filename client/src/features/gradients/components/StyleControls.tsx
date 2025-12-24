@@ -1,7 +1,6 @@
 // src/features/ai-generator/components/StyleControls.tsx
 
 import { Label } from "@/shared/ui/label";
-import { Slider } from "@/shared/ui/slider";
 import {
   Select,
   SelectContent,

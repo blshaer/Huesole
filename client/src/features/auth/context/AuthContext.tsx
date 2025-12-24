@@ -28,8 +28,8 @@ interface AuthContextType {
   loading: boolean;
   login: (googleToken: string) => Promise<void>;
   emailLogin: (userData: any) => Promise<void>;
-  closeSignIn: any;
-  isSignInOpen: any;
+  closeSignIn: () => void;
+  isSignInOpen: boolean;
   register: (userData: any) => Promise<void>;
   logout: () => void;
   setAuth: (data: AuthResponse) => void;
@@ -42,9 +42,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token"),
+    localStorage.getItem("token")
   );
   const [loading, setLoading] = useState(true);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+
+  const closeSignIn = () => setIsSignInOpen(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -86,7 +89,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(data.user as User);
       localStorage.setItem("token", data.token);
     } catch (error) {
-      // console.error("Login failed", error);
       throw error;
     } finally {
       setLoading(false);
@@ -97,7 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await registerUser(userData);
-      // Don't auto-login, wait for verification (or inform user)
     } catch (error) {
       throw error;
     } finally {
@@ -142,6 +143,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAuth,
         updateFavorites,
         updateUser,
+        isSignInOpen,
+        closeSignIn,
       }}
     >
       {children}

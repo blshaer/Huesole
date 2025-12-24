@@ -121,7 +121,7 @@ export default function GradientCard({
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const [showAngleController, setShowAngleController] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [showTooltip] = useState(false);
   const [showEditTooltip, setShowEditTooltip] = useState(false);
   const [gradientShape, setGradientShape] = useState<
     "linear" | "radial" | "conic"
@@ -636,8 +636,7 @@ export default function GradientCard({
             colors={gradient.colors}
             getColorInFormat={getColorInFormat}
             editable={editable}
-            onColorChange={handleColorChange}
-          />
+            onColorChange={handleColorChange} copyToClipboard={(text) => navigator.clipboard.writeText(text)} />
 
           <div className="flex gap-1">
             <DropdownMenu>

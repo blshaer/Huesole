@@ -21,7 +21,7 @@ const AIGeneratorPage = () => {
   const [result, setResult] = useState<GeneratedGradient | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading,] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showAngleController, setShowAngleController] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);

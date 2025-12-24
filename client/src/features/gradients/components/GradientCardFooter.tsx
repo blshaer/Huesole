@@ -67,9 +67,7 @@ export const GradientCardFooter: React.FC<GradientCardFooterProps> = ({
       <ColorSwatches
         colors={gradient.colors}
         getColorInFormat={getColorInFormat}
-        copyToClipboard={(text, key) => {
-          copyToClipboard(text, key);
-        }}
+        copyToClipboard={(text) => navigator.clipboard.writeText(text)}
       />
 
       <div className="flex items-center gap-2">

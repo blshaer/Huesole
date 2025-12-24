@@ -16,6 +16,7 @@ import { Label } from "@/shared/ui/label";
 import { Badge } from "@/shared/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Card, CardContent } from "@/shared/ui/card";
+import { toast } from "@/shared/hooks/use-toast";
 
 interface PatternGeneratorProps {
   gradient: {
@@ -114,7 +115,6 @@ export function PatternGenerator({ gradient, onClose }: PatternGeneratorProps) {
     opacity[0],
   );
 
-  import { toast } from "@/shared/hooks/use-toast";
 
   // ... in PatternGenerator
   const copyCSS = (css: string, type: string) => {

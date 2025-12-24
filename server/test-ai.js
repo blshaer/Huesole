@@ -1,30 +1,65 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
-import path from "path";
-import fs from "fs";
-
-dotenv.config({ path: path.resolve(__dirname, ".env") });
-
-const logFile = path.resolve(__dirname, "test-log.txt");
-if (fs.existsSync(logFile)) fs.unlinkSync(logFile);
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const axios_1 = __importDefault(require("axios"));
+dotenv_1.default.config({ path: path_1.default.resolve(__dirname, ".env") });
+const logFile = path_1.default.resolve(__dirname, "test-log.txt");
 const log = (msg) => {
     console.log(msg);
-    fs.appendFileSync(logFile, msg + "\n");
+    fs_1.default.appendFileSync(logFile, msg + "\n");
 };
-
-async function test() {
-    log("Testing gemini-flash-latest with the SDK...");
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-    try {
-        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-        const result = await model.generateContent("Hi");
-        const response = await result.response;
-        log("  SUCCESS! SDK Response: " + response.text().substring(0, 50));
-    } catch (e) {
-        log("  FAILED! SDK Error: " + e.message);
-    }
+function checkModel(apiVersion, modelName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        const key = process.env.GEMINI_API_KEY;
+        const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent?key=${key}`;
+        log(`Testing ${apiVersion} - ${modelName}...`);
+        try {
+            const response = yield axios_1.default.post(url, {
+                contents: [{ parts: [{ text: "hi" }] }]
+            });
+            log(`  SUCCESS: Status ${response.status}`);
+            return true;
+        }
+        catch (error) {
+            if (error.response) {
+                log(`  FAILED: Status ${error.response.status} - ${JSON.stringify(((_a = error.response.data.error) === null || _a === void 0 ? void 0 : _a.message) || error.response.data)}`);
+            }
+            else {
+                log(`  FAILED: ${error.message}`);
+            }
+            return false;
+        }
+    });
 }
-
+function test() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (fs_1.default.existsSync(logFile))
+            fs_1.default.unlinkSync(logFile);
+        log("Detailed Model/API Version Check...");
+        const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"];
+        const versions = ["v1", "v1beta"];
+        for (const v of versions) {
+            for (const m of models) {
+                yield checkModel(v, m);
+            }
+        }
+    });
+}
 test().then(() => {
     log("Check finished.");
     process.exit(0);

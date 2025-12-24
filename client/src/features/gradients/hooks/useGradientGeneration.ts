@@ -16,6 +16,7 @@ export const useGradientGeneration = ({
 }: UseGradientGenerationProps) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [result, setLocalResult] = useState<GeneratedGradient | null>(null);
 
   const handleGenerate = async (customPrompt?: string) => {
     if (!user) {
@@ -34,9 +35,10 @@ export const useGradientGeneration = ({
     try {
       const response = await axios.post<{ data: GeneratedGradient }>(
         "http://localhost:5000/api/ai/generate",
-        { prompt: customPrompt },
+        { prompt: customPrompt }
       );
-      setResult(response.data.data);
+      setLocalResult(response.data.data); // store locally
+      setResult(response.data.data); // call parent callback
       toast({
         title: "Masterpiece Created!",
         description: "Gemini has painted a new gradient for you.",
@@ -55,13 +57,15 @@ export const useGradientGeneration = ({
   };
 
   const handleSave = async () => {
+    if (!result) return; // nothing to save
+
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
       await axios.post(
         "http://localhost:5000/api/ai/save",
-        { gradient: result as any },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { gradient: result },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       toast({
         title: "Gallery Updated!",

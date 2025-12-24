@@ -5,8 +5,6 @@ import { Button } from "@/shared/ui/button";
 import { AIPromptSection } from "./AIPromptSection";
 import { StyleControls } from "./StyleControls";
 import { ColorStopsSection } from "./ColorStopsSection";
-import { AnimationSection } from "./AnimationSection";
-import { ExportSection } from "./ExportSection";
 import { GeneratedGradient } from "../types";
 
 interface SidebarProps {
@@ -23,6 +21,8 @@ interface SidebarProps {
   onUpdateColor: (index: number, color: string) => void;
   onAddColor: () => void;
   onRemoveColor: (index: number) => void;
+  isMobileOpen: any;
+  onToggleMobile: any;
 }
 
 export const Sidebar = ({
@@ -30,10 +30,6 @@ export const Sidebar = ({
   setResult,
   loading,
   saving,
-  isAnimated,
-  setIsAnimated,
-  animationSpeed,
-  setAnimationSpeed,
   onGenerate,
   onSave,
   onUpdateColor,
@@ -41,7 +37,7 @@ export const Sidebar = ({
   onRemoveColor,
 }: SidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [, setScrollProgress] = useState(0);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

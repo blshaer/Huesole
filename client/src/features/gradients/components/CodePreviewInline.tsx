@@ -64,7 +64,7 @@ export const CodePreviewInline = forwardRef<
       </pre>
 
       {/* Custom scrollbar styles */}
-      <style jsx>{`
+      <style>{`
         .custom-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: rgba(255, 255, 255, 0.1) transparent;

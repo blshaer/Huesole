@@ -202,7 +202,7 @@ export const CopyCodeSection: React.FC<CopyCodeSectionProps> = ({
       <CodePreview
         code={getCode(activeTab)}
         copiedStates={copiedStates}
-        activeTab={activeTab}
+        activeTab={activeTab as any}
         copyToClipboard={(text, key) => {
           copyToClipboard(
             text,

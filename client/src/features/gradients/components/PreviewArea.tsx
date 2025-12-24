@@ -8,6 +8,11 @@ interface PreviewAreaProps {
   isAnimated: boolean;
   animationSpeed: number;
   onAngleChange?: (angle: number) => void;
+  showAngleController: boolean;
+
+  onToggleAngleController: any;
+  isLightGradient: any;
+
 }
 
 export const PreviewArea = ({
@@ -101,9 +106,8 @@ export const PreviewArea = ({
               backgroundColor: isLightGradient
                 ? "rgba(0,0,0,0.18)"
                 : "rgba(255,255,255,0.18)",
-              border: `1px solid ${
-                isLightGradient ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.25)"
-              }`,
+              border: `1px solid ${isLightGradient ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.25)"
+                }`,
             }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -176,9 +180,8 @@ export const PreviewArea = ({
               <div
                 className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full opacity-70 blur-3xl"
                 style={{
-                  background: `${result.type}-gradient(${
-                    result.type === "linear" ? `${displayAngle}deg, ` : ""
-                  }${result.colors.join(", ")})`,
+                  background: `${result.type}-gradient(${result.type === "linear" ? `${displayAngle}deg, ` : ""
+                    }${result.colors.join(", ")})`,
                   backgroundSize: isAnimated ? "400% 400%" : "cover",
                   animation: isAnimated
                     ? `gradientShift ${10 / animationSpeed}s ease infinite`
@@ -189,9 +192,8 @@ export const PreviewArea = ({
               <div
                 className="h-full w-full rounded-full shadow-2xl transition-all duration-700"
                 style={{
-                  background: `${result.type}-gradient(${
-                    result.type === "linear" ? `${displayAngle}deg, ` : ""
-                  }${result.colors.join(", ")})`,
+                  background: `${result.type}-gradient(${result.type === "linear" ? `${displayAngle}deg, ` : ""
+                    }${result.colors.join(", ")})`,
                   backgroundSize: isAnimated ? "400% 400%" : "cover",
                   animation: isAnimated
                     ? `gradientShift ${10 / animationSpeed}s ease infinite`

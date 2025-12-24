@@ -5,6 +5,8 @@ interface ColorSwatchesProps {
   getColorInFormat: (color: string) => string;
   editable?: boolean;
   onColorChange?: (index: number, newColor: string) => void;
+  copyToClipboard: (text: string, key?: string) => void;
+
 }
 
 export const ColorSwatches: React.FC<ColorSwatchesProps> = ({

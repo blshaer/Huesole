@@ -20,10 +20,10 @@ interface NavbarProps {
   setIsAnimated?: (value: boolean) => void;
   animationSpeed?: number;
   setAnimationSpeed?: (value: number) => void;
-  showAngleController?: boolean;
   onToggleAngleController?: () => void;
   onToggleSidebar?: () => void;
   isLightGradient?: boolean;
+  showAngleController : boolean;
 }
 
 export const Navbar = ({

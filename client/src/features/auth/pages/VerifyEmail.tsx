@@ -19,7 +19,7 @@ const VerifyEmail = () => {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading",
   );
-  const [message, setMessage] = useState("");
+  const [, setMessage] = useState("");
   const navigate = useNavigate();
   const hasVerified = useRef(false);
 
