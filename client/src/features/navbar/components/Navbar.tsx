@@ -147,12 +147,12 @@ export const Navbar = ({
             </button>
           )}
 
-          {/* Angle Controller Toggle - Only show on AI Generator page with linear gradient */}
+          {/* Angle Controller Toggle - Only show on AI Generator page when angle is supported (linear/conic) */}
           {isAIGeneratorPage && onToggleAngleController && (
             <NavbarAngleToggle
               showAngleController={showAngleController}
               onToggle={onToggleAngleController}
-              isLinearGradient={result?.type === "linear"}
+              isAngleSupported={result?.type === "linear" || result?.type === "conic"}
             />
           )}
 

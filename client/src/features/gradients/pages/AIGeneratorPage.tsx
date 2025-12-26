@@ -18,9 +18,17 @@ const AIGeneratorPage = () => {
     | { name: string; colors: string[] }
     | undefined;
 
-  const [result, setResult] = useState<GeneratedGradient | null>(null);
-  const [isAnimated, setIsAnimated] = useState(false);
-  const [animationSpeed, setAnimationSpeed] = useState(1);
+  const [result, setResult] = useState<GeneratedGradient | null>(() => {
+    const saved = localStorage.getItem("gradly-latest-gradient");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [isAnimated, setIsAnimated] = useState(() => {
+    return localStorage.getItem("gradly-is-animated") === "true";
+  });
+  const [animationSpeed, setAnimationSpeed] = useState(() => {
+    const saved = localStorage.getItem("gradly-animation-speed");
+    return saved ? parseFloat(saved) : 1;
+  });
   const [loading] = useState(false);
 
   const [saving, setSaving] = useState(false);
@@ -42,7 +50,7 @@ const AIGeneratorPage = () => {
     setResult,
   });
 
-  // Initialize gradient
+  // Initialize gradient from state if coming from another page
   useEffect(() => {
     if (state) {
       setResult({
@@ -51,7 +59,10 @@ const AIGeneratorPage = () => {
         type: "linear",
         angle: 90,
       });
-    } else {
+      // Clear location state to avoid resetting on every minor update or navigation
+      window.history.replaceState({}, document.title);
+    } else if (!result) {
+      // Default if no storage and no state
       setResult({
         name: "New Gradient",
         colors: ["#3b82f6", "#8b5cf6"],
@@ -61,6 +72,15 @@ const AIGeneratorPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
+
+  // Persist state to localStorage
+  useEffect(() => {
+    if (result) {
+      localStorage.setItem("gradly-latest-gradient", JSON.stringify(result));
+    }
+    localStorage.setItem("gradly-is-animated", String(isAnimated));
+    localStorage.setItem("gradly-animation-speed", String(animationSpeed));
+  }, [result, isAnimated, animationSpeed]);
 
   // Calculate if gradient is light
   useEffect(() => {

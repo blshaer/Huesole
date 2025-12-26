@@ -1,13 +1,11 @@
 import { useRef, useEffect, useState } from "react";
 import { Loader2, Save } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/shared/ui/button";
 import { AIPromptSection } from "./AIPromptSection";
 import { StyleControls } from "./StyleControls";
 import { ColorStopsSection } from "./ColorStopsSection";
 import { ExportSection } from "./ExportSection";
 import { GeneratedGradient } from "../types";
-
 
 interface SidebarProps {
   result: GeneratedGradient | null;
@@ -25,9 +23,7 @@ interface SidebarProps {
   onRemoveColor: (index: number) => void;
   isMobileOpen: boolean;
   onToggleMobile: () => void;
-
 }
-
 
 export const Sidebar = ({
   result,
@@ -46,7 +42,6 @@ export const Sidebar = ({
   const [, setScrollProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-
   // Detect mobile screen size
   useEffect(() => {
     const checkMobile = () => {
@@ -56,12 +51,10 @@ export const Sidebar = ({
       }
     };
 
-
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,7 +63,6 @@ export const Sidebar = ({
         const scrollHeight = sidebarRef.current.scrollHeight;
         const clientHeight = sidebarRef.current.clientHeight;
         const totalScrollable = scrollHeight - clientHeight;
-
 
         if (totalScrollable > 0) {
           const progress = (scrollTop / totalScrollable) * 100;
@@ -81,7 +73,6 @@ export const Sidebar = ({
       }
     };
 
-
     const sidebar = sidebarRef.current;
     if (sidebar) {
       sidebar.addEventListener("scroll", handleScroll);
@@ -89,18 +80,13 @@ export const Sidebar = ({
     }
   }, []);
 
-
-
-
   const sidebarContent = (
     <>
       <div
         ref={sidebarRef}
         className="custom-scrollbar flex-1 space-y-8 overflow-y-auto p-6 max-md:pt-0 pt-8"
       >
-
         <div className="max-md:hidden">
-
           <AIPromptSection loading={loading} onGenerate={onGenerate} />
         </div>
 
@@ -119,13 +105,8 @@ export const Sidebar = ({
         <ExportSection result={result} />
       </div>
 
-
       <div className="bg-background/60 flex-shrink-0 border-t border-border p-6 backdrop-blur-xl">
-        <Button
-          onClick={onSave}
-          disabled={saving || !result}
-          className="w-full"
-        >
+        <Button onClick={onSave} disabled={saving || !result} className="w-full">
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -137,12 +118,8 @@ export const Sidebar = ({
     </>
   );
 
-
   return (
     <>
-
-
-
       {/* Desktop Sidebar - Always Visible */}
       {!isMobile && (
         <aside className="bg-background/40 relative z-20 flex h-full w-[420px] flex-shrink-0 flex-col border-r border-border backdrop-blur-3xl">
@@ -150,41 +127,21 @@ export const Sidebar = ({
         </aside>
       )}
 
+      {/* Mobile Sidebar - Toggle */}
+      {isMobile && isMobileOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={onToggleMobile}
+            className="fixed inset-0 z-[55] bg-black/70"
+          />
 
-      {/* Mobile Sidebar - Slide In/Out */}
-      <AnimatePresence mode="wait">
-        {isMobile && isMobileOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={onToggleMobile}
-
-
-              className="fixed inset-0 z-[55] bg-black/70"
-            />
-
-
-            {/* Sidebar Panel */}
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{
-                duration: 0.3,
-                ease: [0.32, 0.72, 0, 1],
-              }}
-              className="fixed bottom-0 left-0 top-0 z-[56] flex h-full w-[90vw] max-w-[420px] flex-col border-r border-border bg-black/95 shadow-2xl backdrop-blur-3xl"
-            >
-
-              {sidebarContent}
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+          {/* Sidebar Panel */}
+          <aside className="fixed bottom-0 left-0 top-0 z-[56] flex h-full w-[90vw] max-w-[420px] flex-col border-r border-border bg-black/95 shadow-2xl backdrop-blur-3xl">
+            {sidebarContent}
+          </aside>
+        </>
+      )}
     </>
   );
 };

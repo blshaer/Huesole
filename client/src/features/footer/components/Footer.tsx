@@ -19,7 +19,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center ps-1 font-medium text-[var(--link)] hover:text-[var(--link-hover)]"
-            href={"https://blshaer.vercel.app/"}
+            href={"https://https://blshaer.gt.tc//"}
           >
             Baraa
             <ExternalLinkIcon className="ms-1 h-3 w-3" />

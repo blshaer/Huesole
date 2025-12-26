@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { MagicCard } from "@/shared/ui/MagicCard";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Eye, EyeOff, Pencil } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -386,239 +385,197 @@ export default function GradientCard({
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
       className="relative overflow-hidden transition-all duration-300"
     >
-        <div className="absolute left-0 right-0 top-3 z-20 flex items-center justify-between px-4">
-          <AnimatedCheckbox
-            checked={isAnimated}
-            onChange={setIsAnimated}
-            className="text-white drop-shadow-lg"
+      <div className="absolute left-0 right-0 top-3 z-20 flex items-center justify-between px-4">
+        <AnimatedCheckbox
+          checked={isAnimated}
+          onChange={setIsAnimated}
+          className="text-white drop-shadow-lg"
+        />
+
+        <div aria-label={editTooltipText}
+          className="relative flex gap-4 px-2 py-2  items-center justify-center rounded-[8px] backdrop-blur-sm"
+          style={{
+            backgroundColor: isLightGradient
+              ? "rgba(0,0,0,0.18)"
+              : "rgba(255,255,255,0.18)",
+            border: `1px solid ${isLightGradient
+              ? "rgba(0,0,0,0.25)"
+              : "rgba(255,255,255,0.25)"
+              }`,
+          }}
+
+          onMouseEnter={() => setShowEditTooltip(true)}
+          onMouseLeave={() => setShowEditTooltip(false)}
+          onFocus={() => setShowEditTooltip(true)}
+          onBlur={() => setShowEditTooltip(false)}>
+          {/* Edit Button */}
+          <button
+            type="button"
+            onClick={handleEditButtonClick}
+          >
+            <Pencil className="h-4 w-4" style={{ color: controlColor }} />
+
+            {showEditTooltip && (
+              <div
+                className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.85)",
+                  color: "white",
+                }}
+              >
+                {editTooltipText}
+              </div>
+            )}
+          </button>
+
+          {/* Eye/EyeOff Toggle Button */}
+          <button
+            type="button"
+            aria-label={tooltipText}
+            onClick={() => setShowAngleController((v) => !v)}
+          >
+            {showAngleController ? (
+              <span className="flex">
+                <Eye className="h-4 w-4" style={{ color: controlColor }} />
+              </span>
+            ) : (
+              <span className="flex">
+                <EyeOff
+                  className="h-4 w-4"
+                  style={{ color: controlColor }}
+                />
+              </span>
+            )}
+
+            {showTooltip && (
+              <div
+                className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.85)",
+                  color: "white",
+                }}
+              >
+                {tooltipText}
+              </div>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <div key={gradientType}>
+        <div
+          className="relative mx-auto flex h-56 w-56 items-center justify-center"
+          ref={containerRef}
+        >
+          <GradientPreview
+            style={getCodePreview()}
+            gradientType={gradientType}
+            gradient={gradient}
+            isAnimated={isAnimated}
+            animationSpeed={animationSpeed}
           />
 
-          <div aria-label={editTooltipText}
-            className="relative flex gap-4 px-2 py-2  items-center justify-center rounded-[8px] backdrop-blur-sm"
-            style={{
-              backgroundColor: isLightGradient
-                ? "rgba(0,0,0,0.18)"
-                : "rgba(255,255,255,0.18)",
-              border: `1px solid ${isLightGradient
-                ? "rgba(0,0,0,0.25)"
-                : "rgba(255,255,255,0.25)"
-                }`,
-            }}
-
-            onMouseEnter={() => setShowEditTooltip(true)}
-            onMouseLeave={() => setShowEditTooltip(false)}
-            onFocus={() => setShowEditTooltip(true)}
-            onBlur={() => setShowEditTooltip(false)}>
-            {/* Edit Button */}
-            <motion.button
-              type="button"
-
-              onClick={handleEditButtonClick}
+          {showAngleController && (
+            <div
+              className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
             >
-              <Pencil className="h-4 w-4" style={{ color: controlColor }} />
+              <div
+                className="absolute h-2 w-2 rounded-full"
+                style={{ backgroundColor: controlColor, opacity: 0.5 }}
+              />
 
-              <AnimatePresence>
-                {showEditTooltip && (
-                  <motion.div
-                    key="edit-tooltip"
-                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
-                    style={{
-                      backgroundColor: "rgba(0,0,0,0.85)",
-                      color: "white",
-                    }}
-                  >
-                    {editTooltipText}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-
-            {/* Eye/EyeOff Toggle Button */}
-            <motion.button
-              type="button"
-              aria-label={tooltipText}
-
-
-              onClick={() => setShowAngleController((v) => !v)}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {showAngleController ? (
-                  <motion.span
-                    key="eye-on"
-                    initial={{ opacity: 0, rotate: -20, scale: 0.9 }}
-                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                    exit={{ opacity: 0, rotate: 20, scale: 0.9 }}
-                    transition={{ duration: 0.15 }}
-                    className="flex"
-                  >
-                    <Eye className="h-4 w-4" style={{ color: controlColor }} />
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="eye-off"
-                    initial={{ opacity: 0, rotate: -20, scale: 0.9 }}
-                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                    exit={{ opacity: 0, rotate: 20, scale: 0.9 }}
-                    transition={{ duration: 0.15 }}
-                    className="flex"
-                  >
-                    <EyeOff
-                      className="h-4 w-4"
-                      style={{ color: controlColor }}
-                    />
-                  </motion.span>
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence>
-                {showTooltip && (
-                  <motion.div
-                    key="tooltip"
-                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
-                    style={{
-                      backgroundColor: "rgba(0,0,0,0.85)",
-                      color: "white",
-                    }}
-                  >
-                    {tooltipText}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </div>
-        </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div key={gradientType}>
-          <div
-            className="relative mx-auto flex h-56 w-56 items-center justify-center"
-            ref={containerRef}
-          >
-            <GradientPreview
-              style={getCodePreview()}
-              gradientType={gradientType}
-              gradient={gradient}
-              isAnimated={isAnimated}
-              animationSpeed={animationSpeed}
-            />
-
-            <AnimatePresence initial={false}>
-              {showAngleController && (
-                <motion.div
-                  key="angle-controller"
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
-                >
-                  <div
-                    className="absolute h-2 w-2 rounded-full"
-                    style={{ backgroundColor: controlColor, opacity: 0.5 }}
+              <svg
+                className="pointer-events-auto absolute"
+                width={size}
+                height={size}
+                style={{ overflow: "visible", touchAction: "none" }}
+                onPointerDown={(e) => {
+                  isDraggingRef.current = true;
+                  (e.currentTarget as SVGSVGElement).setPointerCapture(
+                    e.pointerId,
+                  );
+                  handlePointer(e.clientX, e.clientY);
+                }}
+                onPointerMove={(e) => {
+                  if (!isDraggingRef.current) return;
+                  handlePointer(e.clientX, e.clientY);
+                }}
+                onPointerUp={(e) => {
+                  isDraggingRef.current = false;
+                  try {
+                    (
+                      e.currentTarget as SVGSVGElement
+                    ).releasePointerCapture(e.pointerId);
+                  } catch {
+                    // ignore
+                  }
+                }}
+                onPointerCancel={() => {
+                  isDraggingRef.current = false;
+                }}
+              >
+                <g transform={`rotate(${angle} ${cx} ${cy})`}>
+                  <line
+                    x1={cx}
+                    y1={cy}
+                    x2={cx}
+                    y2={cy - lineLength}
+                    stroke={controlColor}
+                    strokeWidth={2}
+                    opacity={0.4}
+                    pointerEvents="none"
                   />
 
-                  <svg
-                    className="pointer-events-auto absolute"
-                    width={size}
-                    height={size}
-                    style={{ overflow: "visible", touchAction: "none" }}
-                    onPointerDown={(e) => {
-                      isDraggingRef.current = true;
-                      (e.currentTarget as SVGSVGElement).setPointerCapture(
-                        e.pointerId,
-                      );
-                      handlePointer(e.clientX, e.clientY);
-                    }}
-                    onPointerMove={(e) => {
-                      if (!isDraggingRef.current) return;
-                      handlePointer(e.clientX, e.clientY);
-                    }}
-                    onPointerUp={(e) => {
-                      isDraggingRef.current = false;
-                      try {
-                        (
-                          e.currentTarget as SVGSVGElement
-                        ).releasePointerCapture(e.pointerId);
-                      } catch {
-                        // ignore
-                      }
-                    }}
-                    onPointerCancel={() => {
-                      isDraggingRef.current = false;
-                    }}
-                  >
-                    <g transform={`rotate(${angle} ${cx} ${cy})`}>
-                      <line
-                        x1={cx}
-                        y1={cy}
-                        x2={cx}
-                        y2={cy - lineLength}
-                        stroke={controlColor}
-                        strokeWidth={2}
-                        opacity={0.4}
-                        pointerEvents="none"
-                      />
+                  <circle
+                    cx={cx}
+                    cy={cy - lineLength}
+                    r={20}
+                    fill={
+                      isLightGradient
+                        ? "rgba(0,0,0,0.15)"
+                        : "rgba(255,255,255,0.15)"
+                    }
+                    stroke={
+                      isLightGradient
+                        ? "rgba(0,0,0,0.3)"
+                        : "rgba(255,255,255,0.3)"
+                    }
+                    strokeWidth={2}
+                    style={{ cursor: "grab" }}
+                  />
 
-                      <circle
-                        cx={cx}
-                        cy={cy - lineLength}
-                        r={20}
-                        fill={
-                          isLightGradient
-                            ? "rgba(0,0,0,0.15)"
-                            : "rgba(255,255,255,0.15)"
-                        }
-                        stroke={
-                          isLightGradient
-                            ? "rgba(0,0,0,0.3)"
-                            : "rgba(255,255,255,0.3)"
-                        }
-                        strokeWidth={2}
-                        style={{ cursor: "grab" }}
-                      />
+                  <circle
+                    cx={cx}
+                    cy={cy - lineLength}
+                    r={6}
+                    fill={controlColor}
+                    opacity={0.95}
+                    pointerEvents="none"
+                  />
+                </g>
+              </svg>
 
-                      <circle
-                        cx={cx}
-                        cy={cy - lineLength}
-                        r={6}
-                        fill={controlColor}
-                        opacity={0.95}
-                        pointerEvents="none"
-                      />
-                    </g>
-                  </svg>
-
-                  <div
-                    className="absolute"
-                    style={{ transform: `translate(${labelX}px, ${labelY}px)` }}
-                  >
-                    <motion.div
-                      className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
-                      style={{
-                        backgroundColor: isLightGradient
-                          ? "rgba(0,0,0,0.75)"
-                          : "rgba(0,0,0,0.8)",
-                        color: "white",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      {angle}°
-                    </motion.div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+              <div
+                className="absolute"
+                style={{ transform: `translate(${labelX}px, ${labelY}px)` }}
+              >
+                <div
+                  className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
+                  style={{
+                    backgroundColor: isLightGradient
+                      ? "rgba(0,0,0,0.75)"
+                      : "rgba(0,0,0,0.8)",
+                    color: "white",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {angle}°
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <footer className="flex flex-col items-start space-y-4 p-4">
         <div className="flex w-full items-center justify-between">
@@ -712,125 +669,125 @@ export default function GradientCard({
           visible={gradientType === "image"}
         />
 
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="nofocus relative w-full">
-                <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
-                  <div className="flex items-center gap-2">
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="nofocus relative w-full">
+              <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const formats = [
+                      {
+                        key: "tailwind",
+                        label: "Tailwind CSS",
+                        icon: TailwindIcon,
+                      },
+                      { key: "css", label: "CSS", icon: CSSIcon },
+                      { key: "sass", label: "SASS/SCSS", icon: SassIcon },
+                      {
+                        key: "bootstrap",
+                        label: "Bootstrap",
+                        icon: BootstrapIcon,
+                      },
+                      {
+                        key: "react-native",
+                        label: "React Native",
+                        icon: ReactNativeIcon,
+                      },
+                      { key: "flutter", label: "Flutter", icon: FlutterIcon },
+                      { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
+                      { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
+                      { key: "vue", label: "Vue.js", icon: VueIcon },
+                      { key: "angular", label: "Angular", icon: AngularIcon },
+                      { key: "react", label: "React", icon: ReactIcon },
+                      { key: "xml", label: "Android XML", icon: XMLIcon },
+                      { key: "svg", label: "SVG", icon: SVGIcon },
+                      { key: "json", label: "JSON", icon: JSONIcon },
+                    ];
+                    const IconComponent = formats.find(
+                      (f) => f.key === activeTab,
+                    )?.icon;
+                    return IconComponent ? <IconComponent /> : null;
+                  })()}
+                  <span>
                     {(() => {
                       const formats = [
-                        {
-                          key: "tailwind",
-                          label: "Tailwind CSS",
-                          icon: TailwindIcon,
-                        },
-                        { key: "css", label: "CSS", icon: CSSIcon },
-                        { key: "sass", label: "SASS/SCSS", icon: SassIcon },
-                        {
-                          key: "bootstrap",
-                          label: "Bootstrap",
-                          icon: BootstrapIcon,
-                        },
-                        {
-                          key: "react-native",
-                          label: "React Native",
-                          icon: ReactNativeIcon,
-                        },
-                        { key: "flutter", label: "Flutter", icon: FlutterIcon },
-                        { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
-                        { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
-                        { key: "vue", label: "Vue.js", icon: VueIcon },
-                        { key: "angular", label: "Angular", icon: AngularIcon },
-                        { key: "react", label: "React", icon: ReactIcon },
-                        { key: "xml", label: "Android XML", icon: XMLIcon },
-                        { key: "svg", label: "SVG", icon: SVGIcon },
-                        { key: "json", label: "JSON", icon: JSONIcon },
+                        { key: "tailwind", label: "Tailwind CSS" },
+                        { key: "css", label: "CSS" },
+                        { key: "sass", label: "SASS/SCSS" },
+                        { key: "bootstrap", label: "Bootstrap" },
+                        { key: "react-native", label: "React Native" },
+                        { key: "flutter", label: "Flutter" },
+                        { key: "swiftui", label: "SwiftUI" },
+                        { key: "kotlin", label: "Kotlin" },
+                        { key: "vue", label: "Vue.js" },
+                        { key: "angular", label: "Angular" },
+                        { key: "react", label: "React" },
+                        { key: "xml", label: "Android XML" },
+                        { key: "svg", label: "SVG" },
+                        { key: "json", label: "JSON" },
                       ];
-                      const IconComponent = formats.find(
-                        (f) => f.key === activeTab,
-                      )?.icon;
-                      return IconComponent ? <IconComponent /> : null;
+                      return (
+                        formats.find((f) => f.key === activeTab)?.label ||
+                        activeTab
+                      );
                     })()}
-                    <span>
-                      {(() => {
-                        const formats = [
-                          { key: "tailwind", label: "Tailwind CSS" },
-                          { key: "css", label: "CSS" },
-                          { key: "sass", label: "SASS/SCSS" },
-                          { key: "bootstrap", label: "Bootstrap" },
-                          { key: "react-native", label: "React Native" },
-                          { key: "flutter", label: "Flutter" },
-                          { key: "swiftui", label: "SwiftUI" },
-                          { key: "kotlin", label: "Kotlin" },
-                          { key: "vue", label: "Vue.js" },
-                          { key: "angular", label: "Angular" },
-                          { key: "react", label: "React" },
-                          { key: "xml", label: "Android XML" },
-                          { key: "svg", label: "SVG" },
-                          { key: "json", label: "JSON" },
-                        ];
-                        return (
-                          formats.find((f) => f.key === activeTab)?.label ||
-                          activeTab
-                        );
-                      })()}
-                    </span>
-                  </div>
-                  <ChevronDown className="h-4 w-4" />
+                  </span>
                 </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-48 rounded-md border border-border bg-secondary p-1"
-              >
-                {[
-                  {
-                    key: "tailwind",
-                    label: "Tailwind CSS",
-                    icon: TailwindIcon,
-                  },
-                  { key: "css", label: "CSS", icon: CSSIcon },
-                  { key: "sass", label: "SASS/SCSS", icon: SassIcon },
-                  { key: "bootstrap", label: "Bootstrap", icon: BootstrapIcon },
-                  {
-                    key: "react-native",
-                    label: "React Native",
-                    icon: ReactNativeIcon,
-                  },
-                  { key: "flutter", label: "Flutter", icon: FlutterIcon },
-                  { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
-                  { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
-                  { key: "vue", label: "Vue.js", icon: VueIcon },
-                  { key: "angular", label: "Angular", icon: AngularIcon },
-                  { key: "react", label: "React", icon: ReactIcon },
-                  { key: "xml", label: "Android XML", icon: XMLIcon },
-                  { key: "svg", label: "SVG", icon: SVGIcon },
-                  { key: "json", label: "JSON", icon: JSONIcon },
-                ].map((format) => (
-                  <DropdownMenuItem
-                    key={format.key}
-                    onSelect={() => {
-                      setActiveTab(format.key);
-                    }}
-                    className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
-                  >
-                    <div className="flex items-center gap-2">
-                      <format.icon />
-                      <span>{format.label}</span>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <CodePreview
-              code={getCode(activeTab)}
-              copiedStates={copiedStates}
-              activeTab={activeTab as any}
-              copyToClipboard={(text, key) => {
-                copyToClipboard(text, key);
-              }}
-            />
-          </>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-48 rounded-md border border-border bg-secondary p-1"
+            >
+              {[
+                {
+                  key: "tailwind",
+                  label: "Tailwind CSS",
+                  icon: TailwindIcon,
+                },
+                { key: "css", label: "CSS", icon: CSSIcon },
+                { key: "sass", label: "SASS/SCSS", icon: SassIcon },
+                { key: "bootstrap", label: "Bootstrap", icon: BootstrapIcon },
+                {
+                  key: "react-native",
+                  label: "React Native",
+                  icon: ReactNativeIcon,
+                },
+                { key: "flutter", label: "Flutter", icon: FlutterIcon },
+                { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
+                { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
+                { key: "vue", label: "Vue.js", icon: VueIcon },
+                { key: "angular", label: "Angular", icon: AngularIcon },
+                { key: "react", label: "React", icon: ReactIcon },
+                { key: "xml", label: "Android XML", icon: XMLIcon },
+                { key: "svg", label: "SVG", icon: SVGIcon },
+                { key: "json", label: "JSON", icon: JSONIcon },
+              ].map((format) => (
+                <DropdownMenuItem
+                  key={format.key}
+                  onSelect={() => {
+                    setActiveTab(format.key);
+                  }}
+                  className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
+                >
+                  <div className="flex items-center gap-2">
+                    <format.icon />
+                    <span>{format.label}</span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <CodePreview
+            code={getCode(activeTab)}
+            copiedStates={copiedStates}
+            activeTab={activeTab as any}
+            copyToClipboard={(text, key) => {
+              copyToClipboard(text, key);
+            }}
+          />
+        </>
       </footer>
 
       <style>{`
