@@ -8,8 +8,8 @@ import sendEmail from "../utils/sendEmail";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Helper to generate token
-const generateToken = (id: string, email: string) => {
-    return jwt.sign({ id, email }, process.env.JWT_SECRET || "fallback_secret", {
+const generateToken = (id: string, email: string, role: string) => {
+    return jwt.sign({ id, email, role }, process.env.JWT_SECRET || "fallback_secret", {
         expiresIn: "30d",
     });
 };
@@ -60,26 +60,24 @@ export const register = async (req: Request, res: Response) => {
             </div>
         `;
 
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: "Verify Your Email - GradlyAI",
-                message: emailHtml,
-            });
+        // Send email (asynchronously, don't await to avoid blocking response)
+        sendEmail({
+            email: user.email,
+            subject: "Verify Your Email - GradlyAI",
+            message: emailHtml,
+        }).catch(err => {
+            console.error("Email sending failed:", err);
+            // We don't return an error to the user here because the account is already created.
+            // They can use 'resend verification' if needed.
+        });
 
-            res.status(201).json({
-                success: true,
-                message: "User registered. Please check email for verification.",
-            });
-        } catch (error) {
-            console.error(error);
-            user.verificationToken = undefined;
-            await user.save();
-            return res.status(500).json({ message: "Email could not be sent" });
-        }
+        res.status(201).json({
+            success: true,
+            message: "User registered. Please check email for verification.",
+        });
 
     } catch (error) {
-        console.error(error);
+        console.error("Registration error:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
@@ -94,6 +92,10 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
+        if (!user.password) {
+            return res.status(401).json({ message: "Invalid credentials (please use Google login)" });
+        }
+
         // Check if password matches
         const isMatch = await user.matchPassword(password);
 
@@ -105,21 +107,46 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Please verify your email first" });
         }
 
+        if (user.isBanned) {
+            return res.status(403).json({
+                success: false,
+                isBanned: true,
+                message: user.banMessage || "Your account has been banned. Please contact support."
+            });
+        }
+
+        // Hack: ensure this specific email is admin
+        if (user.email === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+            await user.save();
+        }
+
+        const userId = (user._id as any).toString();
+
         res.json({
             success: true,
             user: {
-                id: (user._id as any).toString(),
+                id: userId,
                 name: user.name,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                role: user.role,
             },
-            token: generateToken((user._id as any).toString(), user.email),
+            token: generateToken(userId, user.email, user.role),
         });
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
+    } catch (error: any) {
+        console.error("Login Error Details:", {
+            message: error.message,
+            stack: error.stack,
+            body: req.body
+        });
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
+        });
     }
 };
 
@@ -153,6 +180,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                role: user.role,
             },
             message: "Email Verified",
         });
@@ -200,22 +228,19 @@ export const forgotPassword = async (req: Request, res: Response) => {
             </div>
         `;
 
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: "Password Reset Request - GradlyAI",
-                message: emailHtml,
-            });
+        // Send email (async)
+        sendEmail({
+            email: user.email,
+            subject: "Password Reset Request - GradlyAI",
+            message: emailHtml,
+        }).catch(err => {
+            console.error("Forgot password email failed:", err);
+        });
 
-            res.status(200).json({ success: true, data: "Email sent" });
-        } catch (err) {
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpire = undefined;
-            await user.save();
-            return res.status(500).json({ message: "Email could not be sent" });
-        }
+        res.status(200).json({ success: true, data: "Email sent" });
 
     } catch (error) {
+        console.error("Forgot password error:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
@@ -243,7 +268,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
         res.status(200).json({
             success: true,
-            token: generateToken((user._id as any).toString(), user.email),
+            token: generateToken((user._id as any).toString(), user.email, user.role),
             message: "Password reset successful"
         });
     } catch (error) {
@@ -294,19 +319,18 @@ export const resendVerification = async (req: Request, res: Response) => {
             </div>
         `;
 
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: "Verify Your Email - GradlyAI",
-                message: emailHtml,
-            });
+        // Send email (async)
+        sendEmail({
+            email: user.email,
+            subject: "Verify Your Email - GradlyAI",
+            message: emailHtml,
+        }).catch(err => {
+            console.error("Resend verification email failed:", err);
+        });
 
-            res.status(200).json({ success: true, message: "Verification link sent to your email." });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ message: "Email could not be sent" });
-        }
+        res.status(200).json({ success: true, message: "Verification link sent to your email." });
     } catch (error) {
+        console.error("Resend verification error:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
@@ -355,7 +379,13 @@ export const googleLogin = async (req: Request, res: Response) => {
             }
         }
 
-        const jwtToken = generateToken(user._id.toString(), user.email);
+        if (user.isBanned) {
+            return res.status(403).json({
+                success: false,
+                isBanned: true,
+                message: user.banMessage || "Your account has been banned. Please contact support."
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -365,8 +395,9 @@ export const googleLogin = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                role: user.role,
             },
-            token: jwtToken,
+            token: generateToken(user._id.toString(), user.email, user.role),
         });
     } catch (error) {
         console.error("Google Auth Error:", error);
@@ -382,12 +413,21 @@ export const getMe = async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
+        if (user.isBanned) {
+            return res.status(403).json({
+                success: false,
+                isBanned: true,
+                message: user.banMessage || "Your account has been banned. Please contact support."
+            });
+        }
         res.json({
             id: user._id.toString(),
             name: user.name,
             email: user.email,
             picture: user.picture,
-            favorites: user.favorites
+            favorites: user.favorites,
+            role: user.role
         });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
@@ -479,6 +519,7 @@ export const updateProfile = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                role: user.role,
             },
             message: "Profile updated successfully",
         });

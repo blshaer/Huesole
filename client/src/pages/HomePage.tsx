@@ -8,7 +8,7 @@ import { SearchAndFilters } from "@/features/search/components/SearchAndFilters"
 import { FilterStatus } from "@/features/search/components/FilterStatus";
 import { ErrorDisplay } from "@/features/landing/components/ErrorDisplay";
 import { colorUtils } from "@/features/gradients/utils/colorUtils";
-import { useGradients } from "@/features/gradients/hooks/useGradients";
+import { useGradients, type Gradient } from "@/features/gradients/hooks/useGradients";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { useGradientFilter } from "@/features/gradients/hooks/useGradientFilter";
@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
     return filteredGradients
       .slice(start, start + gradientsPerPage)
       .filter(
-        (gradient): gradient is { name: string; colors: string[] } =>
+        (gradient): gradient is Gradient & { name: string } =>
           gradient.name !== undefined &&
           gradient.colors !== undefined &&
           gradient.name.length > 0 &&

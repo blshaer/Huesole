@@ -8,6 +8,8 @@ import { GeneratedGradient } from "../types";
 import { useGradientGeneration } from "../hooks/useGradientGeneration";
 import { Sidebar } from "../components/Sidebar";
 import { toast } from "@/shared/hooks/use-toast";
+const BASE_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = `${BASE_URL}/api`;
 
 const AIGeneratorPage = () => {
   const { user } = useAuth();
@@ -130,7 +132,7 @@ const AIGeneratorPage = () => {
         },
       };
 
-      await axios.post("https://gradlyai.onrender.com/api/ai/save", payload, {
+      await axios.post(`${API_URL}/ai/save`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -139,9 +141,7 @@ const AIGeneratorPage = () => {
         description: "Your gradient has been saved to your profile.",
       });
 
-      setTimeout(() => {
-        navigate("/my-gradients");
-      }, 1000);
+
     } catch (error: any) {
       console.error("Failed to save gradient", error);
 

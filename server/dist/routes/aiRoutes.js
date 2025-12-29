@@ -10,4 +10,5 @@ const router = express_1.default.Router();
 router.post("/generate", aiController_1.generateAIGradient);
 router.post("/save", authMiddleware_1.protect, aiController_1.saveCreatedGradient);
 router.get("/my-gradients", authMiddleware_1.protect, aiController_1.getCreatedGradients);
+router.delete("/:id", authMiddleware_1.protect, aiController_1.deleteCreatedGradient);
 exports.default = router;

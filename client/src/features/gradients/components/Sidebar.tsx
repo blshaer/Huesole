@@ -102,7 +102,13 @@ export const Sidebar = ({
           onAddColor={onAddColor}
           onRemoveColor={onRemoveColor}
         />
+
+        <div className="max-md:block hidden">
+
+
         <ExportSection result={result} />
+        </div>
+
       </div>
 
       <div className="bg-background/60 flex-shrink-0 border-t border-border p-6 backdrop-blur-xl">

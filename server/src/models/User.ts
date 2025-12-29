@@ -12,7 +12,10 @@ export interface IUser extends Document {
     verificationToken?: string;
     resetPasswordToken?: string;
     resetPasswordExpire?: Date;
+    isBanned: boolean;
+    banMessage?: string;
     createdAt: Date;
+    role: "user" | "admin";
     favorites: string[];
     createdGradients: {
         id: string;
@@ -62,6 +65,16 @@ const UserSchema: Schema = new Schema({
     verificationToken: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    isBanned: {
+        type: Boolean,
+        default: false,
+    },
+    banMessage: String,
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -84,13 +97,12 @@ const UserSchema: Schema = new Schema({
 });
 
 // Encrypt password using bcrypt
-UserSchema.pre("save", async function (next) {
+UserSchema.pre("save", async function (this: any) {
     if (!this.isModified("password")) {
-        next();
+        return;
     }
 
     const salt = await bcrypt.genSalt(10);
-    // @ts-ignore
     this.password = await bcrypt.hash(this.password, salt);
 });
 
@@ -132,7 +144,7 @@ UserSchema.methods.getVerificationToken = function () {
 UserSchema.methods.getSignedJwtToken = function () {
     const jwt = require("jsonwebtoken");
     return jwt.sign(
-        { id: this._id, email: this.email },
+        { id: this._id, email: this.email, role: this.role },
         process.env.JWT_SECRET || "fallback_secret",
         {
             expiresIn: "30d",

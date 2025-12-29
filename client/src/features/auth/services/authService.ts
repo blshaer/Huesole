@@ -8,12 +8,14 @@ export interface AuthResponse {
     email: string;
     picture?: string;
     favorites: string[];
+    role: "user" | "admin";
   };
   token: string;
   message?: string;
 }
 
-const API_URL = "https://gradlyai.onrender.com/api/auth";
+const VITE_API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = `${VITE_API_URL}/api/auth`;
 
 export const googleLogin = async (token: string): Promise<AuthResponse> => {
   const response = await axios.post(`${API_URL}/google`, { token });

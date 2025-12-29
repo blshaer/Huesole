@@ -62,8 +62,58 @@ export const getCreatedGradients = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        res.status(200).json({ success: true, data: user.createdGradients });
+        // Ensure every gradient has an 'id' for the frontend even if it only has '_id'
+        const gradients = user.createdGradients.map((g: any) => ({
+            id: g.id || g._id.toString(),
+            name: g.name,
+            colors: g.colors,
+            type: g.type,
+            angle: g.angle,
+            createdAt: g.createdAt
+        }));
+
+        res.status(200).json({ success: true, data: gradients });
     } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+export const deleteCreatedGradient = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Filter out the gradient checking both 'id' and '_id' to be safe
+        const originalCount = user.createdGradients.length;
+        user.createdGradients = user.createdGradients.filter(
+            (g: any) => g.id !== id && g._id.toString() !== id
+        );
+
+        if (user.createdGradients.length === originalCount) {
+            console.log(`No gradient found with ID: ${id} for user: ${userId}`);
+        }
+
+        await user.save();
+
+        // Return the updated list in the same format as getCreatedGradients
+        const gradients = user.createdGradients.map((g: any) => ({
+            id: g.id || g._id.toString(),
+            name: g.name,
+            colors: g.colors,
+            type: g.type,
+            angle: g.angle,
+            createdAt: g.createdAt
+        }));
+
+        res.status(200).json({ success: true, data: gradients });
+    } catch (error) {
+        console.error("Delete error:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };

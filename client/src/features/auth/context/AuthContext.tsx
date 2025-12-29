@@ -19,7 +19,15 @@ interface User {
   email: string;
   picture?: string;
   favorites: string[];
+  role: "user" | "admin";
+  isBanned?: boolean;
+  banMessage?: string;
   createdAt?: string;
+}
+
+interface BanInfo {
+  isBanned: boolean;
+  message: string;
 }
 
 interface AuthContextType {
@@ -35,6 +43,8 @@ interface AuthContextType {
   setAuth: (data: AuthResponse) => void;
   updateFavorites: (favorites: string[]) => void;
   updateUser: (userData: Partial<User>) => void;
+  banInfo: BanInfo | null;
+  resetBanInfo: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,6 +56,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
   const [loading, setLoading] = useState(true);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [banInfo, setBanInfo] = useState<BanInfo | null>(null);
+
+  const resetBanInfo = () => setBanInfo(null);
 
   const closeSignIn = () => setIsSignInOpen(false);
 
@@ -55,8 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           const userData = await getMe(token);
           setUser(userData);
-        } catch (error) {
+        } catch (error: any) {
           console.error("Failed to fetch user", error);
+          if (error.response?.status === 403 && error.response?.data?.isBanned) {
+            setBanInfo({
+              isBanned: true,
+              message: error.response.data.message
+            });
+          }
           logout();
         }
       }
@@ -73,8 +92,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(data.token);
       setUser(data.user as User);
       localStorage.setItem("token", data.token);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed", error);
+      if (error.response?.status === 403 && error.response?.data?.isBanned) {
+        setBanInfo({
+          isBanned: true,
+          message: error.response.data.message
+        });
+      }
       throw error;
     } finally {
       setLoading(false);
@@ -88,7 +113,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(data.token);
       setUser(data.user as User);
       localStorage.setItem("token", data.token);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 403 && error.response?.data?.isBanned) {
+        setBanInfo({
+          isBanned: true,
+          message: error.response.data.message
+        });
+      }
       throw error;
     } finally {
       setLoading(false);
@@ -145,6 +176,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         updateUser,
         isSignInOpen,
         closeSignIn,
+        banInfo,
+        resetBanInfo,
       }}
     >
       {children}

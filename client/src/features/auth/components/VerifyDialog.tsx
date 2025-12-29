@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import {
   Card,
@@ -28,7 +28,7 @@ export default function VerifyDialog() {
 
         <CardFooter className="flex flex-col gap-3 border-t pt-6">
           <Link
-            href="/login"
+            to="/login"
             className="flex w-full items-center justify-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />

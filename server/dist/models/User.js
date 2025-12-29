@@ -73,6 +73,16 @@ const UserSchema = new mongoose_1.Schema({
     verificationToken: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    isBanned: {
+        type: Boolean,
+        default: false,
+    },
+    banMessage: String,
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -94,12 +104,11 @@ const UserSchema = new mongoose_1.Schema({
     ],
 });
 // Encrypt password using bcrypt
-UserSchema.pre("save", async function (next) {
+UserSchema.pre("save", async function () {
     if (!this.isModified("password")) {
-        next();
+        return;
     }
     const salt = await bcryptjs_1.default.genSalt(10);
-    // @ts-ignore
     this.password = await bcryptjs_1.default.hash(this.password, salt);
 });
 // Match user entered password to hashed password in database
@@ -131,7 +140,7 @@ UserSchema.methods.getVerificationToken = function () {
 // Sign JWT and return
 UserSchema.methods.getSignedJwtToken = function () {
     const jwt = require("jsonwebtoken");
-    return jwt.sign({ id: this._id, email: this.email }, process.env.JWT_SECRET || "fallback_secret", {
+    return jwt.sign({ id: this._id, email: this.email, role: this.role }, process.env.JWT_SECRET || "fallback_secret", {
         expiresIn: "30d",
     });
 };

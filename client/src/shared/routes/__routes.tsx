@@ -31,6 +31,25 @@ const MyGradientsPage = React.lazy(
 const AIGeneratorPage = React.lazy(
   () => import("@/features/gradients/pages/AIGeneratorPage"),
 );
+const SupportPage = React.lazy(
+  () => import("@/features/support/pages/SupportPage"),
+);
+
+const AdminLayout = React.lazy(
+  () => import("@/features/admin/layouts/AdminLayout"),
+);
+const AdminDashboard = React.lazy(
+  () => import("@/features/admin/pages/AdminDashboard"),
+);
+const ManageUsers = React.lazy(
+  () => import("@/features/admin/pages/ManageUsers"),
+);
+const ManageHomeGradients = React.lazy(
+  () => import("@/features/admin/pages/ManageHomeGradients"),
+);
+const SupportInbox = React.lazy(
+  () => import("@/features/admin/pages/SupportInbox"),
+);
 
 const AppRoutes: React.FC = () => {
   const LoadingFallback = () => (
@@ -65,6 +84,17 @@ const AppRoutes: React.FC = () => {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/my-gradients" element={<MyGradientsPage />} />
           <Route path="/ai-generator" element={<AIGeneratorPage />} />
+
+          <Route path="/support" element={<SupportPage />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<ManageUsers />} />
+            <Route path="gradients" element={<ManageHomeGradients />} />
+            <Route path="support" element={<SupportInbox />} />
+          </Route>
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

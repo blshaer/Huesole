@@ -1,0 +1,30 @@
+
+> gradlyai-server@1.0.0 dev
+> nodemon src/index.ts
+
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node src/index.ts`[39m
+Debug: PORT value is "5001" (type: string)
+(node:20204) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: listen EADDRINUSE: address already in use :::5001
+    at Server.setupListenHandle [as _listen2] (node:net:1912:16)
+    at listenInCluster (node:net:1969:12)
+    at Server.listen (node:net:2074:7)
+    at Function.listen (C:\Users\Baraa\Desktop\work\softwareDevelopment\openSource\gradients-css\server\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (C:\Users\Baraa\Desktop\work\softwareDevelopment\openSource\gradients-css\server\src\index.ts:43:5)
+    at Module._compile (node:internal/modules/cjs/loader:1565:14)
+    at Module.m._compile (C:\Users\Baraa\Desktop\work\softwareDevelopment\openSource\gradients-css\server\node_modules\ts-node\src\index.ts:1618:23)
+    at node:internal/modules/cjs/loader:1708:10
+    at Object.require.extensions.<computed> [as .ts] (C:\Users\Baraa\Desktop\work\softwareDevelopment\openSource\gradients-css\server\node_modules\ts-node\src\index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1318:32) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5001
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

@@ -13,17 +13,20 @@ export default function Footer() {
       ></div>
 
       <footer className="container mx-auto flex h-16 items-center justify-between gap-2 px-0 py-4 max-md:h-auto max-md:flex-col max-md:items-center max-md:justify-center max-md:gap-2 max-md:text-center">
-        <p className="flex items-center text-sm text-primary">
-          Designed & Developed by{" "}
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center ps-1 font-medium text-[var(--link)] hover:text-[var(--link-hover)]"
-            href={"https://https://blshaer.gt.tc//"}
-          >
-            Baraa
-            <ExternalLinkIcon className="ms-1 h-3 w-3" />
-          </a>
+        <p className="flex items-center text-sm text-primary gap-4">
+          <span className="flex items-center">
+            Designed & Developed by{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center ps-1 font-medium text-[var(--link)] hover:text-[var(--link-hover)]"
+              href={"https://blshaer.gt.tc//"}
+            >
+              Baraa
+              <ExternalLinkIcon className="ms-1 h-3 w-3" />
+            </a>
+          </span>
+   
         </p>
         <p className="text-xs text-muted-foreground">
           &copy; {new Date().getFullYear()} GradlyAI. All rights reserved.

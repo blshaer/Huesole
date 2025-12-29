@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
-import gradientsData from "@/shared/lib/gradients.json";
+import axios from "axios";
+
+const BASE_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = `${BASE_URL}/api`;
 
 // --- Types ---
 interface Gradient {
+  _id?: string;
   name?: string;
-  colors?: string[];
+  colors: string[];
+  type: string;
+  angle?: number;
   colorsname?: string[];
   keywords?: string[][];
 }
@@ -21,21 +27,22 @@ export function useGradients(): UseGradientsReturn {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadGradients = () => {
+    const fetchGradients = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Use the imported local data
-        setGradients(gradientsData as Gradient[]);
-      } catch (err) {
+        const response = await axios.get<{ data: Gradient[] }>(`${API_URL}/home-gradients`);
+        setGradients(response.data.data);
+      } catch (err: any) {
         setError(
-          err instanceof Error ? err.message : "Failed to load gradients",
+          err.response?.data?.message || err.message || "Failed to load gradients"
         );
+        // Fallback or empty state is handled by the UI
       } finally {
         setIsLoading(false);
       }
     };
-    loadGradients();
+    fetchGradients();
   }, []);
 
   return { gradients, isLoading, error };

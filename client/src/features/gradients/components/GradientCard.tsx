@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { MagicCard } from "@/shared/ui/MagicCard";
-import { ChevronDown, Eye, EyeOff, Pencil } from "lucide-react";
+import { ChevronDown, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
@@ -21,6 +21,12 @@ import { ImageDownloadControl } from "./ImageDownloadControl";
 
 import { GradientCardProps } from "@/shared/types/types";
 import { CodePreview } from "./CodePreview";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/shared/ui/tooltip";
 
 // Icon Components for different formats
 const TailwindIcon = () => (
@@ -114,14 +120,13 @@ export default function GradientCard({
   editable = false,
   onColorsChange,
   onEditClick,
+  onDeleteClick,
 }: GradientCardProps) {
   const [activeTab, setActiveTab] = useState("tailwind");
   const [angle, setAngle] = useState(90);
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const [showAngleController, setShowAngleController] = useState(false);
-  const [showTooltip] = useState(false);
-  const [showEditTooltip, setShowEditTooltip] = useState(false);
   const [gradientShape, setGradientShape] = useState<
     "linear" | "radial" | "conic"
   >("linear");
@@ -193,12 +198,21 @@ export default function GradientCard({
     ? "Hide angle controller"
     : "Show angle controller";
   const editTooltipText = "Edit gradient";
+  const deleteTooltipText = "Delete gradient";
 
   const handleEditButtonClick = () => {
     if (onEditClick) {
       onEditClick(gradient);
     } else {
       console.warn("onEditClick prop is not provided");
+    }
+  };
+
+  const handleDeleteButtonClick = () => {
+    if (onDeleteClick && (gradient as any).id) {
+      onDeleteClick(gradient as any);
+    } else {
+      console.warn("onDeleteClick prop is not provided or gradient id is missing");
     }
   };
 
@@ -385,81 +399,81 @@ export default function GradientCard({
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
       className="relative overflow-hidden transition-all duration-300"
     >
-      <div className="absolute left-0 right-0 top-3 z-20 flex items-center justify-between px-4">
+      <div className="absolute left-0 right-0 top-3 z-50 flex items-center justify-between px-4">
         <AnimatedCheckbox
           checked={isAnimated}
           onChange={setIsAnimated}
           className="text-white drop-shadow-lg"
         />
 
-        <div aria-label={editTooltipText}
-          className="relative flex gap-4 px-2 py-2  items-center justify-center rounded-[8px] backdrop-blur-sm"
-          style={{
-            backgroundColor: isLightGradient
-              ? "rgba(0,0,0,0.18)"
-              : "rgba(255,255,255,0.18)",
-            border: `1px solid ${isLightGradient
-              ? "rgba(0,0,0,0.25)"
-              : "rgba(255,255,255,0.25)"
-              }`,
-          }}
-
-          onMouseEnter={() => setShowEditTooltip(true)}
-          onMouseLeave={() => setShowEditTooltip(false)}
-          onFocus={() => setShowEditTooltip(true)}
-          onBlur={() => setShowEditTooltip(false)}>
-          {/* Edit Button */}
-          <button
-            type="button"
-            onClick={handleEditButtonClick}
+        <TooltipProvider>
+          <div className="relative flex gap-1 px-1.5 py-1.5 items-center justify-center rounded-[10px] backdrop-blur-md transition-all duration-300 hover:bg-white/5"
+            style={{
+              backgroundColor: isLightGradient
+                ? "rgba(0,0,0,0.08)"
+                : "rgba(255,255,255,0.08)",
+              border: `1px solid ${isLightGradient
+                ? "rgba(0,0,0,0.15)"
+                : "rgba(255,255,255,0.15)"
+                }`,
+            }}
           >
-            <Pencil className="h-4 w-4" style={{ color: controlColor }} />
+            {/* Edit Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={handleEditButtonClick}
+                  className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                >
+                  <Pencil className="h-4 w-4" style={{ color: controlColor }} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-black/90 border-white/10">
+                <p className="text-white">{editTooltipText}</p>
+              </TooltipContent>
+            </Tooltip>
 
-            {showEditTooltip && (
-              <div
-                className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
-                style={{
-                  backgroundColor: "rgba(0,0,0,0.85)",
-                  color: "white",
-                }}
-              >
-                {editTooltipText}
-              </div>
-            )}
-          </button>
-
-          {/* Eye/EyeOff Toggle Button */}
-          <button
-            type="button"
-            aria-label={tooltipText}
-            onClick={() => setShowAngleController((v) => !v)}
-          >
-            {showAngleController ? (
-              <span className="flex">
-                <Eye className="h-4 w-4" style={{ color: controlColor }} />
-              </span>
-            ) : (
-              <span className="flex">
-                <EyeOff
-                  className="h-4 w-4"
-                  style={{ color: controlColor }}
-                />
-              </span>
+            {/* Delete Button */}
+            {onDeleteClick && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={handleDeleteButtonClick}
+                    className="p-1.5 rounded-md hover:bg-red-500/20 transition-colors group"
+                  >
+                    <Trash2 className="h-4 w-4 transition-colors group-hover:text-red-500" style={{ color: "rgba(239, 68, 68, 0.7)" }} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-red-950 border-red-500/20 text-white">
+                  <p className="text-white">{deleteTooltipText}</p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
-            {showTooltip && (
-              <div
-                className="pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium shadow-lg"
-                style={{
-                  backgroundColor: "rgba(0,0,0,0.85)",
-                  color: "white",
-                }}
-              >
-                {tooltipText}
-              </div>
-            )}
-          </button>
-        </div>
+            {/* Eye/EyeOff Toggle Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={tooltipText}
+                  onClick={() => setShowAngleController((v) => !v)}
+                  className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                >
+                  {showAngleController ? (
+                    <Eye className="h-4 w-4" style={{ color: controlColor }} />
+                  ) : (
+                    <EyeOff className="h-4 w-4" style={{ color: controlColor }} />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-black/90 border-white/10">
+                <p className="text-white">{tooltipText}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
 
       <div key={gradientType}>

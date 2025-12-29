@@ -20,6 +20,7 @@ interface NavbarUserMenuProps {
     name: string;
     email: string;
     picture?: string;
+    role: "user" | "admin";
   } | null;
   onLogout: () => void;
   loading?: boolean;
@@ -117,6 +118,20 @@ export const NavbarUserMenu = ({
             </Link>
           </DropdownMenuItem>
 
+          {user.role === "admin" && (
+            <>
+              <DropdownMenuSeparator className="my-1 bg-white/10" />
+              <DropdownMenuItem
+                className="mx-2 my-1 cursor-pointer rounded-lg bg-indigo-500/10 text-indigo-400 transition-all duration-200 hover:bg-indigo-500/20 hover:text-indigo-300 focus:bg-indigo-500/20 focus:text-indigo-300"
+                asChild
+              >
+                <Link to="/admin" className="flex items-center px-2 py-1.5">
+                  <span className="font-semibold">Admin Dashboard</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
+
           <DropdownMenuSeparator className="my-1 bg-white/10" />
 
           <DropdownMenuItem
@@ -125,6 +140,15 @@ export const NavbarUserMenu = ({
           >
             <Link to="/ai-generator" className="flex items-center px-2 py-1.5">
               <span>AI Generator</span>
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+            asChild
+          >
+            <Link to="/support" className="flex items-center px-2 py-1.5">
+              <span>Support</span>
             </Link>
           </DropdownMenuItem>
 
