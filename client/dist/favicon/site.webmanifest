@@ -1,6 +1,8 @@
 {
-  "name": "Gradients CSS",
-  "short_name": "Gradients",
+  "name": "GradlyAI — Free Gradient Generator",
+  "short_name": "GradlyAI",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/favicon/web-app-manifest-192x192.png",
