@@ -25,8 +25,7 @@ import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib/utils";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${BASE_URL}/api`;
+import { API_URL } from "@/shared/config";
 
 interface User {
     _id: string;

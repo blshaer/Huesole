@@ -21,8 +21,7 @@ import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/shared/ui/dialog";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${BASE_URL}/api`;
+import { API_URL } from "@/shared/config";
 
 interface Message {
     _id: string;

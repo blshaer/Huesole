@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import User from "../models/User";
-import SupportMessage from "../models/SupportMessage";
 import HomeGradient from "../models/HomeGradient";
+import SupportMessage from "../models/SupportMessage";
+import User from "../models/User";
 
 // @desc    Get all users
 // @route   GET /api/admin/users

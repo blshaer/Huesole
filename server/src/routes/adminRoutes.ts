@@ -1,18 +1,18 @@
 import express from "express";
 import {
-    getUsers,
-    deleteUser,
-    updateUserRole,
-    getSupportMessages,
-    updateSupportStatus,
-    deleteSupportMessage,
-    createHomeGradient,
-    updateHomeGradient,
-    deleteHomeGradient,
-    getUserMessages,
     banUser,
+    createHomeGradient,
+    deleteHomeGradient,
+    deleteSupportMessage,
+    deleteUser,
+    getSupportMessages,
+    getUserMessages,
+    getUsers,
+    updateHomeGradient,
+    updateSupportStatus,
+    updateUserRole,
 } from "../controllers/adminController";
-import { protect, authorize } from "../middleware/authMiddleware";
+import { authorize, protect } from "../middleware/authMiddleware";
 
 const router = express.Router();
 

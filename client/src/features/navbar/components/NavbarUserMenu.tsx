@@ -1,8 +1,9 @@
 // src/shared/layout/Navbar/NavbarUserMenu.tsx
 
-import { Link } from "react-router-dom";
 import { LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
 
@@ -122,7 +122,8 @@ export const NavbarUserMenu = ({
             <>
               <DropdownMenuSeparator className="my-1 bg-white/10" />
               <DropdownMenuItem
-                className="mx-2 my-1 cursor-pointer rounded-lg bg-indigo-500/10 text-indigo-400 transition-all duration-200 hover:bg-indigo-500/20 hover:text-indigo-300 focus:bg-indigo-500/20 focus:text-indigo-300"
+            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+        
                 asChild
               >
                 <Link to="/admin" className="flex items-center px-2 py-1.5">

@@ -15,8 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${BASE_URL}/api`;
+import { API_URL } from "@/shared/config";
 
 interface Gradient {
     _id: string;

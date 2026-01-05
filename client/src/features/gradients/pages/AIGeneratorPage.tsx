@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Navbar } from "@/features/navbar/components/Navbar";
-import { PreviewArea } from "../components/PreviewArea";
-import { GeneratedGradient } from "../types";
-import { useGradientGeneration } from "../hooks/useGradientGeneration";
-import { Sidebar } from "../components/Sidebar";
 import { toast } from "@/shared/hooks/use-toast";
-const BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${BASE_URL}/api`;
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { PreviewArea } from "../components/PreviewArea";
+import { Sidebar } from "../components/Sidebar";
+import { useGradientGeneration } from "../hooks/useGradientGeneration";
+import { GeneratedGradient } from "../types";
+
+import { API_URL } from "@/shared/config";
 
 const AIGeneratorPage = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,27 +24,26 @@ const AIGeneratorPage = () => {
     const saved = localStorage.getItem("gradly-latest-gradient");
     return saved ? JSON.parse(saved) : null;
   });
-  const [isAnimated, setIsAnimated] = useState(() => {
-    return localStorage.getItem("gradly-is-animated") === "true";
-  });
+
+  const [isAnimated, setIsAnimated] = useState(
+    () => localStorage.getItem("gradly-is-animated") === "true",
+  );
+
   const [animationSpeed, setAnimationSpeed] = useState(() => {
     const saved = localStorage.getItem("gradly-animation-speed");
     return saved ? parseFloat(saved) : 1;
   });
-  const [loading] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [showAngleController, setShowAngleController] = useState(true);
-
   const [isLightGradient, setIsLightGradient] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  const toggleAngleController = () =>
+    setShowAngleController((prev) => !prev);
 
-
-  const toggleAngleController = () => {
-    setShowAngleController(!showAngleController);
-  };
-
-
+  const toggleMobileSidebar = () =>
+    setIsMobileSidebarOpen((prev) => !prev);
 
   const { handleGenerate } = useGradientGeneration({
     user,
@@ -52,7 +51,7 @@ const AIGeneratorPage = () => {
     setResult,
   });
 
-  // Initialize gradient from state if coming from another page
+  // Initialize gradient
   useEffect(() => {
     if (state) {
       setResult({
@@ -61,10 +60,8 @@ const AIGeneratorPage = () => {
         type: "linear",
         angle: 90,
       });
-      // Clear location state to avoid resetting on every minor update or navigation
       window.history.replaceState({}, document.title);
     } else if (!result) {
-      // Default if no storage and no state
       setResult({
         name: "New Gradient",
         colors: ["#3b82f6", "#8b5cf6"],
@@ -72,29 +69,33 @@ const AIGeneratorPage = () => {
         angle: 45,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  // Persist state to localStorage
+  // Persist state
   useEffect(() => {
     if (result) {
-      localStorage.setItem("gradly-latest-gradient", JSON.stringify(result));
+      localStorage.setItem(
+        "gradly-latest-gradient",
+        JSON.stringify(result),
+      );
     }
     localStorage.setItem("gradly-is-animated", String(isAnimated));
-    localStorage.setItem("gradly-animation-speed", String(animationSpeed));
+    localStorage.setItem(
+      "gradly-animation-speed",
+      String(animationSpeed),
+    );
   }, [result, isAnimated, animationSpeed]);
 
-  // Calculate if gradient is light
+  // Light gradient detection
   useEffect(() => {
     if (!result) return;
 
     const isLight = result.colors.every((color) => {
-      const hex = color.replace(/^#/, "");
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      return brightness > 200;
+      const hex = color.replace("#", "");
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return (r * 299 + g * 587 + b * 114) / 1000 > 200;
     });
 
     setIsLightGradient(isLight);
@@ -110,56 +111,35 @@ const AIGeneratorPage = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to save gradients.",
-        variant: "destructive",
-      });
-      navigate("/login");
-      return;
-    }
-
     setSaving(true);
     try {
-      const payload = {
+      await axios.post(`${API_URL}/ai/save`, {
         gradient: {
           name: result.name,
           colors: result.colors,
           type: result.type || "linear",
           angle: result.angle || 90,
         },
-      };
-
-      await axios.post(`${API_URL}/ai/save`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       toast({
         title: "Saved successfully!",
         description: "Your gradient has been saved to your profile.",
       });
-
-
     } catch (error: any) {
-      console.error("Failed to save gradient", error);
-
       if (error.response?.status === 401) {
         toast({
           title: "Session expired",
           description: "Please log in again.",
           variant: "destructive",
         });
-        localStorage.removeItem("token");
-        navigate("/login");
+        logout();
       } else {
         toast({
           title: "Save failed",
           description:
             error.response?.data?.message ||
-            error.response?.data?.error ||
-            "Failed to save gradient to profile.",
+            "Failed to save gradient.",
           variant: "destructive",
         });
       }
@@ -170,21 +150,25 @@ const AIGeneratorPage = () => {
 
   const handleUpdateColor = (index: number, newColor: string) => {
     if (!result) return;
-    const newColors = [...result.colors];
-    newColors[index] = newColor;
-    setResult({ ...result, colors: newColors });
+    const colors = [...result.colors];
+    colors[index] = newColor;
+    setResult({ ...result, colors });
   };
 
   const handleAddColor = () => {
     if (!result) return;
-    const lastColor = result.colors[result.colors.length - 1];
-    setResult({ ...result, colors: [...result.colors, lastColor] });
+    setResult({
+      ...result,
+      colors: [...result.colors, result.colors.at(-1)!],
+    });
   };
 
   const handleRemoveColor = (index: number) => {
     if (!result || result.colors.length <= 2) return;
-    const newColors = result.colors.filter((_, i) => i !== index);
-    setResult({ ...result, colors: newColors });
+    setResult({
+      ...result,
+      colors: result.colors.filter((_, i) => i !== index),
+    });
   };
 
   const handleAngleChange = (angle: number) => {
@@ -192,60 +176,24 @@ const AIGeneratorPage = () => {
     setResult({ ...result, angle });
   };
 
-
-
-  useEffect(() => {
-    if (!result) return;
-
-    const isLight = result.colors.every((color) => {
-      const hex = color.replace(/^#/, "");
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      return brightness > 200;
-    });
-
-    setIsLightGradient(isLight);
-  }, [result]);
-
-
-
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen(!isMobileSidebarOpen);
-  };
-
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-background text-foreground">
-      <div
-        className="pointer-events-none fixed inset-0 z-[1] opacity-[0.03] brightness-150 contrast-150"
-        style={{
-          backgroundImage: `url("https://grainy-gradients.vercel.app/noise.svg")`,
-        }}
+      <Navbar
+        result={result}
+        isAnimated={isAnimated}
+        setIsAnimated={setIsAnimated}
+        animationSpeed={animationSpeed}
+        setAnimationSpeed={setAnimationSpeed}
+        showAngleController={showAngleController}
+        onToggleAngleController={toggleAngleController}
+        onToggleSidebar={toggleMobileSidebar}
+        isLightGradient={isLightGradient}
       />
 
-      <div className="relative z-50 flex-shrink-0">
-        <Navbar
-          result={result}
-          isAnimated={isAnimated}
-          setIsAnimated={setIsAnimated}
-          animationSpeed={animationSpeed}
-          setAnimationSpeed={setAnimationSpeed}
-          showAngleController={showAngleController}
-          onToggleAngleController={toggleAngleController}
-          onToggleSidebar={toggleMobileSidebar}
-          isLightGradient={isLightGradient}
-
-        />
-      </div>
-
-      <div className="container relative flex flex-1 overflow-hidden p-0">
+      <div className="container flex flex-1 overflow-hidden p-0">
         <Sidebar
           result={result}
           setResult={setResult}
-          loading={loading}
           saving={saving}
           isAnimated={isAnimated}
           setIsAnimated={setIsAnimated}
@@ -257,8 +205,7 @@ const AIGeneratorPage = () => {
           onAddColor={handleAddColor}
           onRemoveColor={handleRemoveColor}
           isMobileOpen={isMobileSidebarOpen}
-          onToggleMobile={toggleMobileSidebar}
-        />
+          onToggleMobile={toggleMobileSidebar} loading={false} />
 
         <PreviewArea
           result={result}
@@ -268,35 +215,10 @@ const AIGeneratorPage = () => {
           showAngleController={showAngleController}
           onToggleAngleController={toggleAngleController}
           isLightGradient={isLightGradient}
-          onGenerate={handleGenerate} loading={loading}
+          onGenerate={handleGenerate}
+          loading={false}
         />
       </div>
-
-      <style>{`
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          transition: background 0.2s ease;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
     </div>
   );
 };

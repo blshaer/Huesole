@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "@/shared/hooks/use-toast";
 import { GeneratedGradient } from "../types";
+import { API_URL } from "@/shared/config";
 
 interface UseGradientGenerationProps {
   user: any;
@@ -46,7 +47,7 @@ export const useGradientGeneration = ({
     setLoading(true);
     try {
       const response = await axios.post<{ data: GeneratedGradient }>(
-        "https://gradlyai.onrender.com/api/ai/generate",
+        `${API_URL}/ai/generate`,
         { prompt: customPrompt }
       );
       setLocalResult(response.data.data);
@@ -79,7 +80,7 @@ export const useGradientGeneration = ({
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "https://gradlyai.onrender.com/api/ai/save",
+        `${API_URL}/ai/save`,
         { gradient: result },
         { headers: { Authorization: `Bearer ${token}` } }
       );

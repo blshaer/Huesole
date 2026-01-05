@@ -35,7 +35,7 @@ export const Navbar = ({
   onToggleAngleController,
   showAngleController = false,
 }: NavbarProps) => {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -135,7 +135,7 @@ export const Navbar = ({
           <NavbarLogo />
         </nav>
 
-        <div className="relative z-50 flex items-center gap-3 md:gap-3">
+        <div className="relative z-50 flex items-center  gap-3">
           {/* Sidebar Toggle Button - Only show on AI Generator page and mobile */}
           {isAIGeneratorPage && isMobile && onToggleSidebar && (
             <button
@@ -173,7 +173,7 @@ export const Navbar = ({
 
           <NavbarUserMenu
             user={user}
-            loading={loading}
+            loading={isLoading}
             onLogout={handleLogout}
           />
         </div>

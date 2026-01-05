@@ -116,7 +116,7 @@ export const login = async (req: Request, res: Response) => {
         }
 
         // Hack: ensure this specific email is admin
-        if (user.email === "blshaer@outlook.com" && user.role !== "admin") {
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
             user.role = "admin";
             await user.save();
         }
@@ -167,6 +167,12 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
         user.isVerified = true;
         user.verificationToken = undefined;
+
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+        }
+
         await user.save();
 
         const tokenGenerated = user.getSignedJwtToken();
@@ -264,6 +270,12 @@ export const resetPassword = async (req: Request, res: Response) => {
         user.password = req.body.password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
+
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+        }
+
         await user.save();
 
         res.status(200).json({
@@ -387,6 +399,12 @@ export const googleLogin = async (req: Request, res: Response) => {
             });
         }
 
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+            await user.save();
+        }
+
         res.status(200).json({
             success: true,
             user: {
@@ -421,6 +439,12 @@ export const getMe = async (req: Request, res: Response) => {
                 message: user.banMessage || "Your account has been banned. Please contact support."
             });
         }
+        // Hack: ensure this specific email is admin
+        if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
+            user.role = "admin";
+            await user.save();
+        }
+
         res.json({
             id: user._id.toString(),
             name: user.name,

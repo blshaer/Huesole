@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL as GLOBAL_API_URL } from "@/shared/config";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import GradientCard from "@/features/gradients/components/GradientCard";
@@ -49,8 +50,7 @@ const MyGradientsPage = () => {
     });
   };
 
-  const VITE_API_URL = import.meta.env.VITE_API_URL || "";
-  const API_URL = `${VITE_API_URL}/api/ai`;
+  const API_URL = `${GLOBAL_API_URL}/ai`;
 
   const handleDeleteClick = (gradient: Gradient) => {
     if (!gradient.id) {

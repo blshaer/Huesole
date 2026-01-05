@@ -605,7 +605,10 @@ export default function GradientCard({
             colors={gradient.colors}
             getColorInFormat={getColorInFormat}
             editable={editable}
-            onColorChange={handleColorChange} copyToClipboard={(text) => navigator.clipboard.writeText(text)} />
+            onColorChange={handleColorChange}
+            copyToClipboard={(text) => copyToClipboard(text, "colors")}
+          />
+
 
           <div className="flex gap-1">
             <DropdownMenu>

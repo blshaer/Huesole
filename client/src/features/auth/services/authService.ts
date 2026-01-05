@@ -14,8 +14,9 @@ export interface AuthResponse {
   message?: string;
 }
 
-const VITE_API_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${VITE_API_URL}/api/auth`;
+import { API_URL as GLOBAL_API_URL } from "@/shared/config";
+
+const API_URL = `${GLOBAL_API_URL}/auth`;
 
 export const googleLogin = async (token: string): Promise<AuthResponse> => {
   const response = await axios.post(`${API_URL}/google`, { token });

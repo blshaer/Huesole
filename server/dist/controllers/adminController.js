@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteHomeGradient = exports.updateHomeGradient = exports.createHomeGradient = exports.deleteSupportMessage = exports.updateSupportStatus = exports.getSupportMessages = exports.banUser = exports.getUserMessages = exports.updateUserRole = exports.deleteUser = exports.getUsers = void 0;
-const User_1 = __importDefault(require("../models/User"));
-const SupportMessage_1 = __importDefault(require("../models/SupportMessage"));
 const HomeGradient_1 = __importDefault(require("../models/HomeGradient"));
+const SupportMessage_1 = __importDefault(require("../models/SupportMessage"));
+const User_1 = __importDefault(require("../models/User"));
 // @desc    Get all users
 // @route   GET /api/admin/users
 // @access  Private/Admin

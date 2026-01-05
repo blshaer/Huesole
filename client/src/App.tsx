@@ -1,7 +1,6 @@
 import "animate.css";
 import "../app/css/globals.css";
 import AppRoutes from "@/shared/routes/__routes";
-import { inject } from "@vercel/analytics";
 import { TooltipProvider } from "@/shared/ui/tooltip";
 import { Toaster } from "@/shared/ui/toaster";
 import GridBackground from "@/shared/ui/GridBackground";
@@ -42,7 +41,6 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  inject();
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>

@@ -9,8 +9,7 @@ import { toast } from "@/shared/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/features/auth/context/AuthContext";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${BASE_URL}/api`;
+import { API_URL } from "@/shared/config";
 
 const SupportPage: React.FC = () => {
     const { user } = useAuth();

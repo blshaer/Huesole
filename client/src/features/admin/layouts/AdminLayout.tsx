@@ -1,15 +1,15 @@
-import React from "react";
-import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { cn } from "@/shared/lib/utils";
 import Logo from "@/shared/ui/Logo";
 import { ChevronRight } from "lucide-react";
+import React from "react";
+import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 
 const AdminLayout: React.FC = () => {
-    const { user, loading } = useAuth();
+    const { user, isLoading } = useAuth();
     const location = useLocation();
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex h-screen items-center justify-center bg-background">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>

@@ -4,8 +4,7 @@ import axios from "axios";
 import { MagicCard } from "@/shared/ui/MagicCard";
 import { useTheme } from "next-themes";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "";
-const API_URL = `${BASE_URL}/api`;
+import { API_URL } from "@/shared/config";
 
 const AdminDashboard: React.FC = () => {
     const [stats, setStats] = useState({

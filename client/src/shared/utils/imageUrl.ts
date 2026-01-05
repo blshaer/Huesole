@@ -1,3 +1,5 @@
+import { BASE_URL } from "../config";
+
 export const getFullImageUrl = (path?: string) => {
   if (!path) return "";
   if (
@@ -7,8 +9,7 @@ export const getFullImageUrl = (path?: string) => {
   )
     return path;
 
-  const baseUrl = import.meta.env.VITE_API_URL || "https://gradlyai.onrender.com";
   // Remove leading slash if present to avoid double slashes
   const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${baseUrl}/${cleanPath}`;
+  return `${BASE_URL}/${cleanPath}`;
 };

@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "";
+
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:5001" : "");
+
 const API_URL = `${BASE_URL}/api`;
+
 
 // --- Types ---
 interface Gradient {
