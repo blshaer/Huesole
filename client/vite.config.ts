@@ -7,7 +7,7 @@ dotenv.config();
 
 export default defineConfig({
   plugins: [react()],
-  base: "./",
+  base: "/",
   publicDir: "app",
   server: {
     host: "localhost",
@@ -25,9 +25,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["react", "react-dom"],
-  },
-  ssr: {
-    noExternal: ["react", "react-dom"],
   },
   define: {
     "process.env": process.env,
