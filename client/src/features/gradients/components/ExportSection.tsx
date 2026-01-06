@@ -326,7 +326,7 @@ export const ExportSection = ({
         logging: false,
         useCORS: true,
         allowTaint: true,
-      });
+      } as any);
 
       document.body.removeChild(tempContainer);
 
@@ -389,8 +389,8 @@ export const ExportSection = ({
                   setSelectedImageFormat(format.key);
                 }}
                 className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageFormat === format.key
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground/80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-foreground/80"
                   }`}
               >
                 <div className="flex w-full items-center justify-between gap-2">
@@ -431,8 +431,8 @@ export const ExportSection = ({
                   setSelectedImageSize(size.key);
                 }}
                 className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageSize === size.key
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground/80"
+                  ? "bg-primary/10 text-primary"
+                  : "text-foreground/80"
                   }`}
               >
                 <div className="flex w-full items-center justify-between">

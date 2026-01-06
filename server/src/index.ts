@@ -44,9 +44,12 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/home-gradients", homeGradientRoutes);
 
-// root
-app.get("/", (_req, res) => {
-    res.send("GradlyAI API is running...");
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../../client/dist")));
+
+// Handle React routing, return all requests to React app
+app.get("*", (_req, res) => {
+    res.sendFile(path.join(__dirname, "../../client/dist", "index.html"));
 });
 
 const PORT = process.env.PORT || 5001;
