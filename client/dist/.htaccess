@@ -1,0 +1,23 @@
+# InfinityFree / Apache Configuration for React SPA
+# Handles SPA routing and relative asset paths for deep links
+
+<IfModule mod_rewrite.c>
+    DirectoryIndex index.html
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. Existing file/directory check
+    # If the requested resource exists, serve it directly and stop processing
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 2. Fix for relative asset paths in deep routes
+    # Redirects requests like /users/assets/style.css to /assets/style.css
+    # Covers all static directories found in dist: assets, favicon, css
+    RewriteRule ^.*?/(assets|favicon|css)/(.*)$ /$1/$2 [L]
+
+    # 3. SPA Routing Fallback
+    # If not a file/dir, and not fixed by above asset rules, serve index.html
+    RewriteRule ^ index.html [L]
+</IfModule>
