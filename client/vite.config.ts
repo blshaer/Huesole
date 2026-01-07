@@ -1,38 +1,18 @@
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export default defineConfig({
   plugins: [react()],
-  base: "/",
-  publicDir: "app",
-  server: {
-    host: "localhost",
-    port: 3000,
-    proxy: {
-      "/api": {
-        target: "http://localhost:5001",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
-  preview: {
-    port: 3000,
-  },
-  optimizeDeps: {
-    include: ["react", "react-dom"],
-  },
-  define: {
-    "process.env": process.env,
+  base: "/", 
+  build: {
+    outDir: "dist",
+    assetsDir: "assets",
+    emptyOutDir: true,
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "mapbox-gl": "mapbox-gl/dist/mapbox-gl.js",
     },
   },
 });
