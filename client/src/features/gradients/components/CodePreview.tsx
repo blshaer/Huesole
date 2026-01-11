@@ -60,8 +60,8 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <div className="relative mt-2 max-w-full">
-        <pre className="w-full max-w-full overflow-hidden truncate whitespace-nowrap rounded-md border border-border bg-secondary p-2 pr-24 text-xs text-white/30">
+      <div className="relative mt-2 max-w-full max-md:w-full">
+        <pre className="w-full max-w-full overflow-hidden truncate max-md:w-full whitespace-nowrap rounded-md border border-border bg-secondary p-2 pr-24 text-xs text-white/30">
           {code}
         </pre>
         <div className="absolute right-0 top-0 z-10 flex h-full items-stretch">

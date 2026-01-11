@@ -689,7 +689,7 @@ export default function GradientCard({
         <>
           <DropdownMenu>
             <DropdownMenuTrigger className="nofocus relative w-full">
-              <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
+              <div className="flex items-center justify-between  rounded-md border border-border bg-secondary p-2 text-sm text-primary">
                 <div className="flex items-center gap-2">
                   {(() => {
                     const formats = [
