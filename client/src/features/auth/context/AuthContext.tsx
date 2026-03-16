@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        const userData = await getMe(token);
+        const userData = await getMe();
         setUser(normalizeUserRole(userData));
       } catch (error: any) {
         if (

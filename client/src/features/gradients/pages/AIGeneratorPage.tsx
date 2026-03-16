@@ -1,7 +1,7 @@
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Navbar } from "@/features/navbar/components/Navbar";
 import { toast } from "@/shared/hooks/use-toast";
-import axios from "axios";
+import axios from "@/shared/lib/axios";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PreviewArea } from "../components/PreviewArea";
@@ -9,7 +9,7 @@ import { Sidebar } from "../components/Sidebar";
 import { useGradientGeneration } from "../hooks/useGradientGeneration";
 import { GeneratedGradient } from "../types";
 
-import { API_URL } from "@/shared/config";
+
 
 const AIGeneratorPage = () => {
   const { user, logout } = useAuth();
@@ -113,14 +113,17 @@ const AIGeneratorPage = () => {
 
     setSaving(true);
     try {
-      await axios.post(`${API_URL}/ai/save`, {
-        gradient: {
-          name: result.name,
-          colors: result.colors,
-          type: result.type || "linear",
-          angle: result.angle || 90,
-        },
-      });
+      await axios.post(
+        "/ai/save",
+        {
+          gradient: {
+            name: result.name,
+            colors: result.colors,
+            type: result.type || "linear",
+            angle: result.angle || 90,
+          },
+        }
+      );
 
       toast({
         title: "Saved successfully!",

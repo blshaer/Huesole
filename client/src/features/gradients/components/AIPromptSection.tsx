@@ -172,18 +172,15 @@ export const AIPromptSection = ({
       voiceSessionRef.current = false;
     }
   };
-
   const placeholderSuggestions = [
-    "ocean sunset gradient...",
-    "vibrant purple to pink...",
-    "deep blue ocean waves...",
-    "warm autumn colors...",
-    "neon cyberpunk vibes...",
-    "pastel dreamy clouds...",
-    "fiery red to orange...",
-    "cool mint to teal...",
-    "royal purple elegance...",
-    "golden hour glow...",
+    "emerald green to white forest mist...",
+    "orange to pink sunset sky...",
+    "deep ocean blue to turquoise lagoon...",
+    "navy to neon violet cyberpunk glow...",
+    "gold to cream luxury gradient...",
+    "icy blue to frosty white winter...",
+    "lavender to peach pastel dream...",
+    "teal to sandy beige tropical shore...",
   ];
 
   const showPlaceholder = !prompt && !isFocused && !listening;

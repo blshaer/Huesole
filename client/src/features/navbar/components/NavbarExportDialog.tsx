@@ -14,6 +14,8 @@ import {
 
 import { GeneratedGradient } from "@/features/gradients/types";
 import { ExportSection } from "@/features/gradients/components/ExportSection";
+import { useSound } from "@/hooks/use-sound";
+import { clickSoftSound } from "@/sounds/click-soft";
 
 interface NavbarExportDialogProps {
   result: GeneratedGradient | null;
@@ -27,6 +29,7 @@ export const NavbarExportDialog = ({
   animationSpeed,
 }: NavbarExportDialogProps) => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [play] = useSound(clickSoftSound);
 
   return (
     <motion.div
@@ -39,6 +42,7 @@ export const NavbarExportDialog = ({
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
         <DialogTrigger asChild>
           <button
+            onClick={() => play()}
             className="flex items-center gap-2 rounded-[8px] border border-border bg-card px-3 py-2 text-sm font-medium transition-all hover:bg-white/5"
             title="Export gradient"
           >

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { API_URL as GLOBAL_API_URL } from "@/shared/config";
+import axios from "@/shared/lib/axios";
+
 import { Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import GradientCard from "@/features/gradients/components/GradientCard";
@@ -50,7 +50,7 @@ const MyGradientsPage = () => {
     });
   };
 
-  const API_URL = `${GLOBAL_API_URL}/ai`;
+
 
   const handleDeleteClick = (gradient: Gradient) => {
     if (!gradient.id) {
@@ -71,10 +71,7 @@ const MyGradientsPage = () => {
 
     setIsDeleting(true);
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/${gradientToDelete.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`/ai/${gradientToDelete.id}`);
       setGradients((prev) => prev.filter((g) => g.id !== gradientToDelete.id));
       setShowDeleteDialog(false);
       toast({
@@ -97,12 +94,8 @@ const MyGradientsPage = () => {
   useEffect(() => {
     const fetchGradients = async () => {
       try {
-        const token = localStorage.getItem("token");
         const response = await axios.get<{ data: Gradient[] }>(
-          `${API_URL}/my-gradients`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          "/ai/my-gradients"
         );
         // Ensure every item has an ID
         const dataWithIds = response.data.data.map((g: any) => ({

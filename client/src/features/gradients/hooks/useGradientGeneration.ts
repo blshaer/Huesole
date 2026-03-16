@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "@/shared/lib/axios";
 import { toast } from "@/shared/hooks/use-toast";
 import { GeneratedGradient } from "../types";
-import { API_URL } from "@/shared/config";
+
 
 interface UseGradientGenerationProps {
   user: any;
@@ -47,7 +47,7 @@ export const useGradientGeneration = ({
     setLoading(true);
     try {
       const response = await axios.post<{ data: GeneratedGradient }>(
-        `${API_URL}/ai/generate`,
+        "/ai/generate",
         { prompt: customPrompt }
       );
       setLocalResult(response.data.data);
@@ -78,11 +78,9 @@ export const useGradientGeneration = ({
 
     setSaving(true);
     try {
-      const token = localStorage.getItem("token");
       await axios.post(
-        `${API_URL}/ai/save`,
-        { gradient: result },
-        { headers: { Authorization: `Bearer ${token}` } }
+        "/ai/save",
+        { gradient: result }
       );
 
       // Only show toast on desktop

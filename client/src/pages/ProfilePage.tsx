@@ -1,6 +1,6 @@
 import { useToast } from "@/shared/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import { API_URL } from "@/shared/config";
+
 import { Button } from "@/shared/ui/button";
 import {
   Card,
@@ -13,7 +13,7 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Separator } from "@/shared/ui/separator";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
-import axios from "axios";
+import axios from "@/shared/lib/axios";
 import {
   AlertCircle,
   Camera,
@@ -44,7 +44,7 @@ interface UpdateProfileResponse {
 
 
 const ProfilePage = () => {
-  const { user, token, isLoading, updateUser } = useAuth();
+  const { user, isLoading, updateUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -143,11 +143,10 @@ const ProfilePage = () => {
       if (selectedFile) formData.append("picture", selectedFile);
 
       const response = await axios.put<UpdateProfileResponse>(
-        `${API_URL}/auth/update-profile`,
+        "/auth/update-profile",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         },
@@ -198,9 +197,8 @@ const ProfilePage = () => {
     setLoadingState(true);
     try {
       await axios.put(
-        `${API_URL}/auth/updatepassword`,
-        { currentPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } },
+        "/auth/updatepassword",
+        { currentPassword, newPassword }
       );
       toast({
         title: "Success",
