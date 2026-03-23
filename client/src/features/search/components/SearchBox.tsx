@@ -1,13 +1,19 @@
-// Controls/SearchBox.tsx
 import { Input } from "@/shared/ui/input";
 import { cn } from "@/shared/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Command, SearchIcon } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu";
 
 interface SearchBoxProps {
   value: string;
   onChange: (v: string) => void;
+  onSearch?: (v: string) => void;
   gradients?: Array<{
     name?: string;
     colors?: string[];
@@ -15,21 +21,43 @@ interface SearchBoxProps {
     keywords?: string[][];
   }>;
   className?: string;
+  gradientType: "background" | "text" | "image";
+  onGradientTypeChange: (type: "background" | "text" | "image") => void;
+  gradientShape: "linear" | "radial" | "conic";
+  onGradientShapeChange: (shape: "linear" | "radial" | "conic") => void;
 }
+
+const filterButtonStyle = "flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-all rounded-md hover:bg-white/5";
+
+const POPULAR_SUGGESTIONS = [
+  { label: "sunset", emoji: "🌇" },
+  { label: "ocean", emoji: "🌊" },
+  { label: "vibrant", emoji: "✨" },
+  { label: "purple", emoji: "💜" },
+  { label: "nature", emoji: "🌿" },
+  { label: "peach", emoji: "🍑" },
+  { label: "dark", emoji: "🌙" },
+  { label: "coral", emoji: "🪸" },
+];
 
 const SEARCH_PLACEHOLDERS = [
   "Search gradients...",
-  "Try 'sunset', 'ocean', 'purple'...",
-  "Search by color: 'blue', 'red'...",
-  "Find gradients: 'gradient name'...",
-  "Discover: 'warm', 'cool', 'dark'...",
+  "Try 'vibrant', 'coral', 'nature'...",
+  "Search by color: 'blue', 'purple'...",
+  "Find by mood: 'warm', 'cool', 'dark'...",
+  "Discover: 'sunset', 'ocean', 'peach'...",
 ];
 
 export const SearchBox: FC<SearchBoxProps> = ({
   value,
   onChange,
+  onSearch,
   gradients = [],
   className,
+  gradientType,
+  onGradientTypeChange,
+  gradientShape,
+  onGradientShapeChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -56,25 +84,22 @@ export const SearchBox: FC<SearchBoxProps> = ({
 
   // Generate autocomplete suggestions
   const suggestions = useMemo(() => {
-    if (!value || value.length < 2) return [];
+    if (!value || value.length < 2) {
+      return POPULAR_SUGGESTIONS.map(ps => ps.emoji ? `${ps.emoji} ${ps.label}` : ps.label);
+    }
 
     const searchTerm = value.toLowerCase();
     const matches = new Set<string>();
 
     gradients.forEach((gradient) => {
-      // Match gradient names
       if (gradient.name?.toLowerCase().includes(searchTerm)) {
         matches.add(gradient.name);
       }
-
-      // Match color names
       gradient.colorsname?.forEach((color) => {
         if (color?.toLowerCase().includes(searchTerm)) {
           matches.add(color);
         }
       });
-
-      // Match keywords
       gradient.keywords?.flat().forEach((keyword) => {
         if (keyword?.toLowerCase().includes(searchTerm)) {
           matches.add(keyword);
@@ -84,9 +109,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
 
     return Array.from(matches)
       .filter((item) => item.toLowerCase() !== searchTerm)
-      .slice(0, 6)
+      .slice(0, 8)
       .sort((a, b) => {
-        // Prioritize exact starts
         const aStarts = a.toLowerCase().startsWith(searchTerm);
         const bStarts = b.toLowerCase().startsWith(searchTerm);
         if (aStarts && !bStarts) return -1;
@@ -95,17 +119,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
       });
   }, [value, gradients]);
 
-  // Keyboard shortcuts and navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Focus search with Cmd/Ctrl + K using metaKey property
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        inputRef.current?.focus();
-        return;
-      }
-
-      // Handle dropdown navigation
       if (isOpen && suggestions.length > 0) {
         switch (e.key) {
           case "ArrowDown":
@@ -123,9 +138,14 @@ export const SearchBox: FC<SearchBoxProps> = ({
           case "Enter":
             e.preventDefault();
             if (selectedIndex >= 0) {
-              onChange(suggestions[selectedIndex]);
+              const selectedValue = suggestions[selectedIndex].replace(/^[^\s]+\s/, "");
+              onChange(selectedValue);
+              onSearch?.(selectedValue);
               setIsOpen(false);
               setSelectedIndex(-1);
+            } else {
+              onSearch?.(value);
+              setIsOpen(false);
             }
             break;
           case "Escape":
@@ -134,156 +154,168 @@ export const SearchBox: FC<SearchBoxProps> = ({
             inputRef.current?.blur();
             break;
         }
+      } else if (e.key === "Enter") {
+        onSearch?.(value);
+        setIsOpen(false);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, suggestions, selectedIndex, onChange]);
-
-  // Auto-scroll selected item into view
-  useEffect(() => {
-    if (selectedIndex >= 0 && listRef.current) {
-      const selectedElement = listRef.current.children[
-        selectedIndex
-      ] as HTMLElement;
-      selectedElement?.scrollIntoView({ block: "nearest" });
-    }
-  }, [selectedIndex]);
+  }, [isOpen, suggestions, selectedIndex, onChange, onSearch, value]);
 
   const handleInputChange = (newValue: string) => {
     onChange(newValue);
     setSelectedIndex(-1);
-    setIsOpen(newValue.length >= 2);
+    setIsOpen(true);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    onChange(suggestion);
+    const cleanValue = suggestion.replace(/^[^\s]+\s/, "");
+    onChange(cleanValue);
+    onSearch?.(cleanValue);
     setIsOpen(false);
     setSelectedIndex(-1);
-    inputRef.current?.focus();
   };
 
   const handleFocus = () => {
-    if (value.length >= 2) {
-      setIsOpen(true);
-    }
+    setIsOpen(true);
   };
 
   const handleBlur = () => {
-    // Delay to allow click on suggestions
-    setTimeout(() => setIsOpen(false), 150);
+    setTimeout(() => setIsOpen(false), 200);
   };
+
+  const hasDropdown = isOpen && suggestions.length > 0;
 
   return (
     <div className={cn("relative w-full", className)}>
       <div className="relative">
         <Input
           ref={inputRef}
-          placeholder=""
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
           className={cn(
-            "h-12 w-full rounded-lg border px-4 pr-20 transition-all duration-200",
-            "hover:border-border focus:border-blue-400 focus:outline-none focus:ring-0 focus:ring-offset-0",
-            "placeholder:text-muted-foreground/60",
-            isOpen && "rounded-b-none border-b-0",
+            "h-12 w-full border border-white/5 px-6 pr-[280px] transition-all duration-200",
+            "bg-neutral-900/90 backdrop-blur-md text-white shadow-xl",
+            "hover:border-white/10 focus:border-white/10 focus:outline-none focus:ring-0 focus:ring-offset-0",
+            "placeholder:text-white/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]",
+            hasDropdown ? "rounded-t-2xl rounded-b-none border-b-0" : "rounded-full"
           )}
           type="text"
           autoComplete="off"
           spellCheck={false}
+          placeholder=""
         />
 
-        {/* Animated Placeholder */}
         {!value && (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentPlaceholder}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500"
-            >
-              {currentPlaceholder}
-            </motion.div>
-          </AnimatePresence>
+          <div className="pointer-events-none absolute inset-y-0 left-6 flex items-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentPlaceholder}
+                initial={{ opacity: 0, y: 2 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -2 }}
+                transition={{ duration: 0.15 }}
+                className="text-sm text-white/30"
+              >
+                {currentPlaceholder}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         )}
 
-        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2">
-          <SearchIcon className="h-4 w-4 text-muted-foreground" />
-          <div className="hidden items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground sm:flex">
-            <Command className="h-3 w-3" />
-            <span>K</span>
+        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
+          <div className="flex items-center bg-white/[0.03] border border-white/5 rounded-full p-1 pr-3 gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger className={filterButtonStyle}>
+                <span>{gradientType}</span>
+                <ChevronDown className="h-2.5 w-2.5 opacity-30" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-neutral-900 border-white/10 p-1 min-w-[120px] backdrop-blur-xl">
+                {(["background", "text", "image"] as const).map((type) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onSelect={() => onGradientTypeChange(type)}
+                    className="capitalize text-white/70 focus:bg-white/5 focus:text-white cursor-pointer text-[10px] font-bold uppercase tracking-wider rounded-md"
+                  >
+                    {type}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="w-[1px] h-3 bg-white/10" />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger className={filterButtonStyle}>
+                <span>{gradientShape}</span>
+                <ChevronDown className="h-2.5 w-2.5 opacity-30" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-neutral-900 border-white/10 p-1 min-w-[120px] backdrop-blur-xl">
+                {(["linear", "radial", "conic"] as const).map((shape) => (
+                  <DropdownMenuItem
+                    key={shape}
+                    onSelect={() => onGradientShapeChange(shape)}
+                    className="capitalize text-white/70 focus:bg-white/5 focus:text-white cursor-pointer text-[10px] font-bold uppercase tracking-wider rounded-md"
+                  >
+                    {shape}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
           </div>
         </div>
       </div>
 
-      {/* Autocomplete Dropdown */}
       <AnimatePresence>
-        {isOpen && suggestions.length > 0 && (
+        {hasDropdown && (
           <motion.div
             ref={listRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15 }}
             className={cn(
-              "absolute left-0 right-0 z-50 max-h-64 overflow-y-auto",
-              "rounded-b-lg border border-t-0 bg-background shadow-lg",
+              "absolute left-0 right-0 z-50 max-h-[400px] overflow-y-auto",
+              "rounded-b-2xl border border-white/5 border-t-0 bg-neutral-900/95 backdrop-blur-xl shadow-2xl"
             )}
           >
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={suggestion}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className={cn(
-                  "w-full px-4 py-3 text-left text-sm transition-colors",
-                  "hover:bg-muted focus:bg-muted focus:outline-none",
-                  "border-b border-border last:border-b-0",
-                  "flex items-center justify-between",
-                  selectedIndex === index && "bg-muted",
-                )}
-              >
-                <span className="truncate">{suggestion}</span>
-                <SearchIcon className="text-muted-foreground/50 ml-2 h-3 w-3 flex-shrink-0" />
-              </button>
-            ))}
+            <div className="p-2">
+              {!value || value.length < 2 ? (
+                <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">
+                  Popular Searches
+                </div>
+              ) : null}
+              
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className={cn(
+                    "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
+                    selectedIndex === index 
+                      ? "bg-white/10 text-white" 
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                  )}
+                >
+                  <span className="truncate">{suggestion}</span>
+                </button>
+              ))}
+            </div>
 
-            {/* Footer with shortcut hints */}
-            <div className="bg-muted/50 border-t px-4 py-2 text-xs text-muted-foreground">
+            <div className="border-t border-white/5 bg-white/[0.02] px-4 py-2 text-[10px] text-white/20">
               <div className="flex items-center justify-between">
-                <span>↑↓ Navigate • Enter Select • Esc Close</span>
-                <span>
-                  {suggestions.length} result
-                  {suggestions.length !== 1 ? "s" : ""}
-                </span>
+                <span>Navigate with ↑↓ and Enter</span>
+                <span>{suggestions.length} results</span>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* No results message */}
-      {isOpen && value.length >= 2 && suggestions.length === 0 && (
-        <div
-          className={cn(
-            "absolute left-0 right-0 z-50",
-            "rounded-b-lg border border-t-0 bg-background shadow-lg",
-            "duration-200 animate-in fade-in-0 slide-in-from-top-2",
-          )}
-        >
-          <div className="px-4 py-6 text-center text-sm text-white">
-            <SearchIcon className="mx-auto mb-2 h-8 w-8 opacity-50" />
-            <p>No matches found for "{value}"</p>
-            <p className="mt-1 text-xs">
-              Try searching for colors, gradient names, or keywords
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
