@@ -13,7 +13,6 @@ import {
 interface SearchBoxProps {
   value: string;
   onChange: (v: string) => void;
-  onSearch?: (v: string) => void;
   gradients?: Array<{
     name?: string;
     colors?: string[];
@@ -58,7 +57,6 @@ const SEARCH_PLACEHOLDERS = [
 export const SearchBox: FC<SearchBoxProps> = ({
   value,
   onChange,
-  onSearch,
   gradients = [],
   className,
   gradientType,
@@ -149,13 +147,9 @@ export const SearchBox: FC<SearchBoxProps> = ({
             if (selectedIndex >= 0) {
               const selectedValue = suggestions[selectedIndex].replace(/^[^\s]+\s/, "");
               onChange(selectedValue);
-              onSearch?.(selectedValue);
-              setIsOpen(false);
-              setSelectedIndex(-1);
-            } else {
-              onSearch?.(value);
-              setIsOpen(false);
             }
+            setIsOpen(false);
+            setSelectedIndex(-1);
             break;
           case "Escape":
             setIsOpen(false);
@@ -164,14 +158,13 @@ export const SearchBox: FC<SearchBoxProps> = ({
             break;
         }
       } else if (e.key === "Enter") {
-        onSearch?.(value);
         setIsOpen(false);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, suggestions, selectedIndex, onChange, onSearch, value]);
+  }, [isOpen, suggestions, selectedIndex, onChange, value]);
 
   const handleInputChange = (newValue: string) => {
     onChange(newValue);
@@ -182,7 +175,6 @@ export const SearchBox: FC<SearchBoxProps> = ({
   const handleSuggestionClick = (suggestion: string) => {
     const cleanValue = suggestion.replace(/^[^\s]+\s/, "");
     onChange(cleanValue);
-    onSearch?.(cleanValue);
     setIsOpen(false);
     setSelectedIndex(-1);
   };
