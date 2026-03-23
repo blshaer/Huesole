@@ -1,6 +1,4 @@
-"use client";
 import { RetroGrid } from "@/shared/ui/RetroGrid";
-import GradientText from "@/shared/components/fancy/text/GradientText";
 
 export function NotFoundPage() {
   return (
@@ -14,14 +12,9 @@ export function NotFoundPage() {
           />
         </div>
         
-        <GradientText
-          colors={["#ffd319", "#ff2975", "#8c1eff"]}
-          animationSpeed={8}
-          showBorder={false}
-          className="text-7xl font-black leading-none tracking-tighter sm:text-8xl"
-        >
+        <h1 className="text-5xl font-black leading-none tracking-tighter text-white sm:text-8xl">
           404 Not Found
-        </GradientText>
+        </h1>
         
         <p className="mt-4 text-lg text-white font-medium">
           Oops! The page you're searching for seems to have vanished into the gradient cosmos.
