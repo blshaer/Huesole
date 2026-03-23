@@ -33,22 +33,26 @@ const POPULAR_SUGGESTIONS = [
   { label: "sunset", emoji: "🌇" },
   { label: "ocean", emoji: "🌊" },
   { label: "vibrant", emoji: "✨" },
+  { label: "purple", emoji: "💜" },
   { label: "dark", emoji: "🌙" },
+  { label: "pastel", emoji: "🎨" },
 ];
 
 const RECOMMENDED_SUGGESTIONS = [
   { label: "cyberpunk", emoji: "👾" },
   { label: "nature", emoji: "🌿" },
-  { label: "minimalist", emoji: "⚪" },
+  { label: "minimal", emoji: "⚪" },
   { label: "royal", emoji: "👑" },
+  { label: "tropical", emoji: "🌴" },
+  { label: "warm", emoji: "🔥" },
 ];
 
 const SEARCH_PLACEHOLDERS = [
   "Search gradients...",
-  "Try 'vibrant', 'coral', 'nature'...",
+  "Try 'vibrant', 'nature', 'tropical'...",
   "Search by color: 'blue', 'purple'...",
   "Find by mood: 'warm', 'cool', 'dark'...",
-  "Discover: 'sunset', 'ocean', 'peach'...",
+  "Discover: 'sunset', 'ocean', 'pastel'...",
 ];
 
 export const SearchBox: FC<SearchBoxProps> = ({
@@ -114,7 +118,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
 
     return Array.from(matches)
       .filter((item) => item.toLowerCase() !== searchTerm)
-      .slice(0, 8)
+      .slice(0, 10)
       .sort((a, b) => {
         const aStarts = a.toLowerCase().startsWith(searchTerm);
         const bStarts = b.toLowerCase().startsWith(searchTerm);
@@ -285,7 +289,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
             className={cn(
-              "absolute left-0 right-0 z-50 max-h-[400px] overflow-y-auto",
+              "absolute left-0 right-0 z-50 max-h-[450px] overflow-y-auto custom-scrollbar",
               "rounded-b-2xl border border-white/5 border-t-0 bg-neutral-900/95 backdrop-blur-xl shadow-2xl"
             )}
           >
