@@ -3,6 +3,7 @@ import { SearchBox } from "@/features/search/components/SearchBox";
 interface SearchAndFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  isLoading: boolean;
   gradients?: Array<{
     name?: string;
     colors?: string[];
@@ -19,6 +20,7 @@ interface SearchAndFiltersProps {
 export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   searchTerm,
   onSearchChange,
+  isLoading,
   gradients,
   gradientType,
   onGradientTypeChange,
@@ -31,6 +33,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
         <SearchBox
           value={searchTerm}
           onChange={onSearchChange}
+          isLoading={isLoading}
           gradients={gradients}
           gradientType={gradientType}
           onGradientTypeChange={onGradientTypeChange}

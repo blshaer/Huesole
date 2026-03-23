@@ -64,6 +64,7 @@ const HomePage: React.FC = () => {
                   setSearchTerm(value);
                   setCurrentPage(1);
                 }}
+                isLoading={isLoading}
                 gradients={gradients}
                 gradientType={globalGradientType}
                 onGradientTypeChange={setGlobalGradientType}

@@ -13,6 +13,7 @@ import {
 interface SearchBoxProps {
   value: string;
   onChange: (v: string) => void;
+  isLoading: boolean;
   gradients?: Array<{
     name?: string;
     colors?: string[];
@@ -57,6 +58,7 @@ const SEARCH_PLACEHOLDERS = [
 export const SearchBox: FC<SearchBoxProps> = ({
   value,
   onChange,
+  isLoading,
   gradients = [],
   className,
   gradientType,
@@ -198,12 +200,14 @@ export const SearchBox: FC<SearchBoxProps> = ({
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          disabled={isLoading}
           className={cn(
             "h-12 w-full border border-white/5 px-6 pr-[280px] transition-all duration-200",
             "bg-neutral-900/90 backdrop-blur-md text-white shadow-xl",
             "hover:border-white/10 focus:border-white/10 focus:outline-none focus:ring-0 focus:ring-offset-0",
             "placeholder:text-white/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]",
-            hasDropdown ? "rounded-t-2xl rounded-b-none border-b-0" : "rounded-full"
+            hasDropdown ? "rounded-t-2xl rounded-b-none border-b-0" : "rounded-full",
+            isLoading && "opacity-50 cursor-not-allowed"
           )}
           type="text"
           autoComplete="off"
