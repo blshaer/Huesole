@@ -24,13 +24,16 @@ const seedGradients = async () => {
         console.log("Cleared existing HomeGradients.");
 
         const uniqueGradients = new Map();
-        gradients.forEach((g: any) => {
+        gradients.forEach((g: any, index: number) => {
             if (g.name && g.colors && g.colors.length > 0 && !uniqueGradients.has(g.name)) {
                 uniqueGradients.set(g.name, {
                     name: g.name,
                     colors: g.colors,
+                    colorsname: g.colorsname || [],
+                    keywords: g.keywords || [],
                     type: "linear",
-                    angle: 90
+                    angle: 90,
+                    order: index
                 });
             }
         });
@@ -38,7 +41,7 @@ const seedGradients = async () => {
         const gradientsToSeed = Array.from(uniqueGradients.values());
         console.log(`Prepared ${gradientsToSeed.length} unique gradients for seeding.`);
 
-        await HomeGradient.insertMany(gradientsToSeed, { ordered: false });
+        await HomeGradient.insertMany(gradientsToSeed);
         console.log(`Successfully seeded ${gradientsToSeed.length} gradients.`);
 
         // --- Seed Admin User ---

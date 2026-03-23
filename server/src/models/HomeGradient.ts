@@ -5,6 +5,8 @@ export interface IHomeGradient extends Document {
     colors: string[];
     type: "linear" | "radial" | "conic";
     angle?: number;
+    colorsname?: string[];
+    keywords?: string[][];
     createdAt: Date;
 }
 
@@ -18,6 +20,14 @@ const HomeGradientSchema: Schema = new Schema({
         type: [String],
         required: [true, "Please add colors"],
     },
+    colorsname: {
+        type: [String],
+        default: [],
+    },
+    keywords: {
+        type: [[String]],
+        default: [],
+    },
     type: {
         type: String,
         enum: ["linear", "radial", "conic"],
@@ -26,6 +36,10 @@ const HomeGradientSchema: Schema = new Schema({
     angle: {
         type: Number,
         default: 90,
+    },
+    order: {
+        type: Number,
+        default: 0,
     },
     createdAt: {
         type: Date,
