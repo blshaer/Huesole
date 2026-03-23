@@ -33,11 +33,14 @@ const POPULAR_SUGGESTIONS = [
   { label: "sunset", emoji: "🌇" },
   { label: "ocean", emoji: "🌊" },
   { label: "vibrant", emoji: "✨" },
-  { label: "purple", emoji: "💜" },
-  { label: "nature", emoji: "🌿" },
-  { label: "peach", emoji: "🍑" },
   { label: "dark", emoji: "🌙" },
-  { label: "coral", emoji: "🪸" },
+];
+
+const RECOMMENDED_SUGGESTIONS = [
+  { label: "cyberpunk", emoji: "👾" },
+  { label: "nature", emoji: "🌿" },
+  { label: "minimalist", emoji: "⚪" },
+  { label: "royal", emoji: "👑" },
 ];
 
 const SEARCH_PLACEHOLDERS = [
@@ -85,7 +88,9 @@ export const SearchBox: FC<SearchBoxProps> = ({
   // Generate autocomplete suggestions
   const suggestions = useMemo(() => {
     if (!value || value.length < 2) {
-      return POPULAR_SUGGESTIONS.map(ps => ps.emoji ? `${ps.emoji} ${ps.label}` : ps.label);
+      return [...POPULAR_SUGGESTIONS, ...RECOMMENDED_SUGGESTIONS].map(
+        (ps) => ps.emoji ? `${ps.emoji} ${ps.label}` : ps.label
+      );
     }
 
     const searchTerm = value.toLowerCase();
@@ -286,25 +291,62 @@ export const SearchBox: FC<SearchBoxProps> = ({
           >
             <div className="p-2">
               {!value || value.length < 2 ? (
-                <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">
-                  Popular Searches
-                </div>
-              ) : null}
-              
-              {suggestions.map((suggestion, index) => (
-                <button
-                  key={suggestion}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  className={cn(
-                    "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
-                    selectedIndex === index 
-                      ? "bg-white/10 text-white" 
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
-                  )}
-                >
-                  <span className="truncate">{suggestion}</span>
-                </button>
-              ))}
+                <>
+                  <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">
+                    Popular Searches
+                  </div>
+                  {suggestions.slice(0, POPULAR_SUGGESTIONS.length).map((suggestion, index) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className={cn(
+                        "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
+                        selectedIndex === index 
+                          ? "bg-white/10 text-white" 
+                          : "text-white/60 hover:bg-white/5 hover:text-white"
+                      )}
+                    >
+                      <span className="truncate">{suggestion}</span>
+                    </button>
+                  ))}
+                  
+                  <div className="mt-3 border-t border-white/5 pt-3 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">
+                    Recommended for You
+                  </div>
+                  {suggestions.slice(POPULAR_SUGGESTIONS.length).map((suggestion, index) => {
+                    const actualIndex = index + POPULAR_SUGGESTIONS.length;
+                    return (
+                      <button
+                        key={suggestion}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={cn(
+                          "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
+                          selectedIndex === actualIndex 
+                            ? "bg-white/10 text-white" 
+                            : "text-white/60 hover:bg-white/5 hover:text-white"
+                        )}
+                      >
+                        <span className="truncate">{suggestion}</span>
+                      </button>
+                    );
+                  })}
+                </>
+              ) : (
+                suggestions.map((suggestion, index) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className={cn(
+                      "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
+                      selectedIndex === index 
+                        ? "bg-white/10 text-white" 
+                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <span className="truncate">{suggestion}</span>
+                  </button>
+                ))
+              )}
             </div>
 
             <div className="border-t border-white/5 bg-white/[0.02] px-4 py-2 text-[10px] text-white/20">
