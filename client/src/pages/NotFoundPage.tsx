@@ -6,7 +6,7 @@ export function NotFoundPage() {
   return (
     <div className="relative flex h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-background">
       <div className="relative z-10 flex flex-col items-center justify-center text-center">
-        <div className="mb-8 h-80 w-80 animate-pulse-slow">
+        <div className="mb-8 h-48 w-48 animate-pulse-slow">
           <img
             src="/assets/not-found-404.png"
             alt="Page not found illustration"
@@ -23,7 +23,7 @@ export function NotFoundPage() {
           404 Not Found
         </GradientText>
         
-        <p className="mt-4 text-lg text-white/40">
+        <p className="mt-4 text-lg text-white font-medium">
           Oops! The page you're searching for seems to have vanished into the gradient cosmos.
         </p>
 
