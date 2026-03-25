@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 
 import { useAuth } from "@/features/auth/context/AuthContext";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { GeneratedGradient } from "@/features/gradients/types";
 
 import { NavbarLogo } from "./NavbarLogo";
@@ -61,11 +61,7 @@ export const Navbar = ({
 
   const handleColorPick = async () => {
     if (!("EyeDropper" in window)) {
-      toast({
-        title: "Error",
-        description: "Color picker is not supported in your browser.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Color picker is not supported in your browser." });
       return;
     }
 
@@ -76,18 +72,11 @@ export const Navbar = ({
 
       if (result?.sRGBHex) {
         await navigator.clipboard.writeText(result.sRGBHex);
-        toast({
-          title: "Copied!",
-          description: `Color ${result.sRGBHex} copied to clipboard!`,
-        });
+        toast("Copied!", { description: `Color ${result.sRGBHex} copied to clipboard!` });
       }
     } catch (error: any) {
       if (error.name !== "AbortError") {
-        toast({
-          title: "Error",
-          description: "Failed to pick color",
-          variant: "destructive",
-        });
+        toast.error("Error", { description: "Failed to pick color" });
       }
     }
   };
@@ -99,11 +88,7 @@ export const Navbar = ({
 
   const handleAIGenerateClick = () => {
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login first to use the AI Generator.",
-        variant: "destructive",
-      });
+      toast.error("Authentication Required", { description: "Please login first to use the AI Generator." });
       navigate("/login");
       return;
     }

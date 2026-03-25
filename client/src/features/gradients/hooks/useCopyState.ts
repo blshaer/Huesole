@@ -1,4 +1,4 @@
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useCopyHistory } from "./useCopyHistory";
 
@@ -28,10 +28,7 @@ export const useCopyState = (
   const copyToClipboard = (text: string, key: keyof typeof copiedStates) => {
     navigator.clipboard.writeText(text);
     setCopiedStates((prev) => ({ ...prev, [key]: true }));
-    toast({
-      title: "Copied to clipboard ✅",
-      description: `The ${key} code has been copied to your clipboard.`,
-    });
+    toast("Copied to clipboard ✅", { description: `The ${key} code has been copied to your clipboard.` });
 
     // Add to copy history if gradient info is available
     if (gradientName && gradientColors) {

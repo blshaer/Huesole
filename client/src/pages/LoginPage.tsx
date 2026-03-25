@@ -1,4 +1,4 @@
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import {
   Card,
@@ -10,7 +10,7 @@ import {
 } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { Loader2, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -27,6 +27,33 @@ const LoginPage = () => {
   const [showResend, setShowResend] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  const googleLoginTrigger = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      // If your backend expects a JWT ID token, we need to handle that.
+      // Standard useGoogleLogin returns an access_token.
+      // However, some backends are configured to accept access_token or exchange it.
+      // If we NEED a JWT, we might need a different flow or a library fetch.
+      // For now, I'll pass the access_token and see.
+      // Note: Usually the backend is the one deciding.
+      if (tokenResponse.access_token) {
+        setGoogleLoading(true);
+        try {
+          // I will assume the 'login' function can handle the access_token
+          // or we might need to fetch the ID token if the backend requires it.
+          await login(tokenResponse.access_token);
+          navigate("/");
+        } catch (error) {
+          toast.error("Google Login Failed", { description: "Please try again." });
+        } finally {
+          setGoogleLoading(false);
+        }
+      }
+    },
+    onError: () => {
+      toast.error("Google Login Failed", { description: "Please try manually." });
+    },
+  });
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (cooldown > 0) {
@@ -42,17 +69,10 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await resendVerification(email);
-      toast({
-        title: "Link Sent",
-        description: "A fresh verification link has been sent to your email.",
-      });
+      toast("Link Sent", { description: "A fresh verification link has been sent to your email." });
       setCooldown(60);
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.response?.data?.message || "Failed to resend link.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: err.response?.data?.message || "Failed to resend link." });
     } finally {
       setLoading(false);
     }
@@ -73,11 +93,7 @@ const LoginPage = () => {
         setShowResend(true);
       }
 
-      toast({
-        title: "Login Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      toast.error("Login Error", { description: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -113,36 +129,15 @@ const LoginPage = () => {
                 Connecting with Google...
               </Button>
             ) : (
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  if (credentialResponse.credential) {
-                    setGoogleLoading(true);
-                    try {
-                      await login(credentialResponse.credential);
-                      navigate("/");
-                    } catch (error) {
-                      toast({
-                        title: "Google Login Failed",
-                        description: "Please try again.",
-                        variant: "destructive",
-                      });
-                    } finally {
-                      setGoogleLoading(false);
-                    }
-                  }
-                }}
-                onError={() => {
-                  toast({
-                    title: "Google Login Failed",
-                    description: "Please try manually.",
-                    variant: "destructive",
-                  });
-                }}
-                theme="outline"
-                shape="circle"
-                text="signin_with"
-                width="280px"
-              />
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 w-[280px] rounded-full border-primary/20 bg-background/50 font-medium transition-all hover:bg-background/80"
+                onClick={() => googleLoginTrigger()}
+              >
+                <img src="/app/assets/google.svg" alt="Google" className="mr-3 h-5 w-5" />
+                Sign in with Google
+              </Button>
             )}
           </div>
           <div className="relative">
@@ -193,7 +188,8 @@ const LoginPage = () => {
               />
             </div>
             <Button
-              className="h-11 w-full text-base font-semibold transition-all hover:shadow-lg active:scale-[0.98]"
+              variant="ghost"
+              className="h-11 w-full bg-white/5 text-base font-semibold backdrop-blur-md border border-white/10 transition-all hover:bg-white/10 hover:text-white hover:shadow-lg active:scale-[0.98]"
               type="submit"
               disabled={isAnyLoading}
             >

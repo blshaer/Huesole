@@ -6,13 +6,25 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (direction: "next" | "prev") => void;
+  isLoading?: boolean;
 }
 
 export default function Pagination({
   currentPage,
   totalPages,
   onPageChange,
+  isLoading = false,
 }: PaginationProps) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-4 pt-16 max-md:py-4">
+        <div className="h-10 w-10 animate-pulse rounded-md bg-white/5" />
+        <div className="h-4 w-12 animate-pulse rounded bg-white/5" />
+        <div className="h-10 w-10 animate-pulse rounded-md bg-white/5" />
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="flex items-center justify-center gap-4 pt-16 max-md:py-4"

@@ -181,37 +181,58 @@ export const colorUtils = {
   // Get simplified color names (just basic colors like "Red", "Blue", etc.)
   getSimplifiedColors: (gradients: any[]) => {
     const colorMap = new Set<string>();
+    const standardColors = [
+      "Red",
+      "Pink",
+      "Orange",
+      "Yellow",
+      "Green",
+      "Blue",
+      "Purple",
+      "Brown",
+      "Black",
+      "White",
+      "Gray",
+      "Teal",
+      "Cyan",
+    ];
 
-    gradients.forEach((gradient) => {
-      if (gradient.colorsname && Array.isArray(gradient.colorsname)) {
-        gradient.colorsname.forEach((color: string) => {
-          const lowerColor = color.toLowerCase();
+    if (gradients && gradients.length > 0) {
+      gradients.forEach((gradient) => {
+        if (gradient.colorsname && Array.isArray(gradient.colorsname)) {
+          gradient.colorsname.forEach((color: string) => {
+            const lowerColor = (color || "").toLowerCase();
 
-          // Map complex color names to simple ones
-          if (lowerColor.includes("red")) colorMap.add("Red");
-          else if (lowerColor.includes("pink")) colorMap.add("Pink");
-          else if (lowerColor.includes("orange")) colorMap.add("Orange");
-          else if (lowerColor.includes("yellow")) colorMap.add("Yellow");
-          else if (lowerColor.includes("green")) colorMap.add("Green");
-          else if (lowerColor.includes("blue")) colorMap.add("Blue");
-          else if (
-            lowerColor.includes("purple") ||
-            lowerColor.includes("violet")
-          )
-            colorMap.add("Purple");
-          else if (lowerColor.includes("brown") || lowerColor.includes("beige"))
-            colorMap.add("Brown");
-          else if (lowerColor.includes("black")) colorMap.add("Black");
-          else if (lowerColor.includes("white")) colorMap.add("White");
-          else if (lowerColor.includes("gray") || lowerColor.includes("grey"))
-            colorMap.add("Gray");
-          else if (lowerColor.includes("teal")) colorMap.add("Teal");
-          else if (lowerColor.includes("cyan")) colorMap.add("Cyan");
-        });
-      }
-    });
+            // Map complex color names to simple ones
+            if (lowerColor.includes("red")) colorMap.add("Red");
+            else if (lowerColor.includes("pink")) colorMap.add("Pink");
+            else if (lowerColor.includes("orange")) colorMap.add("Orange");
+            else if (lowerColor.includes("yellow")) colorMap.add("Yellow");
+            else if (lowerColor.includes("green")) colorMap.add("Green");
+            else if (lowerColor.includes("blue")) colorMap.add("Blue");
+            else if (
+              lowerColor.includes("purple") ||
+              lowerColor.includes("violet")
+            )
+              colorMap.add("Purple");
+            else if (
+              lowerColor.includes("brown") ||
+              lowerColor.includes("beige")
+            )
+              colorMap.add("Brown");
+            else if (lowerColor.includes("black")) colorMap.add("Black");
+            else if (lowerColor.includes("white")) colorMap.add("White");
+            else if (lowerColor.includes("gray") || lowerColor.includes("grey"))
+              colorMap.add("Gray");
+            else if (lowerColor.includes("teal")) colorMap.add("Teal");
+            else if (lowerColor.includes("cyan")) colorMap.add("Cyan");
+          });
+        }
+      });
+    }
 
-    return Array.from(colorMap).sort();
+    // If no colors extracted, or to ensure full filter options, return standard list
+    return colorMap.size > 0 ? Array.from(colorMap).sort() : standardColors;
   },
 
   // Get simplified color categories for filtering

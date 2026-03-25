@@ -15,6 +15,7 @@ interface ColorFilterProps {
   selectedColors: string[];
   onColorChange: (colors: string[]) => void;
   className?: string;
+  triggerClassName?: string;
 }
 
 export function ColorFilter({
@@ -22,6 +23,7 @@ export function ColorFilter({
   selectedColors,
   onColorChange,
   className,
+  triggerClassName,
 }: ColorFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -42,8 +44,9 @@ export function ColorFilter({
 
   // Map color name to a React Icon style
   const getColorIcon = (color: string) => {
-    const lowerColor = color.toLowerCase();
+    const lowerColor = (color || "").toLowerCase();
     let colorValue = "#cbd5e1"; // default grey (tailwind slate-400)
+
     if (lowerColor.includes("red")) colorValue = "#ef4444";
     else if (lowerColor.includes("pink")) colorValue = "#ec4899";
     else if (lowerColor.includes("orange") || lowerColor.includes("peach"))
@@ -51,8 +54,8 @@ export function ColorFilter({
     else if (lowerColor.includes("yellow")) colorValue = "#eab308";
     else if (lowerColor.includes("green") || lowerColor.includes("olive"))
       colorValue = "#22c55e";
-    else if (lowerColor.includes("teal") || lowerColor.includes("cyan"))
-      colorValue = "#14b8a6";
+    else if (lowerColor.includes("teal")) colorValue = "#14b8a6";
+    else if (lowerColor.includes("cyan")) colorValue = "#22d3ee";
     else if (lowerColor.includes("blue") || lowerColor.includes("indigo"))
       colorValue = "#3b82f6";
     else if (
@@ -65,17 +68,18 @@ export function ColorFilter({
       colorValue = "#b45309";
     else if (lowerColor.includes("gray") || lowerColor.includes("grey"))
       colorValue = "#6b7280";
-    else if (lowerColor.includes("black")) colorValue = "#000";
-    else if (lowerColor.includes("white")) colorValue = "#fff";
-    // For white, use --border as border color
+    else if (lowerColor.includes("black")) colorValue = "#000000";
+    else if (lowerColor.includes("white")) colorValue = "#ffffff";
+
     return (
       <FaCircle
         style={{
           color: colorValue,
           border:
-            lowerColor === "white" ? "1px solid var(--border)" : undefined,
-          borderRadius: "50%", // Ensures circle stays circle with border
+            lowerColor === "white" ? "1px solid var(--border)" : "none",
+          borderRadius: "50%",
           fontSize: "1.1rem",
+          flexShrink: 0,
         }}
       />
     );
@@ -105,39 +109,35 @@ export function ColorFilter({
   };
 
   return (
-    <div className={cn("flex h-full w-full flex-col gap-2", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="h-full w-full justify-between text-left font-normal hover:bg-accent"
-          >
-            <div className="flex items-center gap-2">
-              {selectedColors.length > 0 && selectedColors.length <= 3 && (
-                <div className="flex gap-1">
-                  {selectedColors.slice(0, 3).map((color) => (
-                    <div key={color} className="scale-75">
-                      {getColorIcon(color)}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <span>
-                {selectedColors.length === 0
-                  ? `Select colors (${availableColors.length})`
-                  : `${selectedColors.length} selected`}
-              </span>
-            </div>
-            <FiChevronDown className="h-4 w-4 opacity-50" />
-          </Button>
+        <DropdownMenuTrigger className={cn(triggerClassName || "h-[48px] w-full justify-between text-left font-normal border-2 rounded-lg px-3 hover:bg-accent flex items-center")}>
+          <div className="flex items-center gap-2 truncate">
+            {selectedColors.length > 0 && selectedColors.length <= 3 && (
+              <div className="flex gap-1">
+                {selectedColors.slice(0, 3).map((color) => (
+                  <div key={color} className="scale-75">
+                    {getColorIcon(color)}
+                  </div>
+                ))}
+              </div>
+            )}
+            <span className="truncate">
+              {selectedColors.length === 0
+                ? "Select colors"
+                : `${selectedColors.length} selected`}
+            </span>
+          </div>
+          <FiChevronDown className={cn("h-4 w-4 opacity-50", triggerClassName && "ml-2")} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="max-h-96 w-64 overflow-y-auto">
-          <div className="flex items-center justify-between border-b border-[var(--border)] p-2">
+        <DropdownMenuContent className="max-h-96 w-64 overflow-y-auto  mt-0 pt-0 bg-card border-[var(--border)] text-[var(--headline)] outline-none">
+          <div className="flex items-center justify-between border-b border-[var(--border)] p-2 sticky top-0 bg-card z-10 mt-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleSelectAll}
               className="h-auto p-2 text-xs hover:bg-accent"
+              disabled={availableColors.length === 0}
             >
               Select All
             </Button>
@@ -146,11 +146,18 @@ export function ColorFilter({
               size="sm"
               onClick={handleClearAll}
               className="h-auto p-2 text-xs hover:bg-accent"
+              disabled={selectedColors.length === 0}
             >
               Clear All
             </Button>
           </div>
-          {availableColors.map(renderColorItem)}
+          {availableColors.length === 0 ? (
+            <div className="p-4 text-center text-sm text-muted-foreground">
+              No colors found
+            </div>
+          ) : (
+            availableColors.map(renderColorItem)
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

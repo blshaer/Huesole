@@ -6,6 +6,8 @@ export interface GradientCardProps {
   onColorsChange?: (newColors: string[]) => void;
   onEditClick?: (gradient: { name: string; colors: string[] }) => void;
   onDeleteClick?: (gradient: { id: string; name: string; colors: string[] }) => void;
+  globalGradientType?: "background" | "text" | "image";
+  globalGradientShape?: "linear" | "radial" | "conic";
 }
 
 export interface Gradient {

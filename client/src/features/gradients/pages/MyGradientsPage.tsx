@@ -7,7 +7,7 @@ import GradientCard from "@/features/gradients/components/GradientCard";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
 import { Button } from "@/shared/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ const MyGradientsPage = () => {
   const [gradientToDelete, setGradientToDelete] = useState<Gradient | null>(null);
 
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
 
   const setBackground = (background: string) => {
     console.log("Setting background:", background);
@@ -55,11 +55,7 @@ const MyGradientsPage = () => {
   const handleDeleteClick = (gradient: Gradient) => {
     if (!gradient.id) {
       console.error("Missing gradient ID:", gradient);
-      toast({
-        title: "Error",
-        description: "Cannot delete this gradient: Missing unique ID.",
-        variant: "destructive"
-      });
+      toast.error("Error", { description: "Cannot delete this gradient: Missing unique ID." });
       return;
     }
     setGradientToDelete(gradient);
@@ -74,17 +70,10 @@ const MyGradientsPage = () => {
       await axios.delete(`/ai/${gradientToDelete.id}`);
       setGradients((prev) => prev.filter((g) => g.id !== gradientToDelete.id));
       setShowDeleteDialog(false);
-      toast({
-        title: "Success",
-        description: `"${gradientToDelete.name}" has been deleted.`,
-      });
+      toast("Success", { description: `"${gradientToDelete.name}" has been deleted.` });
     } catch (error: any) {
       console.error("Failed to delete gradient", error);
-      toast({
-        title: "Delete Failed",
-        description: error.response?.data?.message || "An error occurred while deleting.",
-        variant: "destructive"
-      });
+      toast.error("Delete Failed", { description: error.response?.data?.message || "An error occurred while deleting." });
     } finally {
       setIsDeleting(false);
       setGradientToDelete(null);
@@ -105,11 +94,7 @@ const MyGradientsPage = () => {
         setGradients(dataWithIds);
       } catch (error) {
         console.error("Failed to fetch custom gradients", error);
-        toast({
-          title: "Error",
-          description: "Failed to load your gradients.",
-          variant: "destructive"
-        });
+        toast.error("Error", { description: "Failed to load your gradients." });
       } finally {
         setLoading(false);
       }

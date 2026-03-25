@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
 } from "@/shared/ui/dropdown-menu";
 import { useCopyHistory } from "@/features/gradients/hooks/useCopyHistory";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 
 interface CopyHistorySectionProps {
   onGradientSelect?: (gradientName: string) => void;
@@ -40,18 +40,12 @@ export function CopyHistorySection({
   const handleCopyAgain = (colors: string[], copyType: string) => {
     const gradientCSS = `linear-gradient(135deg, ${colors.join(", ")})`;
     navigator.clipboard.writeText(gradientCSS);
-    toast({
-      title: "Copied to clipboard ✅",
-      description: `The ${copyType} code has been copied again.`,
-    });
+    toast("Copied to clipboard ✅", { description: `The ${copyType} code has been copied again.` });
   };
 
   const handleClearHistory = () => {
     clearCopyHistory();
-    toast({
-      title: "History cleared",
-      description: "Your copy history has been cleared.",
-    });
+    toast("History cleared", { description: "Your copy history has been cleared." });
     setIsOpen(false);
   };
 

@@ -302,7 +302,7 @@ export const exportUtils = {
       format: "css",
       metadata: {
         exportedAt: new Date().toISOString(),
-        tool: "GradlyAI",
+        tool: "VercelGradients",
         version: "1.0.0",
       },
     };

@@ -14,6 +14,10 @@ const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
 const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
 const RegisterPage = React.lazy(() => import("@/pages/RegisterPage"));
 const ForgotPassword = React.lazy(() => import("@/pages/ForgotPassword"));
+const ContactPage = React.lazy(() => import("@/pages/ContactPage"));
+const PrivacyPage = React.lazy(() => import("@/pages/PrivacyPage"));
+const TermsPage = React.lazy(() => import("@/pages/TermsPage"));
+const ErrorPreviewPage = React.lazy(() => import("@/pages/ErrorPreviewPage"));
 
 const FavoritesPage = React.lazy(() => import("@/features/gradients/pages/FavoritesPage"));
 const MyGradientsPage = React.lazy(() => import("@/features/gradients/pages/MyGradientsPage"));
@@ -55,6 +59,10 @@ const AppRoutes: React.FC = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/error-preview" element={<ErrorPreviewPage />} />
 
           {/* Protected */}
           <Route element={<ProtectedRoute />}>

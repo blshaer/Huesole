@@ -1,4 +1,4 @@
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import {
   Card,
@@ -10,7 +10,7 @@ import {
 } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import {
   Loader2,
 } from "lucide-react";
@@ -30,6 +30,25 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  const googleLoginTrigger = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      if (tokenResponse.access_token) {
+        setGoogleLoading(true);
+        try {
+          await login(tokenResponse.access_token);
+          navigate("/");
+        } catch (error) {
+          toast.error("Google Login Failed", { description: "Please try again." });
+        } finally {
+          setGoogleLoading(false);
+        }
+      }
+    },
+    onError: () => {
+      toast.error("Google Login Failed", { description: "Please try manually." });
+    },
+  });
+
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -47,12 +66,7 @@ const RegisterPage = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Passwords do not match. Please ensure both fields are identical.",
-        variant: "destructive",
-      });
+      toast.error("Validation Error", { description: "Passwords do not match. Please ensure both fields are identical." });
       return;
     }
 
@@ -68,11 +82,7 @@ const RegisterPage = () => {
       const errorMessage =
         err.response?.data?.message ||
         "Registration failed. Please try again with different details.";
-      toast({
-        title: "Registration Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      toast.error("Registration Error", { description: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -95,13 +105,14 @@ const RegisterPage = () => {
               Create Account
             </CardTitle>
             <CardDescription className="text-center text-sm text-muted-foreground">
-              Join thousands of designers and developers using GradlyAI.
+              Join thousands of designers and developers using LumeGradients.
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="grid gap-6">
           <form onSubmit={handleRegister} className="grid gap-5">
             <div className="mx-auto">
+            <div className="flex justify-center transition-opacity hover:opacity-90">
               {googleLoading ? (
                 <Button
                   className="h-11 w-[280px] font-medium"
@@ -112,37 +123,17 @@ const RegisterPage = () => {
                   Connecting with Google...
                 </Button>
               ) : (
-                <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    if (credentialResponse.credential) {
-                      setGoogleLoading(true);
-                      try {
-                        await login(credentialResponse.credential);
-                        navigate("/");
-                      } catch (error) {
-                        toast({
-                          title: "Google Login Failed",
-                          description: "Please try again.",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setGoogleLoading(false);
-                      }
-                    }
-                  }}
-                  onError={() => {
-                    toast({
-                      title: "Google Login Failed",
-                      description: "Please try manually.",
-                      variant: "destructive",
-                    });
-                  }}
-                  theme="outline"
-                  shape="circle"
-                  text="signin_with"
-                  width="280px"
-                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-[280px] rounded-full border-primary/20 bg-background/50 font-medium transition-all hover:bg-background/80"
+                  onClick={() => googleLoginTrigger()}
+                >
+                  <img src="/app/assets/google.svg" alt="Google" className="mr-3 h-5 w-5" />
+                  Sign in with Google
+                </Button>
               )}
+            </div>
             </div>
 
 
@@ -206,7 +197,8 @@ const RegisterPage = () => {
               />
             </div>
             <Button
-              className="mt-2 h-11 w-full text-base font-semibold shadow-lg transition-all"
+              variant="ghost"
+              className="mt-2 h-11 w-full bg-white/5 text-base font-semibold backdrop-blur-md border border-white/10 shadow-lg transition-all hover:bg-white/10 hover:text-white active:scale-[0.98]"
               type="submit"
               disabled={loading || googleLoading}
             >

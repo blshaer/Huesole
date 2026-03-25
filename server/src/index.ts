@@ -19,8 +19,8 @@ const app = express();
 app.use(
     cors({
         origin: [
-            "https://gradlyai.free.nf",
-            "https://gradlyai.onrender.com",
+            "https://lumegradients.free.nf",
+            "https://lumegradients.onrender.com",
             "http://localhost:3000",
             "http://localhost:5173",
             "http://127.0.0.1:3000",

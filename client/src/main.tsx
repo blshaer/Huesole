@@ -1,7 +1,7 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import "../app/css/globals.css";
+import "./css/globals.css";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -10,12 +10,20 @@ import "aos/dist/aos.css";
 import BrandConsole from "./shared/components/BrandConsole.tsx";
 AOS.init();
 
-ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <BrandConsole />
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById("root"),
-);
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <BrandConsole />
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>,
+  );
+}

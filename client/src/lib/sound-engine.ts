@@ -12,17 +12,25 @@ export async function decodeAudioData(dataUri: string): Promise<AudioBuffer> {
   const cached = bufferCache.get(dataUri);
   if (cached) return cached;
 
-  const ctx = getAudioContext();
-  const base64 = dataUri.split(",")[1];
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
+  try {
+    const ctx = getAudioContext();
+    const base64 = dataUri.split(",")[1];
+    if (!base64) throw new Error("Invalid data URI: no base64 content found");
 
-  const audioBuffer = await ctx.decodeAudioData(bytes.buffer.slice(0));
-  bufferCache.set(dataUri, audioBuffer);
-  return audioBuffer;
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Modern browsers support promise-based decodeAudioData
+    const audioBuffer = await ctx.decodeAudioData(bytes.buffer.slice(0));
+    bufferCache.set(dataUri, audioBuffer);
+    return audioBuffer;
+  } catch (error) {
+    console.error("Error decoding audio data:", error);
+    throw error;
+  }
 }
 
 export interface PlaySoundOptions {

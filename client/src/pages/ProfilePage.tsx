@@ -1,4 +1,4 @@
-import { useToast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 
 import { Button } from "@/shared/ui/button";
@@ -46,7 +46,7 @@ interface UpdateProfileResponse {
 const ProfilePage = () => {
   const { user, isLoading, updateUser } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
@@ -128,11 +128,7 @@ const ProfilePage = () => {
     e.preventDefault();
 
     if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Display name cannot be empty.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Display name cannot be empty." });
       return;
     }
 
@@ -152,22 +148,14 @@ const ProfilePage = () => {
         },
       );
 
-      toast({
-        title: "Success",
-        description: "Profile updated successfully!",
-      });
+      toast("Success", { description: "Profile updated successfully!" });
 
       if (response.data.user) updateUser(response.data.user);
       setIsEditingProfile(false);
       setSelectedFile(null);
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description:
-          err.response?.data?.message ||
-          "Unable to update profile. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: err.response?.data?.message ||
+          "Unable to update profile. Please try again." });
     } finally {
       setProfileLoading(false);
     }
@@ -177,20 +165,12 @@ const ProfilePage = () => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "New passwords do not match.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "New passwords do not match." });
       return;
     }
 
     if (newPassword.length < 8 || passwordStrength.strength === "weak") {
-      toast({
-        title: "Error",
-        description: "Please choose a stronger password.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Please choose a stronger password." });
       return;
     }
 
@@ -200,10 +180,7 @@ const ProfilePage = () => {
         "/auth/updatepassword",
         { currentPassword, newPassword }
       );
-      toast({
-        title: "Success",
-        description: "Password updated successfully!",
-      });
+      toast("Success", { description: "Password updated successfully!" });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -211,12 +188,7 @@ const ProfilePage = () => {
       setShowNewPassword(false);
       setShowConfirmPassword(false);
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description:
-          err.response?.data?.message || "Unable to update password.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: err.response?.data?.message || "Unable to update password." });
     } finally {
       setLoadingState(false);
     }

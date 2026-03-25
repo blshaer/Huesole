@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import gradientsData from "@/shared/lib/gradients.json";
+import { ErrorDisplay } from "@/features/landing/components/ErrorDisplay";
 
 // Type definition for gradient data
 interface Gradient {
@@ -51,21 +52,9 @@ const GradientFetcher: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <div className="mb-4 text-red-500">
-          <p className="font-semibold">Error loading gradients</p>
-          <p className="text-sm">{error}</p>
-        </div>
-        <button
-          onClick={handleRetry}
-          className="hover:bg-primary/90 rounded-md bg-primary px-4 py-2 text-primary-foreground transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-    );
+    return <ErrorDisplay error={error} onRetry={handleRetry} />;
   }
+
 
   return (
     <div className="p-6">

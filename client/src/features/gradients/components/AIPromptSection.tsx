@@ -1,398 +1,310 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ArrowUp, Loader2 } from "lucide-react";
-
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import SpeechRecognition, {
+import { useState, useCallback, memo } from "react";
+import { ArrowUp, Loader2, CheckIcon } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-import { Button } from "@/shared/ui/button";
-import { Textarea } from "@/shared/ui/textarea";
-import { TextLoop } from "@/shared/ui/text-loop";
-import { TextShimmer } from "@/shared/ui/text-shimmer";
+import { GeneratedGradient } from "../types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
+import {
+  Context,
+  ContextContent,
+  ContextContentBody,
+  ContextContentHeader,
+  ContextInputUsage,
+  ContextOutputUsage,
+  ContextTrigger,
+} from "@/components/ai-elements/context";
+
+// New specialized components
+import {
+  Attachment,
+  AttachmentPreview,
+  AttachmentRemove,
+  Attachments,
+} from "@/components/ai-elements/attachments";
+import {
+  ModelSelectorItem,
+  ModelSelectorLogo,
+  ModelSelectorLogoGroup,
+  ModelSelectorName,
+} from "@/components/ai-elements/model-selector";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputProvider,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  usePromptInputAttachments,
+} from "@/components/ai-elements/prompt-input";
 
 interface AIPromptSectionProps {
   loading: boolean;
   onGenerate?: (prompt?: string) => Promise<void>;
+  result: GeneratedGradient | null;
+  setResult: (gradient: GeneratedGradient) => void;
 }
+
+const models = [
+  {
+    chef: "OpenAI",
+    chefSlug: "openai",
+    id: "gpt-4o",
+    name: "GPT-4o",
+    providers: ["openai", "azure"],
+  },
+  {
+    chef: "OpenAI",
+    chefSlug: "openai",
+    id: "gpt-4o-mini",
+    name: "GPT-4o Mini",
+    providers: ["openai", "azure"],
+  },
+  {
+    chef: "Anthropic",
+    chefSlug: "anthropic",
+    id: "claude-3-5-sonnet",
+    name: "Claude 3.5 Sonnet",
+    providers: ["anthropic"],
+  },
+  {
+    chef: "Google",
+    chefSlug: "google",
+    id: "gemini-1.5-pro",
+    name: "Gemini 1.5 Pro",
+    providers: ["google"],
+  },
+];
+
+const AttachmentItem = memo(({ attachment, onRemove }: { attachment: any, onRemove: (id: string) => void }) => {
+  const handleRemove = useCallback(
+    () => onRemove(attachment.id),
+    [onRemove, attachment.id]
+  );
+  return (
+    <Attachment data={attachment} key={attachment.id} onRemove={handleRemove}>
+      <AttachmentPreview />
+      <AttachmentRemove />
+    </Attachment>
+  );
+});
+
+const ModelItem = memo(({ m, selectedModel, onSelect }: { m: any, selectedModel: string, onSelect: (id: string) => void }) => {
+  const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id]);
+  return (
+    <ModelSelectorItem key={m.id} onSelect={handleSelect} value={m.id}>
+      <ModelSelectorLogo provider={m.chefSlug} />
+      <ModelSelectorName>{m.name}</ModelSelectorName>
+      <ModelSelectorLogoGroup>
+        {m.providers.map((provider: string) => (
+          <ModelSelectorLogo key={provider} provider={provider} />
+        ))}
+      </ModelSelectorLogoGroup>
+      {selectedModel === m.id ? (
+        <CheckIcon className="ml-auto size-4" />
+      ) : (
+        <div className="ml-auto size-4" />
+      )}
+    </ModelSelectorItem>
+  );
+});
+
+const PromptInputAttachmentsDisplay = () => {
+  const attachments = usePromptInputAttachments();
+
+  const handleRemove = useCallback(
+    (id: string) => attachments.remove(id),
+    [attachments]
+  );
+
+  if (attachments.files.length === 0) {
+    return null;
+  }
+
+  return (
+    <Attachments variant="inline" className="px-3 pb-2 pt-1 border-b border-white/5 bg-black/5">
+      {attachments.files.map((attachment) => (
+        <AttachmentItem
+          attachment={attachment}
+          key={attachment.id}
+          onRemove={handleRemove}
+        />
+      ))}
+    </Attachments>
+  );
+};
 
 export const AIPromptSection = ({
   loading,
   onGenerate,
+  result,
+  setResult,
 }: AIPromptSectionProps) => {
-  const [prompt, setPrompt] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [pendingGenerate, setPendingGenerate] = useState(false);
+  const [model, setModel] = useState<string>(models[0].id);
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
 
+  const selectedModelData = models.find((m) => m.id === model);
   const shouldReduceMotion = useReducedMotion();
-  const voiceSessionRef = useRef(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleModelSelect = useCallback((id: string) => {
+    setModel(id);
+    setModelSelectorOpen(false);
+  }, []);
 
   const {
     transcript,
-    interimTranscript,
-    finalTranscript,
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition,
-    isMicrophoneAvailable,
-  } = useSpeechRecognition({
-    clearTranscriptOnListen: true,
-  });
+  } = useSpeechRecognition();
 
-  // Detect iOS for platform-specific messages
-  useEffect(() => {
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOS(isIOSDevice);
-  }, []);
-
-  // Keep prompt in sync ONLY during an active voice session.
-  useEffect(() => {
-    if (!listening) return;
-    if (!voiceSessionRef.current) return;
-
-    setPrompt(transcript);
-  }, [listening, transcript]);
-
-  // If user clicked "Generate" while listening, wait for listening to stop,
-  // then generate with the final committed transcript.
-  useEffect(() => {
-    if (!pendingGenerate) return;
-    if (listening) return;
+  const handleManualSubmit = useCallback(async (message: PromptInputMessage) => {
     if (!onGenerate) return;
-
-    const text = (transcript || prompt).trim();
-    if (!text) {
-      setPendingGenerate(false);
-      return;
-    }
-
-    (async () => {
-      try {
-        setIsGenerating(true);
-        await onGenerate(text);
-      } catch (error) {
-        console.error('Generation error:', error);
-        setVoiceError('Failed to generate. Please try again.');
-      } finally {
-        setIsGenerating(false);
-        resetTranscript();
-        voiceSessionRef.current = false;
-        setPendingGenerate(false);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingGenerate, listening, onGenerate]);
-
-  // Cleanup: stop mic when component unmounts.
-  useEffect(() => {
-    return () => {
-      SpeechRecognition.stopListening();
-    };
-  }, []);
-
-  // Mobile textarea scroll handlers
-  const handleTouchStart = (e: React.TouchEvent<HTMLTextAreaElement>) => {
-    if (!textareaRef.current) return;
-
-    const textarea = textareaRef.current;
-    const { scrollTop } = textarea;
-
-    (textarea as any)._startY = e.touches[0].clientY;
-    (textarea as any)._startScrollTop = scrollTop;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLTextAreaElement>) => {
-    if (!textareaRef.current) return;
-
-    const textarea = textareaRef.current;
-    const { scrollHeight, clientHeight } = textarea;
-    const currentY = e.touches[0].clientY;
-    const startY = (textarea as any)._startY;
-    const deltaY = startY - currentY;
-
-    const isScrollable = scrollHeight > clientHeight;
-
-    if (isScrollable) {
-      const newScrollTop = (textarea as any)._startScrollTop + deltaY;
-
-      if (newScrollTop >= 0 && newScrollTop <= scrollHeight - clientHeight) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        textarea.scrollTo({
-          top: newScrollTop,
-          behavior: "smooth",
-        });
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      void handleGenerate();
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!onGenerate) {
-      setVoiceError('Configuration error: onGenerate function is missing.');
-      console.error('onGenerate prop is required but was not provided');
-      return;
-    }
-
-    setVoiceError(null);
-
-    const text = prompt.trim();
-    if (!text && !transcript.trim()) return;
-
-    // If still listening, request stop and generate after final transcript lands.
-    if (listening) {
-      setPendingGenerate(true);
-      await SpeechRecognition.stopListening();
-      return;
-    }
-
-    const finalText = (text || transcript).trim();
-    if (!finalText) return;
+    const text = message.text.trim();
+    if (!text && !message.files?.length) return;
 
     try {
       setIsGenerating(true);
-      await onGenerate(finalText);
+      await onGenerate(text);
+      resetTranscript();
     } catch (error) {
       console.error('Generation error:', error);
       setVoiceError('Failed to generate. Please try again.');
     } finally {
       setIsGenerating(false);
-      resetTranscript();
-      voiceSessionRef.current = false;
     }
-  };
+  }, [onGenerate, resetTranscript]);
+
+  const gradientSuggestions = [
+    "Moonlight gradient",
+    "Sunset glow",
+    "Cyberpunk neon",
+    "Ocean depths",
+    "Golden hour",
+    "Emerald forest",
+    "Midnight purple",
+    "Frosty ice",
+  ];
+
   const placeholderSuggestions = [
     "emerald green to white forest mist...",
     "orange to pink sunset sky...",
     "deep ocean blue to turquoise lagoon...",
     "navy to neon violet cyberpunk glow...",
-    "gold to cream luxury gradient...",
-    "icy blue to frosty white winter...",
-    "lavender to peach pastel dream...",
-    "teal to sandy beige tropical shore...",
   ];
 
-  const showPlaceholder = !prompt && !isFocused && !listening;
-
-  // Check for missing onGenerate AFTER all hooks
-  if (!onGenerate) {
-    return (
-      <section className="space-y-3">
-        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
-          <strong>Configuration Error:</strong> The onGenerate function is missing. Please check that the parent component is passing the onGenerate prop correctly.
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="space-y-3">
-      {!browserSupportsSpeechRecognition && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
-          {isIOS
-            ? "Voice input is not supported on iOS devices. Please type your prompt."
-            : "Voice input is not supported in your browser. Try Chrome or Edge on desktop/Android."}
-        </div>
-      )}
-
-      {isMicrophoneAvailable === false && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
-          Microphone access is blocked. Enable it in your browser site settings.
-        </div>
-      )}
-
+    <section className="space-y-4">
       {voiceError && (
         <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-600 dark:text-rose-400">
           {voiceError}
         </div>
       )}
 
-      <motion.div
-        layout
-        transition={
-          shouldReduceMotion
-            ? { duration: 0 }
-            : {
-              type: "spring",
-              stiffness: 260,
-              damping: 22,
-              velocity: 0
-            }
-        }
-        style={{
-          willChange: (isFocused || listening) ? 'transform' : 'auto'
-        }}
-        className={[
-          "from-primary/20 via-primary/10 to-primary/20 group relative rounded-2xl bg-gradient-to-r p-[1px] transition-all duration-300",
-          isFocused || listening
-            ? "shadow-primary/20 shadow-lg"
-            : "hover:shadow-primary/10 shadow-sm hover:shadow-md",
-        ].join(" ")}
-        animate={
-          shouldReduceMotion
-            ? undefined
-            : isFocused || listening
-              ? { scale: 1.01 }
-              : { scale: 1 }
-        }
-      >
-        <div className="bg-card/95 relative overflow-hidden backdrop-blur-xl">
-          <AnimatePresence>
-            {listening && (
-              <motion.div
-                key="listening"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={
-                  shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
-                }
-                className="absolute left-4 top-4 z-10 flex items-center gap-2 text-xs text-primary"
-              >
-                <motion.span
-                  aria-hidden="true"
-                  animate={shouldReduceMotion ? undefined : { scale: [1, 1.2, 1] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="relative inline-flex h-2 w-2 rounded-full bg-primary"
-                />
-                <span className="font-medium">Listening...</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {showPlaceholder && (
-              <motion.div
-                key="placeholder"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={
-                  shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
-                }
-                className="pointer-events-none absolute left-4 top-4 text-sm text-muted-foreground"
-              >
-                <span className="flex items-center gap-1.5">
-                  <TextLoop interval={3} className="font-medium text-white/50">
-                    {placeholderSuggestions.map((text, i) => (
-                      <span key={i}>{text}</span>
-                    ))}
-                  </TextLoop>
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <Textarea
-            ref={textareaRef}
-            placeholder=""
-            value={prompt}
-            onChange={(e) => {
-              setPrompt(e.target.value);
-              voiceSessionRef.current = false;
-            }}
-            onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            disabled={loading || isGenerating}
-            readOnly={listening}
-            className={[
-              listening ? "pt-10" : "",
-              "touch-action-pan-y overflow-auto scroll-smooth"
-            ].join(" ")}
-            style={{
-              WebkitOverflowScrolling: 'touch'
-            }}
-          />
-
-          <div className="border-border/50 flex items-center justify-between border-t px-3 py-2">
-            <motion.div
-              whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-              className="ml-auto"
+      <PromptInputProvider>
+        <motion.div
+           layout
+           transition={
+             shouldReduceMotion
+               ? { duration: 0 }
+               : { type: "spring", stiffness: 260, damping: 22 }
+           }
+           className={[
+             "group relative rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 p-[1px] transition-all duration-300",
+             isFocused ? "shadow-primary/20 shadow-lg scale-[1.01]" : "shadow-sm"
+           ].join(" ")}
+        >
+          <div className="bg-card/95 relative overflow-hidden backdrop-blur-xl rounded-[15px]">
+            <PromptInput 
+              globalDrop 
+              multiple 
+              onSubmit={handleManualSubmit}
+              className="bg-transparent border-none"
             >
-              <Button
-                onClick={() => void handleGenerate()}
-                disabled={
-                  loading ||
-                  isGenerating ||
-                  (!prompt.trim() &&
-                    !finalTranscript.trim() &&
-                    !interimTranscript.trim())
-                }
-                size="sm"
-                className={[
-                  "h-8 gap-2 rounded-lg px-3 font-semibold shadow-md transition-all",
-                  loading || isGenerating
-                    ? "bg-primary/90"
-                    : "hover:shadow-primary/30 hover:shadow-lg",
-                ].join(" ")}
-              >
-                {loading || isGenerating ? (
-                  <>
-                    <motion.div
-                      animate={shouldReduceMotion ? undefined : { rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                    >
-                      <Loader2 className="h-3.5 w-3.5" />
-                    </motion.div>
-                    <TextShimmer duration={2} spread={2} className="text-xs">
-                      Generating
-                    </TextShimmer>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-xs">
-                      {pendingGenerate ? "Finishing..." : "Generate"}
-                    </span>
-                    <div className="bg-primary-foreground/20 flex h-5 w-5 items-center justify-center rounded-md">
-                      <ArrowUp className="h-3 w-3" />
-                    </div>
-                  </>
-                )}
-              </Button>
-            </motion.div>
-          </div>
-        </div>
+              <PromptInputAttachmentsDisplay />
+              
+              <PromptInputBody className="px-1 pt-2">
+                <PromptInputTextarea 
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  placeholder="Ask AI to generate a gradient..."
+                  className="bg-transparent border-none focus:ring-0 focus-visible:ring-0 text-white placeholder:text-white/20 px-4 min-h-[80px]"
+                />
+              </PromptInputBody>
 
-        <AnimatePresence>
-          {(isFocused || listening) && (
-            <motion.div
-              key="glow"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.75 }}
-              exit={{ opacity: 0 }}
-              transition={
-                shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }
-              }
-              style={{
-                willChange: (isFocused || listening) ? 'opacity' : 'auto'
-              }}
-              className="from-primary/20 via-primary/30 to-primary/20 pointer-events-none absolute -inset-1 -z-10 rounded-2xl bg-gradient-to-r blur-xl"
-            />
-          )}
-        </AnimatePresence>
-      </motion.div>
+              <PromptInputFooter className="border-t border-white/5 px-2 py-2 bg-black/20 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 flex-1 overflow-hidden">
+                  <div className="flex items-center gap-2 border border-white/5 bg-white/5 px-3 py-1.5 rounded-xl h-9 shrink-0">
+                    <Context
+                      maxTokens={10}
+                      modelId="free-tier"
+                      usage={{
+                        inputTokens: 8,
+                        outputTokens: 0,
+                        totalTokens: 8,
+                      }}
+                      usedTokens={8}
+                    >
+                      <ContextTrigger className="p-0 h-auto hover:bg-transparent text-[11px] font-medium text-white/60 hover:text-white transition-colors" />
+                      <ContextContent className="border-white/10 bg-background/95 backdrop-blur-xl text-white !min-w-[150px] z-[100]">
+                        <ContextContentHeader className="pb-2 pt-3 px-3" />
+                        <ContextContentBody className="py-2 px-3">
+                          <p className="text-[10px] text-white/40 mb-2">Daily Generation Limit</p>
+                          <ContextInputUsage className="text-[10px] text-white/60" />
+                          <ContextOutputUsage className="text-[10px] text-white/60" />
+                        </ContextContentBody>
+                      </ContextContent>
+                    </Context>
+                  </div>
+
+                  {result && (
+                    <div className="flex items-center shrink-0 border border-white/5 bg-white/5 rounded-xl h-9 overflow-hidden">
+                       <Select
+                          value={result.type}
+                          onValueChange={(val: any) => setResult({ ...result, type: val })}
+                        >
+                          <SelectTrigger className="w-[85px] h-full bg-transparent border-none text-[11px] font-medium text-white/60 hover:text-white transition-all shadow-none px-3 focus:ring-0">
+                            <SelectValue placeholder="Type" />
+                          </SelectTrigger>
+                          <SelectContent className="border-white/10 bg-background/95 backdrop-blur-xl text-white shadow-xl">
+                            <SelectItem value="linear">Linear</SelectItem>
+                            <SelectItem value="radial">Radial</SelectItem>
+                            <SelectItem value="conic">Conic</SelectItem>
+                          </SelectContent>
+                        </Select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="shrink-0">
+                  <PromptInputSubmit 
+                     status={loading || isGenerating ? "streaming" : "ready"} 
+                     className="bg-white hover:bg-white/90 text-black rounded-xl h-9 w-9 p-0 flex items-center justify-center transition-all shadow-sm group-active:scale-95"
+                  >
+                    {loading || isGenerating ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="size-4 stroke-[3]" />
+                    )}
+                  </PromptInputSubmit>
+                </div>
+              </PromptInputFooter>
+            </PromptInput>
+          </div>
+        </motion.div>
+      </PromptInputProvider>
     </section>
   );
 };

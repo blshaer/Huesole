@@ -1,6 +1,6 @@
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Navbar } from "@/features/navbar/components/Navbar";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import axios from "@/shared/lib/axios";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -21,16 +21,16 @@ const AIGeneratorPage = () => {
     | undefined;
 
   const [result, setResult] = useState<GeneratedGradient | null>(() => {
-    const saved = localStorage.getItem("gradly-latest-gradient");
+    const saved = localStorage.getItem("lume-latest-gradient");
     return saved ? JSON.parse(saved) : null;
   });
 
   const [isAnimated, setIsAnimated] = useState(
-    () => localStorage.getItem("gradly-is-animated") === "true",
+    () => localStorage.getItem("lume-is-animated") === "true",
   );
 
   const [animationSpeed, setAnimationSpeed] = useState(() => {
-    const saved = localStorage.getItem("gradly-animation-speed");
+    const saved = localStorage.getItem("lume-animation-speed");
     return saved ? parseFloat(saved) : 1;
   });
 
@@ -75,13 +75,13 @@ const AIGeneratorPage = () => {
   useEffect(() => {
     if (result) {
       localStorage.setItem(
-        "gradly-latest-gradient",
+        "lume-latest-gradient",
         JSON.stringify(result),
       );
     }
-    localStorage.setItem("gradly-is-animated", String(isAnimated));
+    localStorage.setItem("lume-is-animated", String(isAnimated));
     localStorage.setItem(
-      "gradly-animation-speed",
+      "lume-animation-speed",
       String(animationSpeed),
     );
   }, [result, isAnimated, animationSpeed]);
@@ -103,11 +103,7 @@ const AIGeneratorPage = () => {
 
   const handleSave = async () => {
     if (!result) {
-      toast({
-        title: "No gradient to save",
-        description: "Please generate or edit a gradient first.",
-        variant: "destructive",
-      });
+      toast.error("No gradient to save", { description: "Please generate or edit a gradient first." });
       return;
     }
 
@@ -125,26 +121,14 @@ const AIGeneratorPage = () => {
         }
       );
 
-      toast({
-        title: "Saved successfully!",
-        description: "Your gradient has been saved to your profile.",
-      });
+      toast("Saved successfully!", { description: "Your gradient has been saved to your profile." });
     } catch (error: any) {
       if (error.response?.status === 401) {
-        toast({
-          title: "Session expired",
-          description: "Please log in again.",
-          variant: "destructive",
-        });
+        toast.error("Session expired", { description: "Please log in again." });
         logout();
       } else {
-        toast({
-          title: "Save failed",
-          description:
-            error.response?.data?.message ||
-            "Failed to save gradient.",
-          variant: "destructive",
-        });
+        toast.error("Save failed", { description: error.response?.data?.message ||
+            "Failed to save gradient." });
       }
     } finally {
       setSaving(false);
@@ -179,6 +163,17 @@ const AIGeneratorPage = () => {
     setResult({ ...result, angle });
   };
 
+  const handleMoveColor = (index: number, direction: "up" | "down") => {
+    if (!result) return;
+    const newColors = [...result.colors];
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    
+    if (newIndex < 0 || newIndex >= newColors.length) return;
+    
+    [newColors[index], newColors[newIndex]] = [newColors[newIndex], newColors[index]];
+    setResult({ ...result, colors: newColors });
+  };
+
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-background text-foreground">
       <Navbar
@@ -207,6 +202,7 @@ const AIGeneratorPage = () => {
           onUpdateColor={handleUpdateColor}
           onAddColor={handleAddColor}
           onRemoveColor={handleRemoveColor}
+          onMoveColor={handleMoveColor}
           isMobileOpen={isMobileSidebarOpen}
           onToggleMobile={toggleMobileSidebar} loading={false} />
 
@@ -220,6 +216,7 @@ const AIGeneratorPage = () => {
           isLightGradient={isLightGradient}
           onGenerate={handleGenerate}
           loading={false}
+          setResult={setResult}
         />
       </div>
     </div>

@@ -149,7 +149,7 @@ const ResetPassword = () => {
 
               <Button
                 type="submit"
-                className="mt-2 h-11 w-full text-base font-semibold shadow-lg transition-all active:scale-[0.98]"
+                className="mt-2 h-11 w-full bg-white/5 text-base font-semibold backdrop-blur-md border border-white/10 shadow-lg transition-all hover:bg-white/10 active:scale-[0.98]"
                 disabled={loading}
               >
                 {loading ? (

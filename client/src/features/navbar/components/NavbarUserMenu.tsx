@@ -2,6 +2,7 @@
 
 import { LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import Letter3DSwap from "@/shared/components/fancy/text/Letter3DSwap";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
@@ -46,7 +47,7 @@ export const NavbarUserMenu = ({
       <div className="flex items-center gap-2">
         <Link
           to="/login"
-          className="rounded-[8px] border bg-card px-4 py-1.5 text-sm font-medium transition-all hover:bg-white/5"
+          className="rounded-[8px] bg-white px-4 py-1.5 text-sm font-semibold text-black transition-all hover:bg-white/90"
         >
           Sign in
         </Link>
@@ -122,8 +123,8 @@ export const NavbarUserMenu = ({
             <>
               <DropdownMenuSeparator className="my-1 bg-white/10" />
               <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-        
+                className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+
                 asChild
               >
                 <Link to="/admin" className="flex items-center px-2 py-1.5">

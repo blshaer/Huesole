@@ -1,5 +1,5 @@
 {
-    "name": "gradlyai-monorepo",
+    "name": "lumegradients-monorepo",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -16,7 +16,6 @@
         "html2canvas": "^1.4.1",
         "nodemailer": "^7.0.11",
         "ogl": "^1.0.11",
-        "react-speech-recognition": "^4.0.1",
-        "sileo": "^0.1.5"
+        "react-speech-recognition": "^4.0.1"
     }
 }

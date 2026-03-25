@@ -2,6 +2,11 @@ import { Loader2 } from "lucide-react";
 import { GeneratedGradient } from "../types";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AIPromptSection } from "./AIPromptSection";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/ai-elements/reasoning";
 
 interface PreviewAreaProps {
   result: GeneratedGradient | null;
@@ -13,7 +18,7 @@ interface PreviewAreaProps {
   isLightGradient: boolean;
   loading: boolean;
   onGenerate: (prompt?: string) => Promise<void>;
-
+  setResult: (gradient: GeneratedGradient) => void;
 }
 
 export const PreviewArea = ({
@@ -25,8 +30,8 @@ export const PreviewArea = ({
   isLightGradient,
   loading,
   onGenerate,
+  setResult,
 }: PreviewAreaProps) => {
-  console.log('PreviewArea props:', { loading, onGenerate: typeof onGenerate });
 
   const [currentAngle, setCurrentAngle] = useState<number>(result?.angle ?? 0);
   const [isMobile, setIsMobile] = useState(false);
@@ -35,6 +40,57 @@ export const PreviewArea = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const initialViewportHeight = useRef<number>(0);
+
+  const [reasoningContent, setReasoningContent] = useState("");
+  const [isReasoningStreaming, setIsReasoningStreaming] = useState(false);
+  const [currentTokenIndex, setCurrentTokenIndex] = useState(0);
+  const [tokens, setTokens] = useState<string[]>([]);
+
+  const reasoningSteps = [
+    "Let me think about this problem step by step.",
+    "\n\nFirst, I need to understand what the user is asking for.",
+    "\n\nThey want a reasoning component that opens automatically when streaming begins and closes when streaming finishes. The component should be composable and follow existing patterns in the codebase.",
+    "\n\nThis seems like a collapsible component with state management would be the right approach.",
+  ].join("");
+
+  const chunkIntoTokens = useCallback((text: string): string[] => {
+    const chunks: string[] = [];
+    let i = 0;
+    while (i < text.length) {
+      const chunkSize = Math.floor(Math.random() * 2) + 3;
+      chunks.push(text.slice(i, i + chunkSize));
+      i += chunkSize;
+    }
+    return chunks;
+  }, []);
+
+  useEffect(() => {
+    if (loading) {
+      const tokenizedSteps = chunkIntoTokens(reasoningSteps);
+      setTokens(tokenizedSteps);
+      setReasoningContent("");
+      setCurrentTokenIndex(0);
+      setIsReasoningStreaming(true);
+    } else {
+      setIsReasoningStreaming(false);
+    }
+  }, [loading, chunkIntoTokens]);
+
+  useEffect(() => {
+    if (!isReasoningStreaming || currentTokenIndex >= tokens.length) {
+      if (isReasoningStreaming) {
+        setIsReasoningStreaming(false);
+      }
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setReasoningContent((prev) => prev + tokens[currentTokenIndex]);
+      setCurrentTokenIndex((prev) => prev + 1);
+    }, 25);
+
+    return () => clearTimeout(timer);
+  }, [isReasoningStreaming, currentTokenIndex, tokens]);
 
   // Detect mobile screen size
   useEffect(() => {
@@ -126,8 +182,15 @@ export const PreviewArea = ({
       >
         {/* Gradient Preview - Responsive sizing based on keyboard state */}
         {(!isMobile || !isKeyboardOpen) && (
-          <div className="flex flex-1 items-center max-md:items-start max-md:pt-20 justify-center md:flex-none">
-            {result ? (
+          <div className="flex flex-1 items-center max-md:items-start max-md:pt-20 justify-center md:flex-none w-full max-w-2xl px-4">
+            {loading ? (
+              <Reasoning className="w-full bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-md shadow-2xl" isStreaming={isReasoningStreaming}>
+                <ReasoningTrigger className="text-white hover:text-white/80" />
+                <ReasoningContent className="text-white/60">
+                  {reasoningContent}
+                </ReasoningContent>
+              </Reasoning>
+            ) : result ? (
               <div
                 key="preview"
                 className={`relative ${isMobile && isKeyboardOpen
@@ -137,9 +200,9 @@ export const PreviewArea = ({
                 ref={containerRef}
               >
                 <div
-                  className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full opacity-70 blur-3xl"
+                  className="pointer-events-none  absolute inset-0 -z-10 scale-110 rounded-full opacity-70 blur-3xl"
                   style={{
-                    background: `${result.type}-gradient(${result.type === "linear"
+                    backgroundImage: `${result.type}-gradient(${result.type === "linear"
                         ? `${displayAngle}deg, `
                         : result.type === "conic"
                           ? `from ${displayAngle}deg, `
@@ -154,7 +217,7 @@ export const PreviewArea = ({
                 <div
                   className="h-full w-full rounded-full shadow-2xl transition-all duration-700"
                   style={{
-                    background: `${result.type}-gradient(${result.type === "linear"
+                    backgroundImage: `${result.type}-gradient(${result.type === "linear"
                         ? `${displayAngle}deg, `
                         : result.type === "conic"
                           ? `from ${displayAngle}deg, `
@@ -271,7 +334,7 @@ export const PreviewArea = ({
         {/* Mobile AI Prompt Section - Sticky at bottom, expands when keyboard opens */}
         {isMobile && (
           <div className="w-full max-w-md">
-            <AIPromptSection loading={loading} onGenerate={onGenerate} />
+            <AIPromptSection loading={loading} onGenerate={onGenerate} result={result} setResult={setResult} />
           </div>
         )}
       </div>

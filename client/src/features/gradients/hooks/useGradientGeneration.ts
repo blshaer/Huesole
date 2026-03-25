@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "@/shared/lib/axios";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { GeneratedGradient } from "../types";
 
 
@@ -33,11 +33,7 @@ export const useGradientGeneration = ({
 
   const handleGenerate = async (customPrompt?: string) => {
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login first to use the AI Generator.",
-        variant: "destructive",
-      });
+      toast.error("Authentication Required", { description: "Please login first to use the AI Generator." });
       navigate("/login");
       return;
     }
@@ -55,19 +51,11 @@ export const useGradientGeneration = ({
 
       // Only show toast on desktop
       if (!isMobile) {
-        toast({
-          title: "Masterpiece Created!",
-          description: "Gemini has painted a new gradient for you.",
-        });
+        toast("Masterpiece Created!", { description: "Gemini has painted a new gradient for you." });
       }
     } catch (error: any) {
-      toast({
-        title: "Generation Failed",
-        description:
-          error.response?.data?.message ||
-          "The AI artist is busy. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Generation Failed", { description: error.response?.data?.message ||
+          "The AI artist is busy. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -85,17 +73,10 @@ export const useGradientGeneration = ({
 
       // Only show toast on desktop
       if (!isMobile) {
-        toast({
-          title: "Gallery Updated!",
-          description: "Your gradient is now in 'My Gradients'.",
-        });
+        toast("Gallery Updated!", { description: "Your gradient is now in 'My Gradients'." });
       }
     } catch (error) {
-      toast({
-        title: "Save Failed",
-        description: "Please log in to save your creations.",
-        variant: "destructive",
-      });
+      toast.error("Save Failed", { description: "Please log in to save your creations." });
     } finally {
       setSaving(false);
     }

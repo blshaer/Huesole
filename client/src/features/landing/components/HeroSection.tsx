@@ -5,33 +5,15 @@ import { HeroHeader } from "./HeroHeader";
 import { Link } from "react-router-dom";
 
 export const HeroSection: React.FC = () => (
-  <header className="relative flex h-[60vh] w-full items-center justify-center overflow-hidden">
-    {/* Background video */}
-    <video
-      autoPlay
-      muted
-      loop
-      playsInline
-      className="absolute inset-0 h-full w-full object-cover"
-    >
-      <source src="https://cdn.skiper-ui.com/loopbg.mp4" type="video/mp4" />
-    </video>
-
-    {/* Optional overlay for readability */}
-    <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
-
+  <header className="relative flex min-h-[40vh] w-full items-center justify-center overflow-hidden bg-background py-10">
     {/* Foreground content */}
-    <div className="container relative z-10 mx-auto max-w-6xl space-y-2 pb-6 pt-[40px]">
+    <div className="container relative z-10 mx-auto max-w-6xl space-y-4 pb-4 pt-4">
       <HeroHeader />
       <HeroFeatures />
       <div className="flex w-full items-center justify-center pb-6">
         <Link to="/ai-generator">
-          <Button
-            className="border-none mt-4"
-
-
-          >
-            Generate with AI
+          <Button className="mt-4 rounded-full bg-white px-8 py-6 text-base font-bold text-black transition-all hover:bg-neutral-200 hover:text-black hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+            Generate Gradients
           </Button>
         </Link>
       </div>

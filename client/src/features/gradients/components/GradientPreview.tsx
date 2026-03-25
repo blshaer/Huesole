@@ -54,7 +54,7 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
       >
         {gradientType === "text" ? (
           <motion.span
-            className="overflow-hidden text-nowrap p-2 text-2xl font-bold"
+            className="text-center break-words px-4 text-2xl font-black leading-tight"
             style={textGradientStyle}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

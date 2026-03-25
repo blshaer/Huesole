@@ -31,12 +31,16 @@ export function useSound(
 
   useEffect(() => {
     let cancelled = false;
-    decodeAudioData(sound.dataUri).then((buffer) => {
-      if (!cancelled) {
-        bufferRef.current = buffer;
-        setDuration(buffer.duration);
-      }
-    });
+    decodeAudioData(sound.dataUri)
+      .then((buffer) => {
+        if (!cancelled) {
+          bufferRef.current = buffer;
+          setDuration(buffer.duration);
+        }
+      })
+      .catch((err) => {
+        console.warn(`Failed to decode sound "${sound.name}":`, err);
+      });
     return () => {
       cancelled = true;
     };

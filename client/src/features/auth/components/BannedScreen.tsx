@@ -1,22 +1,27 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
-import { BaseErrorLayout } from "@/shared/components/BaseErrorLayout";
+import { ErrorPage } from "@/pages/ErrorPage";
 
-const BannedScreen: React.FC = () => {
-    const { banInfo, logout } = useAuth();
+interface BannedScreenProps {
+    previewInfo?: { message: string; isBanned?: boolean };
+}
 
-    if (!banInfo) return null;
+const BannedScreen: React.FC<BannedScreenProps> = ({ previewInfo }) => {
+    const auth = useAuth();
+    
+    // Combine context with optional preview props
+    const banInfo = previewInfo || auth.banInfo;
+
+    // Only show if we have ban info and (it's a preview OR the user is actually banned)
+    if (!banInfo || (!previewInfo && !banInfo.isBanned)) return null;
 
     return (
-        <div className="fixed inset-0 z-[100]">
-            <BaseErrorLayout
-                title="403 Access Forbidden"
-                description={banInfo.message || "Your access to GradlyAI has been suspended. Please contact support if you believe this is a mistake."}
-                actionText="Log Out"
-                onAction={logout}
-            />
-        </div>
+        <ErrorPage
+            type="403"
+            description={banInfo.message}
+        />
     );
 };
 
 export default BannedScreen;
+

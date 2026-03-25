@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import "animate.css";
-import "../app/css/globals.css";
+import "./css/globals.css";
+import { Toaster } from "@/shared/ui/sonner";
 import AppRoutes from "@/shared/routes/__routes";
 import { TooltipProvider } from "@/shared/ui/tooltip";
-import { Toaster } from "sileo";
 import GridBackground from "@/shared/ui/GridBackground";
 import Support from "./features/landing/components/Support";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -16,18 +16,12 @@ import BannedScreen from "./features/auth/components/BannedScreen";
 const AppContent: React.FC = () => {
   const location = useLocation();
   const { banInfo } = useAuth();
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Hide navbar and footer on AI Generator and Admin pages
   const isAIGeneratorPage = location.pathname === "/ai-generator";
   const isAdminPage = location.pathname.startsWith("/admin");
-  const hideGlobalElements = isAIGeneratorPage || isAdminPage;
+  const isErrorPreviewPage = location.pathname === "/error-preview";
+  const hideGlobalElements = isAIGeneratorPage || isAdminPage || isErrorPreviewPage;
 
   if (banInfo?.isBanned) {
     return <BannedScreen />;
@@ -41,7 +35,7 @@ const AppContent: React.FC = () => {
       {!hideGlobalElements && <Navbar showAngleController={false} />}
       {!hideGlobalElements && <Support />}
       {!hideGlobalElements && <GridBackground />}
-      <Toaster position={isDesktop ? "top-center" : "bottom-right"} />
+      <Toaster position="bottom-right" richColors />
       <AppRoutes />
       {!isAIGeneratorPage && <Footer />}
     </div>

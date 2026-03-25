@@ -1,4 +1,4 @@
-import { sileo } from "sileo";
+import { toast as sonnerToast } from "sonner";
 
 interface ToastProps {
   title?: string;
@@ -8,27 +8,25 @@ interface ToastProps {
 }
 
 function toast({ title, description, variant }: ToastProps) {
-  const options = { title: title || "Notification", description };
+  // Use sonnerToast hooks for better experience
 
   if (variant === "destructive") {
-    return sileo.error(options);
+    return sonnerToast.error(title || "Error", { description });
   } else if (variant === "success") {
-    return sileo.success(options);
+    return sonnerToast.success(title || "Success", { description });
   } else {
-    return sileo.show(options);
+    return sonnerToast(title || "Notification", { description });
   }
 }
 
 function useToast() {
   return {
     toast,
-    dismiss: () => {
-      // Sileo might not have a global dismiss, but we can't easily implement it here 
-      // without more info. Usually toasts auto-dismiss.
+    dismiss: (id?: string) => {
+      sonnerToast.dismiss(id);
     },
-    toasts: [], // For compatibility with existing Toaster component if still present
+    toasts: [], // For compatibility
   };
 }
 
 export { useToast, toast };
-

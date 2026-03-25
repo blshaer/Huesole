@@ -4,11 +4,20 @@ import { Label } from "@/shared/ui/label";
 import { GeneratedGradient } from "../types";
 import { ColorStopItem } from "./ColorStopItem";
 
+import { AnimatePresence } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+
 interface ColorStopsSectionProps {
   result: GeneratedGradient | null;
   onUpdateColor: (index: number, color: string) => void;
   onAddColor: () => void;
   onRemoveColor: (index: number) => void;
+  onMoveColor: (index: number, direction: "up" | "down") => void;
+}
+
+interface Item {
+  id: string;
+  color: string;
 }
 
 export const ColorStopsSection = ({
@@ -16,8 +25,54 @@ export const ColorStopsSection = ({
   onUpdateColor,
   onAddColor,
   onRemoveColor,
+  onMoveColor,
 }: ColorStopsSectionProps) => {
+  const [items, setItems] = useState<Item[]>([]);
+  const lastColorsRef = useRef<string[]>([]);
+
+  // Sync items when colors array changes length or content
+  useEffect(() => {
+    if (!result) return;
+    
+    // Check if lengths match
+    if (items.length !== result.colors.length) {
+      setItems(result.colors.map((color, idx) => ({
+        id: `stop-${idx}-${Date.now()}`,
+        color
+      })));
+    } else {
+      // If content changed but length is same, check if it matches our last known state
+      // This prevents resetting IDs when we just moved an item locally
+      const colorsString = JSON.stringify(result.colors);
+      const lastColorsString = JSON.stringify(lastColorsRef.current);
+      
+      if (colorsString !== lastColorsString) {
+        setItems(prev => prev.map((item, idx) => ({
+          ...item,
+          color: result.colors[idx]
+        })));
+      }
+    }
+    lastColorsRef.current = result.colors;
+  }, [result?.colors]);
+
   if (!result) return null;
+
+  const handleMove = (index: number, direction: "up" | "down") => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= items.length) return;
+
+    // Local swap for immediate animation
+    const newItems = [...items];
+    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+    setItems(newItems);
+    
+    // Update ref so useEffect doesn't overwrite
+    lastColorsRef.current = newItems.map(it => it.color);
+    
+    // Notify parent
+    onMoveColor(index, direction);
+  };
 
   return (
     <section className="space-y-4">
@@ -37,17 +92,25 @@ export const ColorStopsSection = ({
         </Button>
       </div>
 
-      <div className="space-y-2">
-        {result.colors.map((color, idx) => (
-          <ColorStopItem
-            key={idx}
-            color={color}
-            index={idx}
-            canRemove={result.colors.length > 2}
-            onUpdate={onUpdateColor}
-            onRemove={onRemoveColor}
-          />
-        ))}
+      <div className="space-y-2 relative">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {items.map((item, idx) => (
+            <ColorStopItem
+              key={item.id}
+              color={item.color}
+              index={idx}
+              canRemove={result.colors.length > 2}
+              onUpdate={onUpdateColor}
+              onRemove={onRemoveColor}
+              onMoveUp={idx > 0 ? () => handleMove(idx, "up") : undefined}
+              onMoveDown={
+                idx < items.length - 1
+                  ? () => handleMove(idx, "down")
+                  : undefined
+              }
+            />
+          ))}
+        </AnimatePresence>
       </div>
     </section>
   );

@@ -1,12 +1,9 @@
 import { useCallback } from "react";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 
 export const useCustomToast = () => {
   const showToast = useCallback((title: string, description: string) => {
-    toast({
-      title,
-      description,
-    });
+    toast("Notification");
   }, []);
 
   return { showToast };

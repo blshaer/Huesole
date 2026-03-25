@@ -1,5 +1,5 @@
 {
-  "name": "gradlyai-server",
+  "name": "lumegradients-server",
   "version": "1.0.0",
   "description": "Backend for Gradients CSS",
   "main": "dist/index.js",

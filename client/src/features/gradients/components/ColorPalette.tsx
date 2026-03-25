@@ -1,5 +1,5 @@
 import { Button } from "@/shared/ui/button";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { colorUtils } from "@/features/gradients/utils/colorUtils";
 import { ChevronDown, ChevronUp, Palette } from "lucide-react";
 import { useState } from "react";
@@ -32,10 +32,7 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
       .join(", ");
 
     navigator.clipboard.writeText(colorString);
-    toast({
-      title: "All colors copied!",
-      description: `${palette.length} colors copied as ${format.toUpperCase()}`,
-    });
+    toast("All colors copied!", { description: `${palette.length} colors copied as ${format.toUpperCase()}` });
   };
 
   if (!colors || colors.length === 0) return null;
@@ -118,10 +115,7 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(colorInfo.hex);
-                          toast({
-                            title: "Copied!",
-                            description: colorInfo.hex,
-                          });
+                          toast("Copied!", { description: colorInfo.hex });
                         }}
                         className="font-mono transition-colors hover:text-white"
                         title="Click to copy HEX"
@@ -131,10 +125,7 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(colorInfo.rgb);
-                          toast({
-                            title: "Copied!",
-                            description: colorInfo.rgb,
-                          });
+                          toast("Copied!", { description: colorInfo.rgb });
                         }}
                         className="font-mono transition-colors hover:text-white"
                         title="Click to copy RGB"
@@ -144,10 +135,7 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(colorInfo.hsl);
-                          toast({
-                            title: "Copied!",
-                            description: colorInfo.hsl,
-                          });
+                          toast("Copied!", { description: colorInfo.hsl });
                         }}
                         className="font-mono transition-colors hover:text-white"
                         title="Click to copy HSL"

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Wallet, Copy, X, Heart } from "lucide-react";
-import { useToast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/shared/ui/button";
 
@@ -33,7 +33,7 @@ const menuVariants = {
 export function SupportWidget() {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
+  
 
   const handleCopy = useCallback(async () => {
     try {

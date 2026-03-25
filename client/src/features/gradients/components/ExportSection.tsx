@@ -262,7 +262,7 @@ export const ExportSection = ({
               : null,
             metadata: {
               exportedAt: new Date().toISOString(),
-              tool: "GradlyAI",
+              tool: "VercelGradients",
               version: "1.0.0",
             },
           },
@@ -362,11 +362,11 @@ export const ExportSection = ({
 
         {/* Export as Image Dropdown - FIXED WITH PERSISTENT STATE */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="nofocus">
+          <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="bg-card/60 text-foreground/80 hover:bg-card/80 h-8 gap-1 rounded-md border-border px-2 text-[11px]"
+              className="bg-card/60 text-foreground/80 hover:bg-card/80 h-8 gap-1 rounded-md border-border px-2 text-[11px] nofocus"
               disabled={isExporting}
             >
               <ImageIcon className="h-3 w-3" />
@@ -480,8 +480,8 @@ export const ExportSection = ({
       <div className="space-y-2">
         {/* Format dropdown */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="nofocus w-full">
-            <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
+          <DropdownMenuTrigger asChild>
+            <div className="flex w-full cursor-pointer items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary transition-colors hover:bg-secondary/80 focus-visible:outline-none">
               <div className="flex items-center gap-2">
                 <ActiveIcon />
                 <span>{activeFormat.label}</span>

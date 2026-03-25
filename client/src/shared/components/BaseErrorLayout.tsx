@@ -14,7 +14,7 @@ interface BaseErrorLayoutProps {
 export const BaseErrorLayout: React.FC<BaseErrorLayoutProps> = ({
   title,
   description,
-  image = "/assets/not-found-404.png",
+  image = "/assets/error.png",
   actionText = "Back to Home",
   onAction,
   actionHref = "/",

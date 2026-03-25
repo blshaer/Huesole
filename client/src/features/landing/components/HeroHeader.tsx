@@ -3,7 +3,7 @@ export const HeroHeader: React.FC = () => (
   <div className="space-y-6">
     {/* GitHub Link */}
     {/* <a
-      href="https://github.com/blshaer/gradlyai"
+      href="https://github.com/blshaer/lumegradients"
       target="_blank"
       rel="noopener noreferrer"
     >

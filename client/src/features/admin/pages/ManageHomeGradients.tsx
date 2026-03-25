@@ -10,7 +10,7 @@ import {
 } from "@/shared/ui/table";
 import { Button } from "@/shared/ui/button";
 import { Plus, Trash2, Edit2, Loader2, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
@@ -51,7 +51,7 @@ const ManageHomeGradients: React.FC = () => {
                 setTotalGradients(response.data.pagination.total);
             }
         } catch (error) {
-            toast({ title: "Error", description: "Failed to load gradients", variant: "destructive" });
+            toast.error("Error", { description: "Failed to load gradients" });
         } finally {
             setLoading(false);
         }
@@ -69,9 +69,9 @@ const ManageHomeGradients: React.FC = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setGradients(gradients.filter(g => g._id !== id));
-            toast({ title: "Deleted", description: "Gradient removed from home page" });
+            toast("Deleted", { description: "Gradient removed from home page" });
         } catch (error) {
-            toast({ title: "Error", description: "Failed to delete", variant: "destructive" });
+            toast.error("Error", { description: "Failed to delete" });
         }
     };
 
@@ -88,18 +88,18 @@ const ManageHomeGradients: React.FC = () => {
                 await axios.put(`${API_URL}/admin/home-gradients/${editingGradient._id}`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                toast({ title: "Updated", description: "Gradient updated successfully" });
+                toast("Updated", { description: "Gradient updated successfully" });
             } else {
                 await axios.post(`${API_URL}/admin/home-gradients`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                toast({ title: "Created", description: "Gradient added successfully" });
+                toast("Created", { description: "Gradient added successfully" });
             }
             fetchGradients();
             setIsDialogOpen(false);
             resetForm();
         } catch (error: any) {
-            toast({ title: "Error", description: error.response?.data?.message || "Operation failed", variant: "destructive" });
+            toast.error("Error", { description: error.response?.data?.message || "Operation failed" });
         }
     };
 

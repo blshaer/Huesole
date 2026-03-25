@@ -11,12 +11,12 @@ import { MagicCard } from "@/shared/ui/MagicCard";
 import { ChevronDown, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
 import { AnimationSpeedControl } from "./AnimationSpeedControl";
 import { ColorSwatches } from "./ColorSwatches";
 import { GradientHeader } from "./GradientHeader";
 import { GradientPreview } from "./GradientPreview";
-import { GradientTypeSelector } from "./GradientTypeSelector";
 import { ImageDownloadControl } from "./ImageDownloadControl";
 
 import { GradientCardProps } from "@/shared/types/types";
@@ -121,22 +121,24 @@ export default function GradientCard({
   onColorsChange,
   onEditClick,
   onDeleteClick,
+  globalGradientType,
+  globalGradientShape,
 }: GradientCardProps) {
   const [activeTab, setActiveTab] = useState("tailwind");
   const [angle, setAngle] = useState(90);
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const [showAngleController, setShowAngleController] = useState(false);
-  const [gradientShape, setGradientShape] = useState<
-    "linear" | "radial" | "conic"
-  >("linear");
   const {
     selectedColorFormat,
     setSelectedColorFormat,
     getColorInFormat,
-    gradientType,
-    setGradientType,
+    // Remove local gradientType/setGradientType
   } = useColorFormat();
+
+  // Use props instead of local state
+  const gradientType = globalGradientType || "background";
+  const gradientShape = globalGradientShape || "linear";
   const { copiedStates, copyToClipboard } = useCopyState();
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -146,13 +148,6 @@ export default function GradientCard({
     newColors[index] = newColor;
     onColorsChange?.(newColors);
   };
-
-  const colorFormats = ["HEX", "RGB", "HSL"];
-  const gradientShapes: Array<"linear" | "radial" | "conic"> = [
-    "linear",
-    "radial",
-    "conic",
-  ];
 
   const isLightGradient = useMemo(() => {
     return gradient.colors.every((color) => {
@@ -409,13 +404,8 @@ export default function GradientCard({
         <TooltipProvider>
           <div className="relative flex gap-1 px-1.5 py-1.5 items-center justify-center rounded-[10px] backdrop-blur-md transition-all duration-300 hover:bg-white/5"
             style={{
-              backgroundColor: isLightGradient
-                ? "rgba(0,0,0,0.08)"
-                : "rgba(255,255,255,0.08)",
-              border: `1px solid ${isLightGradient
-                ? "rgba(0,0,0,0.15)"
-                : "rgba(255,255,255,0.15)"
-                }`,
+              backgroundColor: "rgba(0,0,0,0.2)",
+              border: "1px solid rgba(255,255,255,0.15)",
             }}
           >
             {/* Edit Button */}
@@ -426,7 +416,7 @@ export default function GradientCard({
                   onClick={handleEditButtonClick}
                   className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
                 >
-                  <Pencil className="h-4 w-4" style={{ color: controlColor }} />
+                  <Pencil className="h-4 w-4 text-white" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="bg-black/90 border-white/10">
@@ -462,9 +452,9 @@ export default function GradientCard({
                   className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
                 >
                   {showAngleController ? (
-                    <Eye className="h-4 w-4" style={{ color: controlColor }} />
+                    <Eye className="h-4 w-4 text-white" />
                   ) : (
-                    <EyeOff className="h-4 w-4" style={{ color: controlColor }} />
+                    <EyeOff className="h-4 w-4 text-white" />
                   )}
                 </button>
               </TooltipTrigger>
@@ -489,105 +479,109 @@ export default function GradientCard({
             animationSpeed={animationSpeed}
           />
 
-          {showAngleController && (
-            <div
-              className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
-            >
-              <div
-                className="absolute h-2 w-2 rounded-full"
-                style={{ backgroundColor: controlColor, opacity: 0.5 }}
-              />
-
-              <svg
-                className="pointer-events-auto absolute"
-                width={size}
-                height={size}
-                style={{ overflow: "visible", touchAction: "none" }}
-                onPointerDown={(e) => {
-                  isDraggingRef.current = true;
-                  (e.currentTarget as SVGSVGElement).setPointerCapture(
-                    e.pointerId,
-                  );
-                  handlePointer(e.clientX, e.clientY);
-                }}
-                onPointerMove={(e) => {
-                  if (!isDraggingRef.current) return;
-                  handlePointer(e.clientX, e.clientY);
-                }}
-                onPointerUp={(e) => {
-                  isDraggingRef.current = false;
-                  try {
-                    (
-                      e.currentTarget as SVGSVGElement
-                    ).releasePointerCapture(e.pointerId);
-                  } catch {
-                    // ignore
-                  }
-                }}
-                onPointerCancel={() => {
-                  isDraggingRef.current = false;
-                }}
-              >
-                <g transform={`rotate(${angle} ${cx} ${cy})`}>
-                  <line
-                    x1={cx}
-                    y1={cy}
-                    x2={cx}
-                    y2={cy - lineLength}
-                    stroke={controlColor}
-                    strokeWidth={2}
-                    opacity={0.4}
-                    pointerEvents="none"
-                  />
-
-                  <circle
-                    cx={cx}
-                    cy={cy - lineLength}
-                    r={20}
-                    fill={
-                      isLightGradient
-                        ? "rgba(0,0,0,0.15)"
-                        : "rgba(255,255,255,0.15)"
-                    }
-                    stroke={
-                      isLightGradient
-                        ? "rgba(0,0,0,0.3)"
-                        : "rgba(255,255,255,0.3)"
-                    }
-                    strokeWidth={2}
-                    style={{ cursor: "grab" }}
-                  />
-
-                  <circle
-                    cx={cx}
-                    cy={cy - lineLength}
-                    r={6}
-                    fill={controlColor}
-                    opacity={0.95}
-                    pointerEvents="none"
-                  />
-                </g>
-              </svg>
-
-              <div
-                className="absolute"
-                style={{ transform: `translate(${labelX}px, ${labelY}px)` }}
+          <AnimatePresence>
+            {showAngleController && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.9, rotate: 10 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
               >
                 <div
-                  className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
-                  style={{
-                    backgroundColor: isLightGradient
-                      ? "rgba(0,0,0,0.75)"
-                      : "rgba(0,0,0,0.8)",
-                    color: "white",
-                    pointerEvents: "none",
+                  className="absolute h-2 w-2 rounded-full"
+                  style={{ backgroundColor: controlColor, opacity: 0.5 }}
+                />
+
+                <svg
+                  className="pointer-events-auto absolute"
+                  width={size}
+                  height={size}
+                  style={{ overflow: "visible", touchAction: "none" }}
+                  onPointerDown={(e) => {
+                    isDraggingRef.current = true;
+                    (e.currentTarget as SVGSVGElement).setPointerCapture(
+                      e.pointerId,
+                    );
+                    handlePointer(e.clientX, e.clientY);
                   }}
+                  onPointerMove={(e) => {
+                    if (!isDraggingRef.current) return;
+                    handlePointer(e.clientX, e.clientY);
+                  }}
+                  onPointerUp={(e) => {
+                    isDraggingRef.current = false;
+                    try {
+                      (
+                        e.currentTarget as SVGSVGElement
+                      ).releasePointerCapture(e.pointerId);
+                    } catch {
+                      // ignore
+                    }
+                  }}
+                  onPointerDownCapture={(e) => e.stopPropagation()}
                 >
-                  {angle}°
+                  <g transform={`rotate(${angle} ${cx} ${cy})`}>
+                    <line
+                      x1={cx}
+                      y1={cy}
+                      x2={cx}
+                      y2={cy - lineLength}
+                      stroke={controlColor}
+                      strokeWidth={2}
+                      opacity={0.4}
+                      pointerEvents="none"
+                    />
+
+                    <circle
+                      cx={cx}
+                      cy={cy - lineLength}
+                      r={20}
+                      fill={
+                        isLightGradient
+                          ? "rgba(0,0,0,0.15)"
+                          : "rgba(255,255,255,0.15)"
+                      }
+                      stroke={
+                        isLightGradient
+                          ? "rgba(0,0,0,0.3)"
+                          : "rgba(255,255,255,0.3)"
+                      }
+                      strokeWidth={2}
+                      style={{ cursor: "grab" }}
+                    />
+
+                    <circle
+                      cx={cx}
+                      cy={cy - lineLength}
+                      r={6}
+                      fill={controlColor}
+                      opacity={0.95}
+                      pointerEvents="none"
+                    />
+                  </g>
+                </svg>
+
+                <div
+                  className="absolute"
+                  style={{ transform: `translate(${labelX}px, ${labelY}px)` }}
+                >
+                  <div
+                    className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
+                    style={{
+                      backgroundColor: isLightGradient
+                        ? "rgba(0,0,0,0.75)"
+                        : "rgba(0,0,0,0.8)",
+                      color: "white",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {angle}°
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -609,66 +603,7 @@ export default function GradientCard({
             copyToClipboard={(text) => copyToClipboard(text, "colors")}
           />
 
-
-          <div className="flex gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="nofocus inline-flex">
-                <div className="flex w-24 items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
-                  <span>{selectedColorFormat}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-24 rounded-md border border-border bg-secondary p-1"
-              >
-                {colorFormats.map((format) => (
-                  <DropdownMenuItem
-                    key={format}
-                    onSelect={() => {
-                      setSelectedColorFormat(format);
-                    }}
-                    className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
-                  >
-                    {format}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger className="nofocus inline-flex">
-                <div className="flex w-28 items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
-                  <span>
-                    {gradientShape.charAt(0).toUpperCase() +
-                      gradientShape.slice(1)}
-                  </span>
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-28 rounded-md border border-border bg-secondary p-1"
-              >
-                {gradientShapes.map((shape) => (
-                  <DropdownMenuItem
-                    key={shape}
-                    onSelect={() => setGradientShape(shape)}
-                    className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
-                  >
-                    {shape.charAt(0).toUpperCase() + shape.slice(1)}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <GradientTypeSelector
-              gradientType={gradientType}
-              setGradientType={(type) => {
-                setGradientType(type);
-              }}
-            />
-          </div>
+          {/* Selectors moved to global bar */}
         </div>
 
         <AnimationSpeedControl
@@ -803,6 +738,8 @@ export default function GradientCard({
             copyToClipboard={(text, key) => {
               copyToClipboard(text, key);
             }}
+            selectedColorFormat={selectedColorFormat}
+            onColorFormatChange={setSelectedColorFormat}
           />
         </>
       </footer>

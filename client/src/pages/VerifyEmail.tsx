@@ -82,7 +82,7 @@ const VerifyEmail = () => {
               <div>Start explore and creating gradients</div>
               <Button
                 onClick={() => navigate("/")}
-                className="w-full text-white hover:text-white"
+                className="w-full bg-white/5 text-white backdrop-blur-md border border-white/10 transition-all hover:bg-white/10 hover:text-white"
               >
                 Start Creating
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -96,7 +96,7 @@ const VerifyEmail = () => {
               <div className="flex flex-col gap-3">
                 <Button
                   onClick={() => navigate("/login")}
-                  className="h-11 w-full font-semibold"
+                  className="h-11 w-full bg-white/5 font-semibold backdrop-blur-md border border-white/10 transition-all hover:bg-white/10"
                 >
                   Return to Login
                 </Button>

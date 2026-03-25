@@ -7,12 +7,22 @@ import {
 } from "framer-motion";
 import { Copy, Edit2, GripVertical, Plus, Trash2 } from "lucide-react";
 
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
+import {
+  ColorPicker,
+  ColorPickerAlpha,
+  ColorPickerEyeDropper,
+  ColorPickerFormat,
+  ColorPickerHue,
+  ColorPickerOutput,
+  ColorPickerSelection,
+} from "@/components/kibo-ui/color-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 
 /* ---------------------------------------
-   ColorSwatch (updated: full circle + adaptive icon)
+   ColorSwatch (updated: full circle + adaptive icon + Kibo Color Picker)
 ---------------------------------------- */
 
 interface ColorSwatchProps {
@@ -106,7 +116,7 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
   editable = false,
   onColorChange,
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
   const displayColor = formattedColor || color;
 
   const iconIsDark = pickIconIsDark(color);
@@ -135,103 +145,129 @@ export const ColorSwatch: React.FC<ColorSwatchProps> = ({
 
   const copyColor = () => {
     if (editable) return;
-    navigator.clipboard.writeText(displayColor);
-    toast({
-      title: "Color copied!",
-      description: `${displayColor} copied to clipboard`,
-    });
+    navigator.clipboard.writeText(color);
+    toast("Color copied!", { description: `${color.toUpperCase()} (HEX) copied to clipboard` });
   };
 
   const handleSwatchClick = () => {
-    if (editable) inputRef.current?.click();
-    else copyColor();
+    if (!editable) copyColor();
   };
 
   const shouldShowOverlay = editable || showIcon;
 
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
+  const swatchContent = (
+    <motion.div
+      className={cn(
+        "group relative cursor-pointer overflow-hidden border border-white/20",
+        shapeClasses[shape],
+        sizeClasses[size],
+        className,
+      )}
+      style={{ backgroundColor: color }}
+      onClick={handleSwatchClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleSwatchClick();
+        }
+      }}
+      aria-label={
+        editable
+          ? `Change color: ${displayColor}`
+          : `Copy color: ${displayColor}`
+      }
+      initial={{ scale: 1 }}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 450, damping: 28 }}
+    >
+      {shouldShowOverlay && (
         <motion.div
           className={cn(
-            "group relative cursor-pointer overflow-hidden border border-white/20",
+            "pointer-events-none absolute inset-0 flex items-center justify-center",
             shapeClasses[shape],
-            sizeClasses[size],
-            className,
+            overlayBgClass,
           )}
-          style={{ backgroundColor: color }}
-          onClick={handleSwatchClick}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleSwatchClick();
-            }
-          }}
-          aria-label={
-            editable
-              ? `Change color: ${displayColor}`
-              : `Copy color: ${displayColor}`
-          }
-          initial={{ scale: 1 }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.96 }}
-          transition={{ type: "spring", stiffness: 450, damping: 28 }}
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
         >
-          {shouldShowOverlay && (
-            <motion.div
+          {editable ? (
+            <Edit2
               className={cn(
-                "pointer-events-none absolute inset-0 flex items-center justify-center",
-                shapeClasses[shape],
-                overlayBgClass,
+                iconSizeClasses[size],
+                iconColorClass,
+                "drop-shadow-sm",
               )}
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.15 }}
-            >
-              {editable ? (
-                <Edit2
-                  className={cn(
-                    iconSizeClasses[size],
-                    iconColorClass,
-                    "drop-shadow-sm",
-                  )}
-                />
-              ) : (
-                showIcon && (
-                  <Copy
-                    className={cn(
-                      iconSizeClasses[size],
-                      iconColorClass,
-                      "drop-shadow-sm",
-                    )}
-                  />
-                )
-              )}
-            </motion.div>
-          )}
-
-          {editable && (
-            <input
-              ref={inputRef}
-              type="color"
-              value={color}
-              onChange={(e) => onColorChange?.(e.target.value)}
-              className="sr-only"
             />
+          ) : (
+            showIcon && (
+              <Copy
+                className={cn(
+                  iconSizeClasses[size],
+                  iconColorClass,
+                  "drop-shadow-sm",
+                )}
+              />
+            )
           )}
         </motion.div>
-      </TooltipTrigger>
+      )}
+    </motion.div>
+  );
 
-      <TooltipContent>
-        <p className="text-white">
-          {editable
-            ? `Click to change color: ${displayColor}`
-            : `Click to copy: ${displayColor}`}
-        </p>
-      </TooltipContent>
-    </Tooltip>
+  if (!editable) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {swatchContent}
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="text-white">
+            Click to copy: {displayColor}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            {swatchContent}
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent suppressHydrationWarning>
+          <p className="text-white">
+            Click to change color: {displayColor}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+      <PopoverContent className="w-80 p-0 border-none bg-transparent shadow-none" side="right" align="start">
+        <ColorPicker 
+          value={color} 
+          onChange={(newColor) => onColorChange?.(newColor)}
+          className="max-w-sm rounded-[24px] border border-white/10 bg-neutral-950/90 p-4 shadow-2xl backdrop-blur-3xl"
+        >
+          <ColorPickerSelection className="h-40 rounded-xl border border-white/5" />
+          <div className="flex items-center gap-4 py-2">
+            <ColorPickerEyeDropper className="rounded-xl bg-white/5 border-white/10 hover:bg-white/10 transition-colors" />
+            <div className="grid w-full gap-3">
+              <ColorPickerHue />
+              <ColorPickerAlpha />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            <ColorPickerOutput className="bg-white/5 border-white/10 rounded-xl" />
+            <ColorPickerFormat className="bg-white/5 border-white/10 rounded-xl overflow-hidden" />
+          </div>
+        </ColorPicker>
+      </PopoverContent>
+    </Popover>
   );
 };
 

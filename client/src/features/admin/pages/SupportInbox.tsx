@@ -16,7 +16,7 @@ import {
 } from "@/shared/ui/dropdown-menu";
 import { Button } from "@/shared/ui/button";
 import { MoreHorizontal, Trash2, MailOpen, Loader2, Clock } from "lucide-react";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/shared/ui/dialog";
@@ -47,7 +47,7 @@ const SupportInbox: React.FC = () => {
             });
             setMessages(response.data.data);
         } catch (error) {
-            toast({ title: "Error", description: "Failed to load messages", variant: "destructive" });
+            toast.error("Error", { description: "Failed to load messages" });
         } finally {
             setLoading(false);
         }
@@ -66,10 +66,10 @@ const SupportInbox: React.FC = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMessages(messages.filter(m => m._id !== messageToDelete._id));
-            toast({ title: "Deleted", description: "Message removed" });
+            toast("Deleted", { description: "Message removed" });
             setMessageToDelete(null);
         } catch (error) {
-            toast({ title: "Error", description: "Failed to delete", variant: "destructive" });
+            toast.error("Error", { description: "Failed to delete" });
         } finally {
             setIsDeleting(false);
         }
@@ -83,7 +83,7 @@ const SupportInbox: React.FC = () => {
             });
             setMessages(messages.map(m => m._id === id ? { ...m, status } : m));
         } catch (error) {
-            toast({ title: "Error", description: "Failed to update status", variant: "destructive" });
+            toast.error("Error", { description: "Failed to update status" });
         }
     };
 

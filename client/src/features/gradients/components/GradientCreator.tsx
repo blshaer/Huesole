@@ -8,7 +8,7 @@ import { AngleSlider } from "@/features/gradients/components/AngleSlider";
 import { useCopyState } from "@/features/gradients/hooks/useCopyState";
 import { useColorFormat } from "@/features/gradients/hooks/useColorFormat";
 import { animatedGradientUtils } from "@/features/gradients/utils/animatedGradientUtils";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 
 interface GradientCreatorProps {
   onSave?: (gradient: { name: string; colors: string[] }) => void;
@@ -59,10 +59,7 @@ export function GradientCreator({ onSave }: GradientCreatorProps) {
 
   const saveGradient = () => {
     if (!gradientName.trim()) {
-      toast({
-        title: "Name required",
-        description: "Please enter a name for your gradient.",
-      });
+      toast("Name required", { description: "Please enter a name for your gradient." });
       return;
     }
 
@@ -71,10 +68,7 @@ export function GradientCreator({ onSave }: GradientCreatorProps) {
         name: gradientName.trim(),
         colors: colors,
       });
-      toast({
-        title: "Gradient saved!",
-        description: `"${gradientName}" has been saved to your collection.`,
-      });
+      toast("Gradient saved!", { description: `"${gradientName}" has been saved to your collection.` });
       setGradientName("");
     }
   };

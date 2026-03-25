@@ -1,10 +1,9 @@
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
@@ -33,11 +32,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      toast({
-        title: "Error",
-        description: "Please enter your email address.",
-        variant: "destructive",
-      });
+      toast.error("Error", { description: "Please enter your email address." });
       return;
     }
 
@@ -46,21 +41,13 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       await forgotPassword(email);
-      toast({
-        title: "Link Sent",
-        description:
-          "If an account exists for this email, we've sent a password reset link.",
-      });
+      toast("Link Sent", { description: "If an account exists for this email" });
       setCooldown(60);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
         "Failed to send reset email. Please try again later.";
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      toast.error("Error", { description: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -87,9 +74,18 @@ const ForgotPassword = () => {
         <CardContent className="grid gap-6">
           <form onSubmit={handleSubmit} className="grid gap-5">
             <div className="grid gap-2">
-              <Label htmlFor="email" className="text-sm font-semibold">
-                Email Address
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email" className="text-sm font-semibold">
+                  Email Address
+                </Label>
+                <Link
+                  to="/login"
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  <ArrowLeft className="h-3 w-3" />
+                  Back to Login
+                </Link>
+              </div>
               <Input
                 id="email"
                 type="email"
@@ -100,7 +96,7 @@ const ForgotPassword = () => {
               />
             </div>
             <Button
-              className="h-11 w-full text-base font-semibold transition-all hover:shadow-lg active:scale-[0.98]"
+              className="h-11 w-full bg-white/5 text-base font-semibold backdrop-blur-md border border-white/10 transition-all hover:bg-white/10 hover:shadow-lg active:scale-[0.98]"
               type="submit"
               disabled={loading || cooldown > 0}
             >
@@ -122,15 +118,6 @@ const ForgotPassword = () => {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="border-border/40 flex flex-col gap-4 border-t pb-8 pt-6">
-          <Link
-            to="/login"
-            className="flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Login
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );

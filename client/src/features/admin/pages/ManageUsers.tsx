@@ -18,7 +18,7 @@ import { Button } from "@/shared/ui/button";
 import { MoreHorizontal, Trash2, Loader2, Ban, UserCheck, MessageSquare, Heart, Sparkles, Clock, Mail, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/shared/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { ScrollArea } from "@/shared/ui/scroll-area";
@@ -61,11 +61,7 @@ const ManageUsers: React.FC = () => {
             });
             setUsers(response.data.data);
         } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to load users",
-                variant: "destructive",
-            });
+            toast.error("Error", { description: "Failed to load users" });
         } finally {
             setLoading(false);
         }
@@ -80,7 +76,7 @@ const ManageUsers: React.FC = () => {
             });
             setUserMessages(response.data.data);
         } catch (error) {
-            toast({ title: "Error", description: "Failed to load user messages", variant: "destructive" });
+            toast.error("Error", { description: "Failed to load user messages" });
         } finally {
             setLoadingMessages(false);
         }
@@ -105,13 +101,13 @@ const ManageUsers: React.FC = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            toast({ title: "User Banned", description: `${userToBan.name} has been banned.` });
+            toast("User Banned", { description: `${userToBan.name} has been banned.` });
             setUsers(users.map(u => u._id === userToBan._id ? { ...u, isBanned: true, banMessage } : u));
             setIsBanDialogOpen(false);
             setBanMessage("");
             setUserToBan(null);
         } catch (error) {
-            toast({ title: "Error", description: "Failed to ban user", variant: "destructive" });
+            toast.error("Error", { description: "Failed to ban user" });
         } finally {
             setIsBanning(false);
         }
@@ -125,10 +121,10 @@ const ManageUsers: React.FC = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            toast({ title: "User Unbanned", description: `${user.name} has been unbanned.` });
+            toast("User Unbanned", { description: `${user.name} has been unbanned.` });
             setUsers(users.map(u => u._id === user._id ? { ...u, isBanned: false, banMessage: "" } : u));
         } catch (error) {
-            toast({ title: "Error", description: "Failed to unban user", variant: "destructive" });
+            toast.error("Error", { description: "Failed to unban user" });
         }
     };
 
@@ -144,14 +140,10 @@ const ManageUsers: React.FC = () => {
             await axios.delete(`${API_URL}/admin/users/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            toast({ title: "Success", description: "User deleted successfully" });
+            toast("Success", { description: "User deleted successfully" });
             setUsers(users.filter(u => u._id !== id));
         } catch (error: any) {
-            toast({
-                title: "Error",
-                description: error.response?.data?.message || "Failed to delete user",
-                variant: "destructive",
-            });
+            toast.error("Error", { description: error.response?.data?.message || "Failed to delete user" });
         }
     };
 

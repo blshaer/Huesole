@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/features/auth/context/AuthContext";
 
@@ -38,18 +38,11 @@ const SupportPage: React.FC = () => {
         try {
             await axios.post(`${API_URL}/support`, formData);
             setIsSuccess(true);
-            toast({
-                title: "Message Sent!",
-                description: "We've received your inquiry and will get back to you soon.",
-            });
+            toast("Message Sent!", { description: "We've received your inquiry and will get back to you soon." });
             setTimeout(() => setIsSuccess(false), 5000);
             setFormData({ name: "", email: "", subject: "", message: "" });
         } catch (error: any) {
-            toast({
-                title: "Error",
-                description: error.response?.data?.message || "Failed to send message. Please try again.",
-                variant: "destructive",
-            });
+            toast.error("Error", { description: error.response?.data?.message || "Failed to send message. Please try again." });
         } finally {
             setIsSubmitting(false);
         }
@@ -72,7 +65,7 @@ const SupportPage: React.FC = () => {
 
                     <h1 className="text-5xl font-bold tracking-tight text-white mb-2">Get in Touch</h1>
                     <p className="text-white/50 text-lg">
-                        Have a question, feedback, or need some help with GradlyAI? <br className="hidden md:block" />
+                        Have a question, feedback, or need some help with VercelGradients? <br className="hidden md:block" />
                         Our team is here to support you.
                     </p>
                 </div>

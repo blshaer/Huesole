@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { AIPromptSection } from "./AIPromptSection";
-import { StyleControls } from "./StyleControls";
 import { ColorStopsSection } from "./ColorStopsSection";
 import { ExportSection } from "./ExportSection";
 import { GeneratedGradient } from "../types";
@@ -21,6 +20,7 @@ interface SidebarProps {
   onUpdateColor: (index: number, color: string) => void;
   onAddColor: () => void;
   onRemoveColor: (index: number) => void;
+  onMoveColor: (index: number, direction: "up" | "down") => void;
   isMobileOpen: boolean;
   onToggleMobile: () => void;
 }
@@ -35,6 +35,7 @@ export const Sidebar = ({
   onUpdateColor,
   onAddColor,
   onRemoveColor,
+  onMoveColor,
   isMobileOpen,
   onToggleMobile,
 }: SidebarProps) => {
@@ -87,20 +88,15 @@ export const Sidebar = ({
         className="custom-scrollbar flex-1 space-y-8 overflow-y-auto p-6 max-md:pt-0 pt-8"
       >
         <div className="max-md:hidden">
-          <AIPromptSection loading={loading} onGenerate={onGenerate} />
+          <AIPromptSection loading={loading} onGenerate={onGenerate} result={result} setResult={setResult} />
         </div>
-
-        <StyleControls
-          result={result}
-          setResult={setResult}
-          onClose={isMobile ? onToggleMobile : undefined}
-        />
 
         <ColorStopsSection
           result={result}
           onUpdateColor={onUpdateColor}
           onAddColor={onAddColor}
           onRemoveColor={onRemoveColor}
+          onMoveColor={onMoveColor}
         />
 
         <div className="max-md:block hidden">
@@ -112,11 +108,11 @@ export const Sidebar = ({
       </div>
 
       <div className="bg-background/60 flex-shrink-0 border-t border-border p-6 backdrop-blur-xl">
-        <Button onClick={onSave} disabled={saving || !result} className="w-full">
+        <Button onClick={onSave} variant="ghost" disabled={saving || !result} className="w-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 text-white font-semibold transition-all">
           {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin text-white" />
           ) : (
-            <Save className="h-4 w-4" />
+            <Save className="h-4 w-4 text-white" />
           )}
           Save to Profile
         </Button>

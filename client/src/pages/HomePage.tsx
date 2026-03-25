@@ -100,6 +100,7 @@ const HomePage: React.FC = () => {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
+              isLoading={isLoading}
             />
           </div>
         </div>

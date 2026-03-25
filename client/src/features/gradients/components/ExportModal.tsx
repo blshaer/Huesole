@@ -25,7 +25,7 @@ import {
   ExportOptions,
   GradientData,
 } from "@/features/gradients/utils/exportUtils";
-import { toast } from "@/shared/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -79,19 +79,11 @@ export function ExportModal({
       await exportUtils.exportGradient(gradientData, options);
 
       // Show success message for download
-      toast({
-        title: "Export Successful",
-        description: `${gradientData.name} exported as ${selectedFormat.toUpperCase()}`,
-      });
+      toast("Export Successful", { description: `${gradientData.name} exported as ${selectedFormat.toUpperCase()}` });
 
       onClose();
     } catch (error) {
-      toast({
-        title: "Export Failed",
-        description:
-          "There was an error exporting your gradient. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Export Failed", { description: "There was an error exporting your gradient. Please try again." });
     } finally {
       setIsExporting(false);
     }
