@@ -18,9 +18,9 @@ export default function Footer() {
 
 
           <nav className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-            <Link to="/contact" className="hover:text-white transition-colors">Contact</Link>
-            <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <Link to="/contact" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Contact</Link>
+            <Link to="/privacy" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Privacy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Terms</Link>
           </nav>
         </div>
 
