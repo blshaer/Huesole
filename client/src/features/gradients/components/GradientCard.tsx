@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { MagicCard } from "@/shared/ui/MagicCard";
-import { ChevronDown, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, Download, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,6 +17,10 @@ import { AnimationSpeedControl } from "./AnimationSpeedControl";
 import { ColorSwatches } from "./ColorSwatches";
 import { GradientHeader } from "./GradientHeader";
 import { GradientPreview } from "./GradientPreview";
+import {
+  imageExportUtils,
+  type ImageExportOptions,
+} from "@/features/gradients/utils/imageExportUtils";
 import { ImageDownloadControl } from "./ImageDownloadControl";
 
 import { GradientCardProps } from "@/shared/types/types";
@@ -208,6 +212,22 @@ export default function GradientCard({
       onDeleteClick(gradient as any);
     } else {
       console.warn("onDeleteClick prop is not provided or gradient id is missing");
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    try {
+      const options: ImageExportOptions = {
+        colors: gradient.colors,
+        angle,
+        width: 1024,
+        height: 1024,
+        isAnimated: false,
+        animationSpeed: 1,
+      };
+      await imageExportUtils.downloadImage(options, "png", `${gradient.name || "gradient"}-${Date.now()}.png`);
+    } catch (error) {
+      console.error("Failed to download gradient image:", error);
     }
   };
 
@@ -460,6 +480,22 @@ export default function GradientCard({
               </TooltipTrigger>
               <TooltipContent side="top" className="bg-black/90 border-white/10">
                 <p className="text-white">{tooltipText}</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Download Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={handleDownloadImage}
+                  className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                >
+                  <Download className="h-4 w-4 text-white" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-black/90 border-white/10">
+                <p className="text-white">Download as image</p>
               </TooltipContent>
             </Tooltip>
           </div>

@@ -2,7 +2,6 @@ import { Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { ColorSwatch } from "@/features/gradients/components/ColorSwatch";
-import { motion } from "framer-motion";
 
 interface ColorStopItemProps {
   color: string;
@@ -24,16 +23,7 @@ export const ColorStopItem = ({
   onMoveDown,
 }: ColorStopItemProps) => {
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      transition={{ 
-        layout: { type: "spring", stiffness: 450, damping: 35, mass: 0.8 },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 }
-      }}
+    <div
       className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-2 transition-all hover:bg-white/10 hover:border-white/20 shadow-sm"
     >
       <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -82,6 +72,7 @@ export const ColorStopItem = ({
       >
         <Trash2 className="h-3.5 w-3.5" />
       </Button>
-    </motion.div>
+    </div>
   );
 };
+

@@ -3,4 +3,5 @@ export interface GeneratedGradient {
   colors: string[];
   type: "linear" | "radial" | "conic";
   angle?: number;
+  reasoning?: string;
 }

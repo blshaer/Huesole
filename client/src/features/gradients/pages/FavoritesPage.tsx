@@ -2,11 +2,11 @@ import { useFavorites } from "@/features/gradients/hooks/useFavorites";
 import { useGradients } from "@/features/gradients/hooks/useGradients";
 import GradientCard from "@/features/gradients/components/GradientCard";
 import { motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 
 const FavoritesPage = () => {
   const { favorites, toggleFavorite } = useFavorites();
-  const { gradients } = useGradients();
+  const { gradients, isLoading, error } = useGradients();
 
   const favoriteGradients = gradients.filter((g) =>
     favorites.includes(g.name || ""),
@@ -15,8 +15,24 @@ const FavoritesPage = () => {
   return (
     <div className="container min-h-screen bg-[var(--background)] py-6">
       <div className="mx-auto max-w-7xl space-y-8">
-        {favoriteGradients.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 pt-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-1 pt-4">
+          <h1 className="text-2xl font-bold tracking-tight">Favorites</h1>
+          <p className="text-sm text-muted-foreground">
+            Your saved gradient collection
+          </p>
+        </div>
+
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="mt-4 text-sm text-muted-foreground">Loading your favorites...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center space-y-4 rounded-3xl border-2 border-dashed border-red-500/10 bg-red-500/[0.02] py-20 text-center">
+            <p className="text-sm text-red-400">{error}</p>
+          </div>
+        ) : favoriteGradients.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 pt-2 sm:grid-cols-2 lg:grid-cols-3">
             {favoriteGradients.map((gradient, index) => (
               <motion.div
                 key={gradient.name}
@@ -47,3 +63,4 @@ const FavoritesPage = () => {
 };
 
 export default FavoritesPage;
+

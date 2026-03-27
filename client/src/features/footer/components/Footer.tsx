@@ -13,14 +13,14 @@ export default function Footer() {
         }}
       ></div>
 
-      <footer className="container mx-auto flex flex-col items-center justify-between gap-6 px-0 py-10 md:flex-row md:h-20 md:py-0">
+      <footer className="mx-auto flex flex-col items-center justify-between gap-6 py-10 md:flex-row md:h-20 md:py-0">
         <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
 
 
           <nav className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-            <Link to="/contact" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Contact</Link>
-            <Link to="/privacy" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Privacy</Link>
-            <Link to="/terms" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Terms</Link>
+            <Link to="/contact" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Contact</Link>
+            <Link to="/privacy" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Privacy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Terms</Link>
           </nav>
         </div>
 

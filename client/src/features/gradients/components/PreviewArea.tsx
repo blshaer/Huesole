@@ -45,41 +45,57 @@ export const PreviewArea = ({
   const [isReasoningStreaming, setIsReasoningStreaming] = useState(false);
   const [currentTokenIndex, setCurrentTokenIndex] = useState(0);
   const [tokens, setTokens] = useState<string[]>([]);
-
-  const reasoningSteps = [
-    "Let me think about this problem step by step.",
-    "\n\nFirst, I need to understand what the user is asking for.",
-    "\n\nThey want a reasoning component that opens automatically when streaming begins and closes when streaming finishes. The component should be composable and follow existing patterns in the codebase.",
-    "\n\nThis seems like a collapsible component with state management would be the right approach.",
-  ].join("");
+  const [showReasoning, setShowReasoning] = useState(false);
+  const [waitingForResponse, setWaitingForResponse] = useState(false);
 
   const chunkIntoTokens = useCallback((text: string): string[] => {
     const chunks: string[] = [];
     let i = 0;
     while (i < text.length) {
-      const chunkSize = Math.floor(Math.random() * 2) + 3;
+      const chunkSize = Math.floor(Math.random() * 4) + 5; // 5-8 chars for faster streaming
       chunks.push(text.slice(i, i + chunkSize));
       i += chunkSize;
     }
     return chunks;
   }, []);
 
+  // When loading starts, reset and show skeleton
   useEffect(() => {
     if (loading) {
-      const tokenizedSteps = chunkIntoTokens(reasoningSteps);
+      setReasoningContent("");
+      setTokens([]);
+      setCurrentTokenIndex(0);
+      setIsReasoningStreaming(true);
+      setShowReasoning(true);
+      setWaitingForResponse(true);
+    }
+  }, [loading]);
+
+  // When result arrives with reasoning, stream it token by token
+  useEffect(() => {
+    if (!loading && result?.reasoning && showReasoning) {
+      setWaitingForResponse(false);
+      const tokenizedSteps = chunkIntoTokens(result.reasoning);
       setTokens(tokenizedSteps);
       setReasoningContent("");
       setCurrentTokenIndex(0);
       setIsReasoningStreaming(true);
-    } else {
+    } else if (!loading && !result?.reasoning) {
       setIsReasoningStreaming(false);
+      setWaitingForResponse(false);
+      setShowReasoning(false);
     }
-  }, [loading, chunkIntoTokens]);
+  }, [loading, result?.reasoning, chunkIntoTokens]);
 
+  // Token-by-token streaming effect (fast: 10ms)
   useEffect(() => {
-    if (!isReasoningStreaming || currentTokenIndex >= tokens.length) {
-      if (isReasoningStreaming) {
+    if (!isReasoningStreaming || tokens.length === 0 || currentTokenIndex >= tokens.length) {
+      if (isReasoningStreaming && tokens.length > 0 && currentTokenIndex >= tokens.length) {
         setIsReasoningStreaming(false);
+        // Immediately dismiss reasoning when streaming completes to show the gradient
+        if (!loading) {
+          setShowReasoning(false);
+        }
       }
       return;
     }
@@ -87,10 +103,10 @@ export const PreviewArea = ({
     const timer = setTimeout(() => {
       setReasoningContent((prev) => prev + tokens[currentTokenIndex]);
       setCurrentTokenIndex((prev) => prev + 1);
-    }, 25);
+    }, 10); // Fast streaming
 
     return () => clearTimeout(timer);
-  }, [isReasoningStreaming, currentTokenIndex, tokens]);
+  }, [isReasoningStreaming, currentTokenIndex, tokens, loading]);
 
   // Detect mobile screen size
   useEffect(() => {
@@ -183,13 +199,24 @@ export const PreviewArea = ({
         {/* Gradient Preview - Responsive sizing based on keyboard state */}
         {(!isMobile || !isKeyboardOpen) && (
           <div className="flex flex-1 items-center max-md:items-start max-md:pt-20 justify-center md:flex-none w-full max-w-2xl px-4">
-            {loading ? (
-              <Reasoning className="w-full bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-md shadow-2xl" isStreaming={isReasoningStreaming}>
-                <ReasoningTrigger className="text-white hover:text-white/80" />
-                <ReasoningContent className="text-white/60">
-                  {reasoningContent}
-                </ReasoningContent>
-              </Reasoning>
+            {loading || showReasoning ? (
+              <div className="w-full space-y-4">
+                <Reasoning className="w-full bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-md shadow-2xl" isStreaming={isReasoningStreaming}>
+                  <ReasoningTrigger className="text-white hover:text-white/80" />
+                  <ReasoningContent className="text-white/60">
+                    {reasoningContent}
+                  </ReasoningContent>
+                </Reasoning>
+                {/* Skeleton loading effect while waiting for API response */}
+                {waitingForResponse && (
+                  <div className="w-full space-y-3 animate-pulse">
+                    <div className="h-3 bg-white/5 rounded-full w-3/4" />
+                    <div className="h-3 bg-white/5 rounded-full w-full" />
+                    <div className="h-3 bg-white/5 rounded-full w-5/6" />
+                    <div className="h-3 bg-white/5 rounded-full w-2/3" />
+                  </div>
+                )}
+              </div>
             ) : result ? (
               <div
                 key="preview"

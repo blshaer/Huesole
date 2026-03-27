@@ -12,17 +12,22 @@ import {
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Separator } from "@/shared/ui/separator";
+import { Switch } from "@/shared/ui/switch";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
 import axios from "@/shared/lib/axios";
 import {
   AlertCircle,
   Camera,
+  CheckCircle2,
   Eye,
   EyeOff,
   Loader2,
   Lock,
   Mail,
   Pencil,
+  Shield,
+  Trash2,
+  XCircle,
   Save as SaveIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -44,12 +49,13 @@ interface UpdateProfileResponse {
 
 
 const ProfilePage = () => {
-  const { user, isLoading, updateUser } = useAuth();
+  const { user, isLoading, updateUser, logout } = useAuth();
   const navigate = useNavigate();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -60,19 +66,28 @@ const ProfilePage = () => {
 
   const [loadingState, setLoadingState] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
     strength: "weak",
     score: 0,
   });
+
+  // Privacy & Consent
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
+  const [sessionRecording, setSessionRecording] = useState(false);
+  const [personalizedAds, setPersonalizedAds] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login");
     } else if (user) {
       setName(user.name);
+      setUsername((user as any).username || "");
       setPreviewUrl(user.picture || "");
     }
   }, [user, isLoading, navigate]);
@@ -80,6 +95,19 @@ const ProfilePage = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Invalid file type", { description: "Please upload a JPG, PNG, or WebP image." });
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File too large", { description: "Maximum file size is 5MB." });
+        return;
+      }
+
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setIsEditingProfile(true);
@@ -136,6 +164,7 @@ const ProfilePage = () => {
     try {
       const formData = new FormData();
       formData.append("name", name);
+      if (username.trim()) formData.append("username", username.trim());
       if (selectedFile) formData.append("picture", selectedFile);
 
       const response = await axios.put<UpdateProfileResponse>(
@@ -194,6 +223,23 @@ const ProfilePage = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") return;
+
+    setDeleteLoading(true);
+    try {
+      await axios.delete("/auth/delete-account");
+      toast("Account deleted", { description: "Your account has been permanently deleted." });
+      logout();
+      navigate("/");
+    } catch (err: any) {
+      toast.error("Error", { description: err.response?.data?.message || "Unable to delete account." });
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   const getPasswordStrengthColor = () => {
     switch (passwordStrength.strength) {
       case "weak":
@@ -207,12 +253,20 @@ const ProfilePage = () => {
     }
   };
 
-  const getMemberSinceDate = () =>
-    new Date().toLocaleDateString("en-US", {
+  const getMemberSinceDate = () => {
+    if (user.createdAt) {
+      return new Date(user.createdAt).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+    return new Date().toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
     });
+  };
 
   return (
     <div className="to-muted/20 relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background px-4 py-8 md:px-6 md:py-12">
@@ -256,12 +310,15 @@ const ProfilePage = () => {
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileChange}
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,.webp"
                     className="hidden"
                   />
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  JPG, PNG or WebP. Max 5MB. 256×256
+                </p>
 
-                <div className="space-y-1 text-center">
+                <div className="space-y-1 text-center mt-2">
                   <CardTitle className="text-2xl font-bold">
                     {user.name}
                   </CardTitle>
@@ -269,6 +326,20 @@ const ProfilePage = () => {
                     <Mail className="h-3.5 w-3.5 text-primary" />
                     {user.email || "No email provided"}
                   </CardDescription>
+                  {/* Email Verification Status */}
+                  <div className="flex items-center justify-center gap-1.5 pt-1">
+                    {(user as any).isVerified !== false ? (
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Verified
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium text-amber-400">
+                        <XCircle className="h-3 w-3" />
+                        Not Verified
+                      </span>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
 
@@ -290,6 +361,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="space-y-6 lg:col-span-2">
+            {/* General Information */}
             <Card className="border-border/50 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
               <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 pb-4 max-md:flex-col max-md:pt-0">
                 <div className="space-y-1">
@@ -324,6 +396,20 @@ const ProfilePage = () => {
                         placeholder="Your name"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ""))}
+                        disabled={!isEditingProfile || profileLoading}
+                        placeholder="your_username"
+                        maxLength={30}
+                      />
+                      <p className="text-[10px] text-muted-foreground">
+                        Lowercase letters, numbers, dots, hyphens, and underscores only.
+                      </p>
+                    </div>
                   </div>
 
                   {isEditingProfile && (
@@ -345,6 +431,7 @@ const ProfilePage = () => {
                         variant="ghost"
                         onClick={() => {
                           setName(user.name);
+                          setUsername((user as any).username || "");
                           setPreviewUrl(user.picture || "");
                           setSelectedFile(null);
                           setIsEditingProfile(false);
@@ -359,7 +446,7 @@ const ProfilePage = () => {
               </CardContent>
             </Card>
 
-            {/* Password Change Card (unchanged) */}
+            {/* Password Change Card */}
             <Card className="border-border/50 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
               <CardHeader className="space-y-3 max-md:pt-0">
                 <div className="flex items-center gap-3">
@@ -524,6 +611,138 @@ const ProfilePage = () => {
                     </Button>
                   </div>
                 </form>
+              </CardContent>
+            </Card>
+
+            {/* Privacy & Consent */}
+            <Card className="border-border/50 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
+              <CardHeader className="max-md:pt-0">
+                <div className="flex items-center gap-3">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle className="text-xl">Privacy & Consent</CardTitle>
+                    <CardDescription className="mt-1 text-sm">
+                      Manage your data privacy and cookie preferences
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Usage Analytics</p>
+                    <p className="text-xs text-muted-foreground">
+                      Help us improve by allowing anonymous usage analytics
+                    </p>
+                  </div>
+                  <Switch
+                    checked={analyticsEnabled}
+                    onCheckedChange={setAnalyticsEnabled}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Session Recordings</p>
+                    <p className="text-xs text-muted-foreground">
+                      Anonymized session recordings to help us fix issues
+                    </p>
+                  </div>
+                  <Switch
+                    checked={sessionRecording}
+                    onCheckedChange={setSessionRecording}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Personalized Ads</p>
+                    <p className="text-xs text-muted-foreground">
+                      Allow personalized ads and marketing content
+                    </p>
+                  </div>
+                  <Switch
+                    checked={personalizedAds}
+                    onCheckedChange={setPersonalizedAds}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Danger Zone */}
+            <Card className="border-red-500/20 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
+              <CardHeader className="max-md:pt-0">
+                <div className="flex items-center gap-3">
+                  <Trash2 className="h-5 w-5 text-red-500" />
+                  <div>
+                    <CardTitle className="text-xl text-red-500">Danger Zone</CardTitle>
+                    <CardDescription className="mt-1 text-sm">
+                      Irreversible actions for your account
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                <div className="rounded-lg border border-red-500/20 bg-red-500/[0.03] p-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-red-400">Delete Account</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Once you delete your account, there is no going back. All your data including gradients and favorites will be permanently removed.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 shrink-0"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                      Delete Account
+                    </Button>
+                  </div>
+
+                  {showDeleteConfirm && (
+                    <div className="mt-4 space-y-3 border-t border-red-500/10 pt-4">
+                      <p className="text-xs text-red-400">
+                        To confirm, type <span className="font-bold">DELETE</span> below:
+                      </p>
+                      <Input
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder="Type DELETE to confirm"
+                        className="border-red-500/20 focus-visible:ring-red-500/30"
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={deleteConfirmText !== "DELETE" || deleteLoading}
+                          onClick={handleDeleteAccount}
+                        >
+                          {deleteLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                          )}
+                          Permanently Delete
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowDeleteConfirm(false);
+                            setDeleteConfirmText("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>

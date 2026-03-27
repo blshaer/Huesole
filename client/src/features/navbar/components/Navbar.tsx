@@ -96,7 +96,7 @@ export const Navbar = ({
   };
 
   return (
-    <header className="disable-animation-on-theme-change container sticky top-0 z-[100] w-full bg-background backdrop-blur-sm">
+    <header className="disable-animation-on-theme-change container sticky top-0 z-[100] bg-background backdrop-blur-sm">
       <style>{`
         @keyframes pulse {
           0%, 100% {
@@ -112,7 +112,7 @@ export const Navbar = ({
         }
       `}</style>
 
-      <div className="container mx-auto flex w-full items-center justify-between px-0 py-3 lg:py-5">
+      <div className="mx-auto flex w-full items-center justify-between py-3 lg:py-5">
         <nav
           className="flex items-center gap-6 md:gap-10"
           aria-label="Primary navigation"

@@ -5,6 +5,7 @@ import crypto from "crypto";
 export interface IUser extends Document {
     googleId?: string;
     name: string;
+    username?: string;
     email: string;
     password?: string;
     picture?: string;
@@ -40,6 +41,15 @@ const UserSchema: Schema = new Schema({
     name: {
         type: String,
         required: [true, "Please add a name"],
+    },
+    username: {
+        type: String,
+        unique: true,
+        sparse: true,
+        lowercase: true,
+        trim: true,
+        match: [/^[a-z0-9_.-]+$/, "Username can only contain lowercase letters, numbers, dots, hyphens, and underscores"],
+        maxlength: [30, "Username cannot exceed 30 characters"],
     },
     email: {
         type: String,

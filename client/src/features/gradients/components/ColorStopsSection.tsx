@@ -4,8 +4,9 @@ import { Label } from "@/shared/ui/label";
 import { GeneratedGradient } from "../types";
 import { ColorStopItem } from "./ColorStopItem";
 
-import { AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
+
+const MAX_COLOR_STOPS = 10;
 
 interface ColorStopsSectionProps {
   result: GeneratedGradient | null;
@@ -58,11 +59,13 @@ export const ColorStopsSection = ({
 
   if (!result) return null;
 
+  const isAtMax = result.colors.length >= MAX_COLOR_STOPS;
+
   const handleMove = (index: number, direction: "up" | "down") => {
     const newIndex = direction === "up" ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
 
-    // Local swap for immediate animation
+    // Local swap for immediate update
     const newItems = [...items];
     [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
     setItems(newItems);
@@ -81,37 +84,40 @@ export const ColorStopsSection = ({
           <Label className="text-foreground/40 text-[11px] font-bold uppercase tracking-[0.2em]">
             Color Stops
           </Label>
+          <span className="text-[10px] font-medium text-white/30">
+            {result.colors.length}/{MAX_COLOR_STOPS}
+          </span>
         </div>
         <Button
           variant="secondary"
           size="sm"
           onClick={onAddColor}
-          className="hover:bg-secondary/80 h-8 rounded-lg bg-secondary text-secondary-foreground"
+          disabled={isAtMax}
+          className="hover:bg-secondary/80 h-8 rounded-lg bg-secondary text-secondary-foreground disabled:opacity-40"
         >
           <Plus className="h-3 w-3" /> Add
         </Button>
       </div>
 
       <div className="space-y-2 relative">
-        <AnimatePresence mode="popLayout" initial={false}>
-          {items.map((item, idx) => (
-            <ColorStopItem
-              key={item.id}
-              color={item.color}
-              index={idx}
-              canRemove={result.colors.length > 2}
-              onUpdate={onUpdateColor}
-              onRemove={onRemoveColor}
-              onMoveUp={idx > 0 ? () => handleMove(idx, "up") : undefined}
-              onMoveDown={
-                idx < items.length - 1
-                  ? () => handleMove(idx, "down")
-                  : undefined
-              }
-            />
-          ))}
-        </AnimatePresence>
+        {items.map((item, idx) => (
+          <ColorStopItem
+            key={item.id}
+            color={item.color}
+            index={idx}
+            canRemove={result.colors.length > 2}
+            onUpdate={onUpdateColor}
+            onRemove={onRemoveColor}
+            onMoveUp={idx > 0 ? () => handleMove(idx, "up") : undefined}
+            onMoveDown={
+              idx < items.length - 1
+                ? () => handleMove(idx, "down")
+                : undefined
+            }
+          />
+        ))}
       </div>
     </section>
   );
 };
+

@@ -37,9 +37,9 @@ const VerifyEmail = () => {
           "Welcome! Your email has been verified and you've been logged in automatically.",
         );
 
-        // Automatically redirect to home after 2 seconds
+        // Automatically redirect to onboarding after 2 seconds
         setTimeout(() => {
-          navigate("/");
+          navigate("/onboarding");
         }, 2000);
       } catch (err: any) {
         setStatus("error");
@@ -81,7 +81,7 @@ const VerifyEmail = () => {
             <div className="w-full space-y-6 duration-500 animate-in fade-in slide-in-from-bottom-2">
               <div>Start explore and creating gradients</div>
               <Button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/onboarding")}
                 className="w-full bg-white/5 text-white backdrop-blur-md border border-white/10 transition-all hover:bg-white/10 hover:text-white"
               >
                 Start Creating

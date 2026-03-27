@@ -36,7 +36,7 @@ const RegisterPage = () => {
         setGoogleLoading(true);
         try {
           await login(tokenResponse.access_token);
-          navigate("/");
+          navigate("/onboarding");
         } catch (error) {
           toast.error("Google Login Failed", { description: "Please try again." });
         } finally {

@@ -2,7 +2,7 @@
 
 import { LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
-import Letter3DSwap from "@/shared/components/fancy/text/Letter3DSwap";
+
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
@@ -119,23 +119,6 @@ export const NavbarUserMenu = ({
             </Link>
           </DropdownMenuItem>
 
-          {user.role === "admin" && (
-            <>
-              <DropdownMenuSeparator className="my-1 bg-white/10" />
-              <DropdownMenuItem
-                className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-
-                asChild
-              >
-                <Link to="/admin" className="flex items-center px-2 py-1.5">
-                  <span className="font-semibold">Admin Dashboard</span>
-                </Link>
-              </DropdownMenuItem>
-            </>
-          )}
-
-          <DropdownMenuSeparator className="my-1 bg-white/10" />
-
           <DropdownMenuItem
             className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
             asChild
@@ -149,10 +132,21 @@ export const NavbarUserMenu = ({
             className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
             asChild
           >
-            <Link to="/support" className="flex items-center px-2 py-1.5">
-              <span>Support</span>
+            <Link to="/contact" className="flex items-center px-2 py-1.5">
+              <span>Contact</span>
             </Link>
           </DropdownMenuItem>
+
+          {user.role === "admin" && (
+            <DropdownMenuItem
+              className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+              asChild
+            >
+              <Link to="/admin" className="flex items-center px-2 py-1.5">
+                <span>Admin Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator className="my-1 bg-white/10" />
 

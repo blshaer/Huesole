@@ -11,6 +11,7 @@ import {
     toggleFavorite,
     resendVerification,
     updateProfile,
+    deleteAccount,
 } from "../controllers/authController";
 import { protect } from "../middleware/authMiddleware";
 import multer from "multer";
@@ -30,7 +31,7 @@ const storage = multer.diskStorage({
 });
 
 function checkFileType(file: Express.Multer.File, cb: multer.FileFilterCallback) {
-    const filetypes = /jpg|jpeg|png/;
+    const filetypes = /jpg|jpeg|png|webp/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
 
@@ -62,5 +63,6 @@ router.post("/resend-verification", resendVerification);
 
 router.post("/google", googleLogin);
 router.get("/me", protect, getMe);
+router.delete("/delete-account", protect, deleteAccount);
 
 export default router;

@@ -448,10 +448,13 @@ export const getMe = async (req: Request, res: Response) => {
         res.json({
             id: user._id.toString(),
             name: user.name,
+            username: user.username,
             email: user.email,
             picture: user.picture,
             favorites: user.favorites,
-            role: user.role
+            role: user.role,
+            isVerified: user.isVerified,
+            createdAt: user.createdAt,
         });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
@@ -517,7 +520,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     try {
         // @ts-ignore
         const userId = req.user?.id;
-        const { name } = req.body;
+        const { name, username } = req.body;
 
         const user = await User.findById(userId);
 
@@ -526,6 +529,23 @@ export const updateProfile = async (req: Request, res: Response) => {
         }
 
         if (name) user.name = name;
+
+        // Handle username update
+        if (username !== undefined) {
+            if (username.trim() === "") {
+                user.username = undefined;
+            } else {
+                // Check for duplicate username (exclude current user)
+                const existingUser = await User.findOne({ 
+                    username: username.toLowerCase().trim(),
+                    _id: { $ne: userId }
+                });
+                if (existingUser) {
+                    return res.status(400).json({ message: "Username is already taken" });
+                }
+                user.username = username.toLowerCase().trim();
+            }
+        }
 
         // Handle file upload
         if (req.file) {
@@ -540,10 +560,13 @@ export const updateProfile = async (req: Request, res: Response) => {
             user: {
                 id: user._id.toString(),
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
                 role: user.role,
+                isVerified: user.isVerified,
+                createdAt: user.createdAt,
             },
             message: "Profile updated successfully",
         });
@@ -552,3 +575,26 @@ export const updateProfile = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+export const deleteAccount = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.user?.id;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await User.findByIdAndDelete(userId);
+
+        res.status(200).json({
+            success: true,
+            message: "Account deleted successfully",
+        });
+    } catch (error) {
+        console.error("Delete Account Error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+

@@ -1,6 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { Loader2, Save } from "lucide-react";
-import { Button } from "@/shared/ui/button";
 import { AIPromptSection } from "./AIPromptSection";
 import { ColorStopsSection } from "./ColorStopsSection";
 import { ExportSection } from "./ExportSection";
@@ -10,13 +8,11 @@ interface SidebarProps {
   result: GeneratedGradient | null;
   setResult: (gradient: GeneratedGradient) => void;
   loading: boolean;
-  saving: boolean;
   isAnimated: boolean;
   setIsAnimated: (value: boolean) => void;
   animationSpeed: number;
   setAnimationSpeed: (value: number) => void;
   onGenerate: (prompt?: string) => Promise<void>;
-  onSave: () => Promise<void>;
   onUpdateColor: (index: number, color: string) => void;
   onAddColor: () => void;
   onRemoveColor: (index: number) => void;
@@ -29,9 +25,7 @@ export const Sidebar = ({
   result,
   setResult,
   loading,
-  saving,
   onGenerate,
-  onSave,
   onUpdateColor,
   onAddColor,
   onRemoveColor,
@@ -107,16 +101,6 @@ export const Sidebar = ({
 
       </div>
 
-      <div className="bg-background/60 flex-shrink-0 border-t border-border p-6 backdrop-blur-xl">
-        <Button onClick={onSave} variant="ghost" disabled={saving || !result} className="w-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 text-white font-semibold transition-all">
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin text-white" />
-          ) : (
-            <Save className="h-4 w-4 text-white" />
-          )}
-          Save to Profile
-        </Button>
-      </div>
     </>
   );
 

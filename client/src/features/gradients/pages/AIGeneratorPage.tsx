@@ -1,18 +1,19 @@
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Navbar } from "@/features/navbar/components/Navbar";
-import { toast } from "sonner";
-import axios from "@/shared/lib/axios";
+
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PreviewArea } from "../components/PreviewArea";
 import { Sidebar } from "../components/Sidebar";
+import { RightSidebar } from "../components/RightSidebar";
+import Footer from "@/features/footer/components/Footer";
 import { useGradientGeneration } from "../hooks/useGradientGeneration";
 import { GeneratedGradient } from "../types";
 
 
 
 const AIGeneratorPage = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,7 +35,7 @@ const AIGeneratorPage = () => {
     return saved ? parseFloat(saved) : 1;
   });
 
-  const [saving, setSaving] = useState(false);
+
   const [showAngleController, setShowAngleController] = useState(true);
   const [isLightGradient, setIsLightGradient] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -45,7 +46,7 @@ const AIGeneratorPage = () => {
   const toggleMobileSidebar = () =>
     setIsMobileSidebarOpen((prev) => !prev);
 
-  const { handleGenerate } = useGradientGeneration({
+  const { handleGenerate, loading } = useGradientGeneration({
     user,
     navigate,
     setResult,
@@ -101,39 +102,7 @@ const AIGeneratorPage = () => {
     setIsLightGradient(isLight);
   }, [result]);
 
-  const handleSave = async () => {
-    if (!result) {
-      toast.error("No gradient to save", { description: "Please generate or edit a gradient first." });
-      return;
-    }
 
-    setSaving(true);
-    try {
-      await axios.post(
-        "/ai/save",
-        {
-          gradient: {
-            name: result.name,
-            colors: result.colors,
-            type: result.type || "linear",
-            angle: result.angle || 90,
-          },
-        }
-      );
-
-      toast("Saved successfully!", { description: "Your gradient has been saved to your profile." });
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        toast.error("Session expired", { description: "Please log in again." });
-        logout();
-      } else {
-        toast.error("Save failed", { description: error.response?.data?.message ||
-            "Failed to save gradient." });
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleUpdateColor = (index: number, newColor: string) => {
     if (!result) return;
@@ -188,37 +157,46 @@ const AIGeneratorPage = () => {
         isLightGradient={isLightGradient}
       />
 
-      <div className="container flex flex-1 overflow-hidden p-0">
-        <Sidebar
-          result={result}
-          setResult={setResult}
-          saving={saving}
-          isAnimated={isAnimated}
-          setIsAnimated={setIsAnimated}
-          animationSpeed={animationSpeed}
-          setAnimationSpeed={setAnimationSpeed}
-          onGenerate={handleGenerate}
-          onSave={handleSave}
-          onUpdateColor={handleUpdateColor}
-          onAddColor={handleAddColor}
-          onRemoveColor={handleRemoveColor}
-          onMoveColor={handleMoveColor}
-          isMobileOpen={isMobileSidebarOpen}
-          onToggleMobile={toggleMobileSidebar} loading={false} />
+      <div className="flex w-full flex-1 overflow-hidden p-0">
+        <div className="flex flex-1 overflow-hidden p-0">
+          <Sidebar
+            result={result}
+            setResult={setResult}
+            isAnimated={isAnimated}
+            setIsAnimated={setIsAnimated}
+            animationSpeed={animationSpeed}
+            setAnimationSpeed={setAnimationSpeed}
+            onGenerate={handleGenerate}
+            onUpdateColor={handleUpdateColor}
+            onAddColor={handleAddColor}
+            onRemoveColor={handleRemoveColor}
+            onMoveColor={handleMoveColor}
+            isMobileOpen={isMobileSidebarOpen}
+            onToggleMobile={toggleMobileSidebar}
+            loading={loading}
+          />
 
-        <PreviewArea
+          <PreviewArea
+            result={result}
+            isAnimated={isAnimated}
+            animationSpeed={animationSpeed}
+            onAngleChange={handleAngleChange}
+            showAngleController={showAngleController}
+            onToggleAngleController={toggleAngleController}
+            isLightGradient={isLightGradient}
+            onGenerate={handleGenerate}
+            loading={loading}
+            setResult={setResult}
+          />
+        </div>
+
+        <RightSidebar
           result={result}
-          isAnimated={isAnimated}
-          animationSpeed={animationSpeed}
-          onAngleChange={handleAngleChange}
-          showAngleController={showAngleController}
-          onToggleAngleController={toggleAngleController}
-          isLightGradient={isLightGradient}
-          onGenerate={handleGenerate}
-          loading={false}
           setResult={setResult}
+          onAngleChange={handleAngleChange}
         />
       </div>
+      <Footer />
     </div>
   );
 };

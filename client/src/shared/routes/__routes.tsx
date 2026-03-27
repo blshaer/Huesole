@@ -18,12 +18,12 @@ const ContactPage = React.lazy(() => import("@/pages/ContactPage"));
 const PrivacyPage = React.lazy(() => import("@/pages/PrivacyPage"));
 const TermsPage = React.lazy(() => import("@/pages/TermsPage"));
 const ErrorPreviewPage = React.lazy(() => import("@/pages/ErrorPreviewPage"));
+const OnboardingPage = React.lazy(() => import("@/pages/OnboardingPage"));
 
 const FavoritesPage = React.lazy(() => import("@/features/gradients/pages/FavoritesPage"));
-const MyGradientsPage = React.lazy(() => import("@/features/gradients/pages/MyGradientsPage"));
 const AIGeneratorPage = React.lazy(() => import("@/features/gradients/pages/AIGeneratorPage"));
 
-const SupportPage = React.lazy(() => import("@/features/support/pages/SupportPage"));
+
 
 const AdminLayout = React.lazy(() => import("@/features/admin/layouts/AdminLayout"));
 const AdminDashboard = React.lazy(() => import("@/features/admin/pages/AdminDashboard"));
@@ -68,9 +68,9 @@ const AppRoutes: React.FC = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/my-gradients" element={<MyGradientsPage />} />
             <Route path="/ai-generator" element={<AIGeneratorPage />} />
-            <Route path="/support" element={<SupportPage />} />
+
+            <Route path="/onboarding" element={<OnboardingPage />} />
           </Route>
 
           {/* Admin (still assumes internal admin guard) */}
