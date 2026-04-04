@@ -38,14 +38,10 @@ const MyGradientsPage = () => {
     console.log("Setting background:", background);
   };
 
-  const handleEditGradient = (gradient: { name: string; colors: string[] }) => {
-    const css = `linear-gradient(90deg, ${gradient.colors.join(", ")})`;
-    setBackground(css);
-
+  const handleEditGradient = (gradient: any) => {
     navigate("/ai-generator", {
       state: {
-        name: gradient.name,
-        colors: gradient.colors,
+        ...gradient
       },
     });
   };

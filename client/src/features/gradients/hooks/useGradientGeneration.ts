@@ -7,7 +7,7 @@ import { GeneratedGradient } from "../types";
 interface UseGradientGenerationProps {
   user: any;
   navigate: any;
-  setResult: (gradient: GeneratedGradient) => void;
+  setResult: React.Dispatch<React.SetStateAction<GeneratedGradient>>;
 }
 
 export const useGradientGeneration = ({
@@ -46,29 +46,38 @@ export const useGradientGeneration = ({
         "/ai/generate",
         { prompt: customPrompt }
       );
-      setLocalResult(response.data.data);
-      setResult(response.data.data);
+      const generated = {
+        ...response.data.data,
+        id: crypto.randomUUID(),
+      };
+      setLocalResult(generated);
+      setResult((prev: any) => ({ ...prev, ...generated }));
 
       // Only show toast on desktop
       if (!isMobile) {
         toast("Masterpiece Created!", { description: "Gemini has painted a new gradient for you." });
       }
     } catch (error: any) {
-      toast.error("Generation Failed", { description: error.response?.data?.message ||
-          "The AI artist is busy. Please try again." });
+      const isOverloaded = error.response?.status === 503 || error.message?.includes("503");
+      toast.error(isOverloaded ? "AI Artist is Busy" : "Generation Failed", { 
+        description: isOverloaded 
+          ? "Gemini is currently experiencing high demand. Please try again in 30 seconds." 
+          : (error.response?.data?.message || "Something went wrong while painting. Please try again.") 
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async () => {
-    if (!result) return;
+  const handleSave = async (gradientOverride?: GeneratedGradient) => {
+    const gradientToSave = gradientOverride || result;
+    if (!gradientToSave) return;
 
     setSaving(true);
     try {
       await axios.post(
         "/ai/save",
-        { gradient: result }
+        { gradient: gradientToSave }
       );
 
       // Only show toast on desktop

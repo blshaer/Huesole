@@ -7,7 +7,7 @@ import "./index.css";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
-import BrandConsole from "./shared/components/BrandConsole.tsx";
+import LumeGradients from "./shared/components/LumeGradients.tsx";
 AOS.init();
 
 const container = document.getElementById("root");
@@ -21,7 +21,7 @@ if (container) {
           v7_relativeSplatPath: true,
         }}
       >
-        <BrandConsole />
+        <LumeGradients />
         <App />
       </BrowserRouter>
     </React.StrictMode>,

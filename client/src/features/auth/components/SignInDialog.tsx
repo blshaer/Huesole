@@ -16,8 +16,10 @@ import { forgotPassword } from "../services/authService";
 
 export const SignInDialog = () => {
   const { isSignInOpen, closeSignIn, login, emailLogin, register } = useAuth();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState(""); // For registration
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState(""); // For registration
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
@@ -29,7 +31,7 @@ export const SignInDialog = () => {
     setMsg("");
     setLoading(true);
     try {
-      await emailLogin({ email, password });
+      await emailLogin({ identifier, password });
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
@@ -43,11 +45,12 @@ export const SignInDialog = () => {
     setMsg("");
     setLoading(true);
     try {
-      await register({ name, email, password });
+      await register({ name, username, email, password });
       setMsg(
         "Registration successful! Please check your email to verify account.",
       );
       setName("");
+      setUsername("");
       setEmail("");
       setPassword("");
     } catch (err: any) {
@@ -58,12 +61,12 @@ export const SignInDialog = () => {
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
-      setError("Please enter your email first");
+    if (!identifier && !email) {
+      setError("Please enter your email or username first");
       return;
     }
     try {
-      await forgotPassword(email);
+      await forgotPassword(identifier || email);
       setMsg("Password reset link sent to your email");
       setError("");
     } catch (err: any) {
@@ -98,13 +101,13 @@ export const SignInDialog = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="identifier">Username or Email</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="identifier"
+                    type="text"
+                    placeholder="Username or m@example.com"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     required
                   />
                 </div>
@@ -135,15 +138,29 @@ export const SignInDialog = () => {
 
             <TabsContent value="register">
               <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="register-name">Name</Label>
-                  <Input
-                    id="register-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="register-name">Name</Label>
+                    <Input
+                      id="register-name"
+                      type="text"
+                      placeholder="John Doe"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-username">Username</Label>
+                    <Input
+                      id="register-username"
+                      type="text"
+                      placeholder="johndoe"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-email">Email</Label>

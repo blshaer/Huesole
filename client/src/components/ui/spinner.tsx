@@ -1,15 +1,16 @@
-import { Loader2Icon } from "lucide-react"
-
 import { cn } from "@/shared/lib/utils"
+import { VercelSpinner } from "@/shared/ui/VercelSpinner"
 
-function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
+function Spinner({ className, size = 40, ...props }: React.ComponentProps<"div"> & { size?: number }) {
   return (
-    <Loader2Icon
+    <div
       role="status"
       aria-label="Loading"
-      className={cn("size-4 animate-spin", className)}
+      className={cn("flex items-center justify-center", className)}
       {...props}
-    />
+    >
+      <VercelSpinner size={size} />
+    </div>
   )
 }
 

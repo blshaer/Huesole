@@ -1,14 +1,15 @@
-import { Input } from "@/shared/ui/input";
 import { cn } from "@/shared/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
+import { Input } from "@/shared/ui/input";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
+import ErrorImage from "../../../../app/assets/error.png";
 
 interface SearchBoxProps {
   value: string;
@@ -32,10 +33,8 @@ const filterButtonStyle = "flex items-center gap-1.5 px-2 py-1 text-[10px] font-
 const POPULAR_SUGGESTIONS = [
   { label: "sunset", emoji: "🌇" },
   { label: "ocean", emoji: "🌊" },
-  { label: "vibrant", emoji: "✨" },
-  { label: "purple", emoji: "💜" },
+  { label: "purple", emoji: "🟣" },
   { label: "dark", emoji: "🌙" },
-  { label: "pastel", emoji: "🎨" },
 ];
 
 const RECOMMENDED_SUGGESTIONS = [
@@ -90,11 +89,9 @@ export const SearchBox: FC<SearchBoxProps> = ({
   }, [value]);
 
   // Generate autocomplete suggestions
-  const suggestions = useMemo(() => {
+  const suggestions = useMemo<(string | { label: string; emoji: string })[]>(() => {
     if (!value || value.length < 2) {
-      return [...POPULAR_SUGGESTIONS, ...RECOMMENDED_SUGGESTIONS].map(
-        (ps) => ps.emoji ? `${ps.emoji} ${ps.label}` : ps.label
-      );
+      return [...POPULAR_SUGGESTIONS, ...RECOMMENDED_SUGGESTIONS];
     }
 
     const searchTerm = value.toLowerCase();
@@ -147,8 +144,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
           case "Enter":
             e.preventDefault();
             if (selectedIndex >= 0) {
-              const selectedValue = suggestions[selectedIndex].replace(/^[^\s]+\s/, "");
-              onChange(selectedValue);
+              const selectedValue = suggestions[selectedIndex];
+              onChange(typeof selectedValue === "string" ? selectedValue : selectedValue.label);
             }
             setIsOpen(false);
             setSelectedIndex(-1);
@@ -166,7 +163,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, suggestions, selectedIndex, onChange, value]);
+  }, [isOpen, suggestions, selectedIndex, onChange]);
 
   const handleInputChange = (newValue: string) => {
     onChange(newValue);
@@ -174,8 +171,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
     setIsOpen(true);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    const cleanValue = suggestion.replace(/^[^\s]+\s/, "");
+  const handleSuggestionClick = (suggestion: string | { label: string; emoji: string }) => {
+    const cleanValue = typeof suggestion === "string" ? suggestion : suggestion.label;
     onChange(cleanValue);
     setIsOpen(false);
     setSelectedIndex(-1);
@@ -189,7 +186,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
     setTimeout(() => setIsOpen(false), 200);
   };
 
-  const hasDropdown = isOpen && suggestions.length > 0;
+  const showNoResults = isOpen && value.length >= 2 && suggestions.length === 0;
+  const hasDropdown = (isOpen && suggestions.length > 0) || showNoResults;
 
   return (
     <div className={cn("relative w-full", className)}>
@@ -202,7 +200,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
           onBlur={handleBlur}
           disabled={isLoading}
           className={cn(
-            "h-12 w-full border border-white/5 px-6 pr-[280px] transition-all duration-200",
+            "h-12 w-full border border-white/5 px-6 pr-[280px] transition-[border-color,background-color,box-shadow,opacity] duration-200",
             "bg-neutral-900/90 backdrop-blur-md text-white shadow-xl",
             "hover:border-white/10 focus:border-white/10 focus:outline-none focus:ring-0 focus:ring-offset-0",
             "placeholder:text-white/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]",
@@ -289,65 +287,122 @@ export const SearchBox: FC<SearchBoxProps> = ({
               "rounded-b-2xl border border-white/5 border-t-0 bg-neutral-900/95 backdrop-blur-xl shadow-2xl"
             )}
           >
-            <div className="p-2">
+            <div className="p-1.5 pt-0">
               {!value || value.length < 2 ? (
                 <>
-                  <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">
+                  <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-white/20">
                     Popular Searches
                   </div>
-                  {suggestions.slice(0, POPULAR_SUGGESTIONS.length).map((suggestion, index) => (
-                    <button
-                      key={suggestion}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className={cn(
-                        "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
-                        selectedIndex === index 
-                          ? "bg-white/10 text-white" 
-                          : "text-white/60 hover:bg-white/5 hover:text-white"
-                      )}
-                    >
-                      <span className="truncate">{suggestion}</span>
-                    </button>
-                  ))}
-                  
-                  <div className="mt-3 border-t border-white/5 pt-3 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/30">
-                    Recommended for You
-                  </div>
-                  {suggestions.slice(POPULAR_SUGGESTIONS.length).map((suggestion, index) => {
-                    const actualIndex = index + POPULAR_SUGGESTIONS.length;
+                  {suggestions.slice(0, POPULAR_SUGGESTIONS.length).map((item, index) => {
+                    const suggestion = item as { label: string; emoji: string };
                     return (
                       <button
-                        key={suggestion}
+                        key={suggestion.label}
                         onClick={() => handleSuggestionClick(suggestion)}
                         className={cn(
-                          "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
-                          selectedIndex === actualIndex 
-                            ? "bg-white/10 text-white" 
-                            : "text-white/60 hover:bg-white/5 hover:text-white"
+                          "group flex w-full items-center gap-3.5 rounded-xl px-4 py-2.5 text-left transition-all",
+                          selectedIndex === index
+                            ? "bg-white/10 text-white"
+                            : "text-white/50 hover:bg-white/5 hover:text-white"
                         )}
                       >
-                        <span className="truncate">{suggestion}</span>
+                        <span className="text-xl leading-none transition-all duration-300">
+                          {suggestion.emoji}
+                        </span>
+                        <span className="flex-1 truncate text-[14px] font-medium tracking-wide">
+                          {suggestion.label}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/10 group-hover:text-white/20 transition-colors">
+                          Search
+                        </span>
+                      </button>
+                    );
+                  })}
+
+                  <div className="mt-4 border-t border-white/5 pt-4 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-white/20">
+                    Recommended for You
+                  </div>
+                  {suggestions.slice(POPULAR_SUGGESTIONS.length).map((item, index) => {
+                    const actualIndex = index + POPULAR_SUGGESTIONS.length;
+                    const suggestion = item as { label: string; emoji: string };
+                    return (
+                      <button
+                        key={suggestion.label}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={cn(
+                          "group flex w-full items-center gap-3.5 rounded-xl px-4 py-2.5 text-left transition-all",
+                          selectedIndex === actualIndex
+                            ? "bg-white/10 text-white"
+                            : "text-white/50 hover:bg-white/5 hover:text-white"
+                        )}
+                      >
+                        <span className="text-xl leading-none transition-all duration-300">
+                          {suggestion.emoji}
+                        </span>
+                        <span className="flex-1 truncate text-[14px] font-medium tracking-wide">
+                          {suggestion.label}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/10 group-hover:text-white/20 transition-colors">
+                          Search
+                        </span>
                       </button>
                     );
                   })}
                 </>
+              ) : showNoResults ? (
+                <div className="flex flex-col items-center justify-center py-10 px-4 text-center animate-in fade-in zoom-in duration-300">
+                  <motion.div
+
+                    className="mb-4 relative"
+                  >
+                    <div className="absolute inset-0 blur-3xl bg-white/5 rounded-full" />
+                    <img
+                      src={ErrorImage}
+                      alt="No results"
+                      className="relative h-32 w-32 object-contain opacity-60 brightness-110 contrast-125"
+                    />
+                  </motion.div>
+                  <h3 className="text-sm font-semibold text-white/70 mb-1">
+                    No matching gradients
+                  </h3>
+                  <p className="text-xs text-white/30 max-w-[200px]">
+                    We couldn't find any results for "{value}". Try a different term!
+                  </p>
+                </div>
               ) : (
                 suggestions.map((suggestion, index) => (
                   <button
-                    key={suggestion}
+                    key={typeof suggestion === "string" ? suggestion : suggestion.label}
                     onClick={() => handleSuggestionClick(suggestion)}
                     className={cn(
-                      "group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition-all",
-                      selectedIndex === index 
-                        ? "bg-white/10 text-white" 
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                      "group flex w-full items-center gap-3.5 rounded-xl px-4 py-2.5 text-left transition-all",
+                      selectedIndex === index
+                        ? "bg-white/10 text-white"
+                        : "text-white/50 hover:bg-white/5 hover:text-white"
                     )}
                   >
-                    <span className="truncate">{suggestion}</span>
+                    {typeof suggestion !== "string" ? (
+                      <>
+                        <span className="text-xl leading-none transition-all duration-300">
+                          {suggestion.emoji}
+                        </span>
+                        <span className="flex-1 truncate text-[14px] font-medium tracking-wide">
+                          {suggestion.label}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="flex-1 truncate text-[14px] font-medium tracking-wide pl-1">
+                        {suggestion}
+                      </span>
+                    )}
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/10 group-hover:text-white/20 transition-colors">
+                      Search
+                    </span>
                   </button>
                 ))
               )}
             </div>
+
 
             <div className="border-t border-white/5 bg-white/[0.02] px-4 py-2 text-[10px] text-white/20">
               <div className="flex items-center justify-between">

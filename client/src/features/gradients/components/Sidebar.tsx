@@ -1,18 +1,15 @@
 import { useRef, useEffect, useState } from "react";
-import { AIPromptSection } from "./AIPromptSection";
 import { ColorStopsSection } from "./ColorStopsSection";
 import { ExportSection } from "./ExportSection";
+import { BetaContactCard } from "./BetaContactCard";
 import { GeneratedGradient } from "../types";
 
 interface SidebarProps {
   result: GeneratedGradient | null;
-  setResult: (gradient: GeneratedGradient) => void;
-  loading: boolean;
   isAnimated: boolean;
   setIsAnimated: (value: boolean) => void;
   animationSpeed: number;
   setAnimationSpeed: (value: number) => void;
-  onGenerate: (prompt?: string) => Promise<void>;
   onUpdateColor: (index: number, color: string) => void;
   onAddColor: () => void;
   onRemoveColor: (index: number) => void;
@@ -23,9 +20,6 @@ interface SidebarProps {
 
 export const Sidebar = ({
   result,
-  setResult,
-  loading,
-  onGenerate,
   onUpdateColor,
   onAddColor,
   onRemoveColor,
@@ -79,12 +73,8 @@ export const Sidebar = ({
     <>
       <div
         ref={sidebarRef}
-        className="custom-scrollbar flex-1 space-y-8 overflow-y-auto p-6 max-md:pt-0 pt-8"
+        className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-6 pb-6 md:pb-12"
       >
-        <div className="max-md:hidden">
-          <AIPromptSection loading={loading} onGenerate={onGenerate} result={result} setResult={setResult} />
-        </div>
-
         <ColorStopsSection
           result={result}
           onUpdateColor={onUpdateColor}
@@ -94,11 +84,13 @@ export const Sidebar = ({
         />
 
         <div className="max-md:block hidden">
-
-
-        <ExportSection result={result} />
+          <ExportSection result={result} />
         </div>
-
+      </div>
+      
+      {/* Fixed Footer for Beta Notice */}
+      <div className="mt-auto border-t border-white/5 p-6 bg-black/20 backdrop-blur-md">
+        <BetaContactCard />
       </div>
 
     </>
@@ -108,7 +100,7 @@ export const Sidebar = ({
     <>
       {/* Desktop Sidebar - Always Visible */}
       {!isMobile && (
-        <aside className="bg-background/40 relative z-20 flex h-full w-[420px] flex-shrink-0 flex-col border-r border-border backdrop-blur-3xl">
+        <aside className="bg-background/40 relative z-20 flex h-full w-full flex-shrink-0 flex-col border-r border-border backdrop-blur-3xl">
           {sidebarContent}
         </aside>
       )}
@@ -131,3 +123,5 @@ export const Sidebar = ({
     </>
   );
 };
+
+export default Sidebar;

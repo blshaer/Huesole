@@ -14,6 +14,7 @@ import { Label } from "@/shared/ui/label";
 import { Separator } from "@/shared/ui/separator";
 import { Switch } from "@/shared/ui/switch";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
+import { cn } from "@/shared/lib/utils";
 import axios from "@/shared/lib/axios";
 import {
   AlertCircle,
@@ -21,16 +22,16 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
-  Loader2,
   Lock,
   Mail,
   Pencil,
-  Shield,
   Trash2,
   XCircle,
   Save as SaveIcon,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/context/AuthContext";
 
@@ -48,6 +49,22 @@ interface UpdateProfileResponse {
 }
 
 
+const DEFAULT_AVATARS = [
+  "https://api.dicebear.com/9.x/glass/svg?seed=Felix",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Nala",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Milo",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Luna",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Oliver",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Shadow",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Coco",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Pepper",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Willow",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Jasper",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Bear",
+  "https://api.dicebear.com/9.x/glass/svg?seed=Daisy",
+];
+
+
 const ProfilePage = () => {
   const { user, isLoading, updateUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -58,6 +75,7 @@ const ProfilePage = () => {
   const [username, setUsername] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [selectedSuggestedAvatar, setSelectedSuggestedAvatar] = useState<string | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -78,16 +96,71 @@ const ProfilePage = () => {
   });
 
   // Privacy & Consent
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
-  const [sessionRecording, setSessionRecording] = useState(false);
-  const [personalizedAds, setPersonalizedAds] = useState(false);
+  const [isCookieAccepted, setIsCookieAccepted] = useState(() => {
+    return localStorage.getItem("cookie-consent") === "accepted";
+  });
+
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(() => {
+    return isCookieAccepted && localStorage.getItem("privacy-analytics") === "true";
+  });
+  const [sessionRecording, setSessionRecording] = useState(() => {
+    return isCookieAccepted && localStorage.getItem("privacy-sessions") === "true";
+  });
+  const [personalizedAds, setPersonalizedAds] = useState(() => {
+    return isCookieAccepted && localStorage.getItem("privacy-ads") === "true";
+  });
+
+  // Sync with localStorage when toggled
+  useEffect(() => {
+    localStorage.setItem("privacy-analytics", analyticsEnabled.toString());
+  }, [analyticsEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem("privacy-sessions", sessionRecording.toString());
+  }, [sessionRecording]);
+
+  useEffect(() => {
+    localStorage.setItem("privacy-ads", personalizedAds.toString());
+  }, [personalizedAds]);
+
+  // Listen for consent acceptance to auto-enable
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const consent = localStorage.getItem("cookie-consent");
+      const accepted = consent === "accepted";
+      setIsCookieAccepted(accepted);
+      
+      if (accepted) {
+        setAnalyticsEnabled(true);
+        setSessionRecording(true);
+        setPersonalizedAds(true);
+      } else {
+        setAnalyticsEnabled(false);
+        setSessionRecording(false);
+        setPersonalizedAds(false);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    // Also check on mount in case it just changed
+    handleStorageChange();
+
+    // Custom event for same-window updates
+    window.addEventListener("cookie-consent-updated", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("cookie-consent-updated", handleStorageChange);
+    };
+  }, []);
+
 
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login");
     } else if (user) {
       setName(user.name);
-      setUsername((user as any).username || "");
+      setUsername(user.username || "");
       setPreviewUrl(user.picture || "");
     }
   }, [user, isLoading, navigate]);
@@ -109,10 +182,22 @@ const ProfilePage = () => {
       }
 
       setSelectedFile(file);
+      setSelectedSuggestedAvatar(null);
       setPreviewUrl(URL.createObjectURL(file));
       setIsEditingProfile(true);
     }
   };
+
+
+
+  const handleSuggestedAvatarSelect = (avatarUrl: string) => {
+    setSelectedSuggestedAvatar(avatarUrl);
+    setSelectedFile(null);
+    setPreviewUrl(avatarUrl);
+    setIsEditingProfile(true);
+  };
+
+
 
   const triggerFileSelect = () => {
     fileInputRef.current?.click();
@@ -141,7 +226,7 @@ const ProfilePage = () => {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <Spinner size={64} className="text-primary" />
           <p className="text-base font-medium text-muted-foreground">
             Loading your profile...
           </p>
@@ -165,7 +250,11 @@ const ProfilePage = () => {
       const formData = new FormData();
       formData.append("name", name);
       if (username.trim()) formData.append("username", username.trim());
-      if (selectedFile) formData.append("picture", selectedFile);
+      if (selectedFile) {
+        formData.append("picture", selectedFile);
+      } else if (selectedSuggestedAvatar) {
+        formData.append("picture", selectedSuggestedAvatar);
+      }
 
       const response = await axios.put<UpdateProfileResponse>(
         "/auth/update-profile",
@@ -182,6 +271,7 @@ const ProfilePage = () => {
       if (response.data.user) updateUser(response.data.user);
       setIsEditingProfile(false);
       setSelectedFile(null);
+      setSelectedSuggestedAvatar(null);
     } catch (err: any) {
       toast.error("Error", { description: err.response?.data?.message ||
           "Unable to update profile. Please try again." });
@@ -285,7 +375,7 @@ const ProfilePage = () => {
                 <div className="relative mb-4 h-40 w-40">
                   <div className="bg-primary/20 absolute inset-0 rounded-full blur-2xl" />
                   <Avatar
-                    className="relative z-10 h-40 w-40 border-4 border-background shadow-2xl"
+                    className="relative z-10 h-40 w-40 border-4 border-background bg-muted text-white shadow-2xl transition-transform hover:scale-[1.02] cursor-pointer"
                     onClick={triggerFileSelect}
                   >
                     <AvatarImage
@@ -293,19 +383,23 @@ const ProfilePage = () => {
                       alt={user.name}
                     />
                     <AvatarFallback
-                      className="bg-cover bg-center text-4xl font-bold text-white"
-                      style={{
-                        backgroundImage:
-                          'url("https://vercel.com/api/www/avatar/SA7kRQYuUGOPuPmxWAQycgXZ")',
-                      }}
+                      className="bg-gradient-to-br from-[#92A1C6] via-[#146A7C] to-[#C271B4] text-white text-4xl font-bold uppercase transition-all"
                     >
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.name && user.name.split(" ").length > 1
+                        ? user.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
+                        : user.name?.slice(0, 2) || "UA"}
                     </AvatarFallback>
                   </Avatar>
-                  <Camera
-                    className="absolute bottom-1 right-1 z-30 h-6 w-6 cursor-pointer text-primary"
+                  <div 
+                    className="absolute bottom-0 right-0 z-30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-primary/10 text-primary border border-border hover:bg-primary/20 shadow-sm transition-all hover:scale-110"
                     onClick={triggerFileSelect}
-                  />
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </div>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -328,7 +422,7 @@ const ProfilePage = () => {
                   </CardDescription>
                   {/* Email Verification Status */}
                   <div className="flex items-center justify-center gap-1.5 pt-1">
-                    {(user as any).isVerified !== false ? (
+                    {user.isVerified !== false ? (
                       <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400">
                         <CheckCircle2 className="h-3 w-3" />
                         Verified
@@ -406,11 +500,36 @@ const ProfilePage = () => {
                         placeholder="your_username"
                         maxLength={30}
                       />
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-muted-foreground opacity-70">
                         Lowercase letters, numbers, dots, hyphens, and underscores only.
                       </p>
                     </div>
                   </div>
+
+                  {isEditingProfile && (
+                    <div className="space-y-4 pt-4">
+                      <Label className="text-sm font-semibold">Or Pick a Suggested Avatar</Label>
+                      <div className="grid grid-cols-6 gap-2 sm:grid-cols-12">
+                        {DEFAULT_AVATARS.map((avatar) => (
+                          <button
+                            key={avatar}
+                            type="button"
+                            onClick={() => handleSuggestedAvatarSelect(avatar)}
+                            className={`relative rounded-lg p-0.5 transition-all ${
+                              selectedSuggestedAvatar === avatar
+                                ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
+                                : "hover:scale-110 opacity-70 hover:opacity-100"
+                            }`}
+                          >
+                            <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                              <AvatarImage src={avatar} alt="Avatar option" />
+                              <AvatarFallback>?</AvatarFallback>
+                            </Avatar>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {isEditingProfile && (
                     <div className="flex items-center gap-3 pt-2">
@@ -420,7 +539,7 @@ const ProfilePage = () => {
                         className="gap-2"
                       >
                         {profileLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Spinner size={20} />
                         ) : (
                           <SaveIcon className="h-4 w-4" />
                         )}
@@ -431,9 +550,10 @@ const ProfilePage = () => {
                         variant="ghost"
                         onClick={() => {
                           setName(user.name);
-                          setUsername((user as any).username || "");
+                          setUsername(user.username || "");
                           setPreviewUrl(user.picture || "");
                           setSelectedFile(null);
+                          setSelectedSuggestedAvatar(null);
                           setIsEditingProfile(false);
                         }}
                         disabled={profileLoading}
@@ -524,31 +644,39 @@ const ProfilePage = () => {
                           )}
                         </button>
                       </div>
-                      {newPassword.length > 0 && (
-                        <div className="space-y-2 pt-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">
-                              Password strength
-                            </span>
-                            <span
-                              className={`font-semibold capitalize ${passwordStrength.strength === "strong"
-                                ? "text-green-600"
-                                : passwordStrength.strength === "medium"
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
-                                }`}
-                            >
-                              {passwordStrength.strength}
-                            </span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-muted">
-                            <div
-                              className={`h-full transition-all duration-300 ${getPasswordStrengthColor()}`}
-                              style={{ width: `${passwordStrength.score}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
+                      <AnimatePresence>
+                        {newPassword.length > 0 && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-2 pt-1 overflow-hidden"
+                          >
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">
+                                Password strength
+                              </span>
+                              <span
+                                className={`font-semibold capitalize ${passwordStrength.strength === "strong"
+                                  ? "text-green-600"
+                                  : passwordStrength.strength === "medium"
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                                  }`}
+                              >
+                                {passwordStrength.strength}
+                              </span>
+                            </div>
+                            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                              <div
+                                className={`h-full transition-all duration-300 ${getPasswordStrengthColor()}`}
+                                style={{ width: `${passwordStrength.score}%` }}
+                              />
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <div className="space-y-2">
@@ -595,11 +723,11 @@ const ProfilePage = () => {
                     <Button
                       type="submit"
                       className="h-11 w-full px-8 font-semibold shadow-lg transition-all hover:shadow-xl active:scale-[0.98] sm:w-auto"
-                      disabled={loadingState}
+                      disabled={loadingState || !currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword}
                     >
                       {loadingState ? (
                         <span className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Spinner size={20} />
                           Updating Password...
                         </span>
                       ) : (
@@ -618,7 +746,6 @@ const ProfilePage = () => {
             <Card className="border-border/50 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
               <CardHeader className="max-md:pt-0">
                 <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-primary" />
                   <div>
                     <CardTitle className="text-xl">Privacy & Consent</CardTitle>
                     <CardDescription className="mt-1 text-sm">
@@ -629,7 +756,10 @@ const ProfilePage = () => {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4">
+                <div className={cn(
+                  "flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4 transition-all",
+                  !isCookieAccepted && "opacity-50 grayscale pointer-events-none"
+                )}>
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium">Usage Analytics</p>
                     <p className="text-xs text-muted-foreground">
@@ -639,10 +769,14 @@ const ProfilePage = () => {
                   <Switch
                     checked={analyticsEnabled}
                     onCheckedChange={setAnalyticsEnabled}
+                    disabled={!isCookieAccepted}
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4">
+                <div className={cn(
+                  "flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4 transition-all",
+                  !isCookieAccepted && "opacity-50 grayscale pointer-events-none"
+                )}>
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium">Session Recordings</p>
                     <p className="text-xs text-muted-foreground">
@@ -652,10 +786,14 @@ const ProfilePage = () => {
                   <Switch
                     checked={sessionRecording}
                     onCheckedChange={setSessionRecording}
+                    disabled={!isCookieAccepted}
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4">
+                <div className={cn(
+                  "flex items-center justify-between gap-4 rounded-lg border border-border/50 bg-white/[0.02] p-4 transition-all",
+                  !isCookieAccepted && "opacity-50 grayscale pointer-events-none"
+                )}>
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium">Personalized Ads</p>
                     <p className="text-xs text-muted-foreground">
@@ -665,8 +803,15 @@ const ProfilePage = () => {
                   <Switch
                     checked={personalizedAds}
                     onCheckedChange={setPersonalizedAds}
+                    disabled={!isCookieAccepted}
                   />
                 </div>
+
+                {!isCookieAccepted && (
+                  <p className="text-xs text-amber-500/80 bg-amber-500/5 p-3 rounded-lg border border-amber-500/10 text-center animate-pulse">
+                    Please accept cookies to manage privacy preferences.
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -674,7 +819,6 @@ const ProfilePage = () => {
             <Card className="border-red-500/20 bg-card/50 overflow-hidden shadow-2xl backdrop-blur-xl">
               <CardHeader className="max-md:pt-0">
                 <div className="flex items-center gap-3">
-                  <Trash2 className="h-5 w-5 text-red-500" />
                   <div>
                     <CardTitle className="text-xl text-red-500">Danger Zone</CardTitle>
                     <CardDescription className="mt-1 text-sm">
@@ -723,7 +867,7 @@ const ProfilePage = () => {
                           onClick={handleDeleteAccount}
                         >
                           {deleteLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                            <Spinner size={20} className="mr-1.5" />
                           ) : (
                             <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                           )}

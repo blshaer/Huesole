@@ -16,16 +16,20 @@ import {
 
 const ADMIN_EMAIL = "blshaer@outlook.com";
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   picture?: string;
+  username?: string;
   favorites: string[];
   role: "user" | "admin";
   isBanned?: boolean;
   banMessage?: string;
   createdAt?: string;
+  avatarSeed?: string;
+  avatarVariant?: "marble" | "beam" | "pixel" | "sunset" | "ring" | "bauhaus";
+  isVerified?: boolean;
 }
 
 interface BanInfo {

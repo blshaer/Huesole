@@ -1,150 +1,148 @@
-import { useAuth } from "@/features/auth/context/AuthContext";
-import { Navbar } from "@/features/navbar/components/Navbar";
+"use client";
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { PreviewArea } from "../components/PreviewArea";
-import { Sidebar } from "../components/Sidebar";
-import { RightSidebar } from "../components/RightSidebar";
+import { Navbar } from "@/features/navbar/components/Navbar";
+import Sidebar from "@/features/gradients/components/Sidebar";
+import PreviewArea from "@/features/gradients/components/PreviewArea";
+import RightSidebar from "@/features/gradients/components/RightSidebar";
+import { GeneratedGradient as GradientResult } from "@/features/gradients/types";
+import { useGradientGeneration } from "@/features/gradients/hooks/useGradientGeneration";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { CanvasSize } from "@/features/navbar/components/NavbarCanvasSize";
 import Footer from "@/features/footer/components/Footer";
-import { useGradientGeneration } from "../hooks/useGradientGeneration";
-import { GeneratedGradient } from "../types";
+import { serializeGradientToParams, deserializeGradientFromParams } from "@/features/gradients/utils/urlParams";
 
-
-
-const AIGeneratorPage = () => {
-  const { user } = useAuth();
+const AIGeneratorPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  
+  const [result, setResult] = useState<GradientResult>(() => {
+    // 1. Check for URL parameters first (Highest priority for sharing)
+    const fromUrl = deserializeGradientFromParams(location.search);
+    if (fromUrl) {
+      return {
+        ...fromUrl,
+        name: fromUrl.name || "Custom Design",
+      } as GradientResult;
+    }
 
-  const state = location.state as
-    | { name: string; colors: string[] }
-    | undefined;
+    // 2. Check for navigation state
+    if (location.state) {
+      const { name, colors, angle, type, exposure, contrast, frequency, phase, steps } = location.state as any;
+      if (colors && colors.length > 0) {
+        return {
+          name: name || "Custom Gradient",
+          colors: colors,
+          angle: angle || 135,
+          type: type || "linear",
+          exposure,
+          contrast,
+          frequency,
+          phase,
+          steps,
+        };
+      }
+    }
 
-  const [result, setResult] = useState<GeneratedGradient | null>(() => {
-    const saved = localStorage.getItem("lume-latest-gradient");
-    return saved ? JSON.parse(saved) : null;
+    // 2. Check for saved gradient during initialization
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("current_gradient");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse saved gradient", e);
+        }
+      }
+    }
+
+    // 3. Fallback to default
+    return {
+      colors: ["#6366f1", "#a855f7", "#ec4899"],
+      type: "linear",
+      angle: 135,
+      name: "Midnight Aurora",
+    };
   });
-
-  const [isAnimated, setIsAnimated] = useState(
-    () => localStorage.getItem("lume-is-animated") === "true",
-  );
-
-  const [animationSpeed, setAnimationSpeed] = useState(() => {
-    const saved = localStorage.getItem("lume-animation-speed");
-    return saved ? parseFloat(saved) : 1;
-  });
-
-
-  const [showAngleController, setShowAngleController] = useState(true);
-  const [isLightGradient, setIsLightGradient] = useState(false);
+  
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isAnimated, setIsAnimated] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(4);
+  const [showAngleController, setShowAngleController] = useState(true);
+  const [canvasSize, setCanvasSize] = useState<CanvasSize | null>(null);
 
-  const toggleAngleController = () =>
-    setShowAngleController((prev) => !prev);
-
-  const toggleMobileSidebar = () =>
-    setIsMobileSidebarOpen((prev) => !prev);
-
-  const { handleGenerate, loading } = useGradientGeneration({
+  const { handleGenerate, handleSave, loading } = useGradientGeneration({
     user,
     navigate,
     setResult,
   });
 
-  // Initialize gradient
-  useEffect(() => {
-    if (state) {
-      setResult({
-        name: state.name,
-        colors: state.colors,
-        type: "linear",
-        angle: 90,
-      });
-      window.history.replaceState({}, document.title);
-    } else if (!result) {
-      setResult({
-        name: "New Gradient",
-        colors: ["#3b82f6", "#8b5cf6"],
-        type: "linear",
-        angle: 45,
-      });
-    }
-  }, [state]);
-
-  // Persist state
+  // Update URL whenever result changes (Unique ID per state)
   useEffect(() => {
     if (result) {
-      localStorage.setItem(
-        "lume-latest-gradient",
-        JSON.stringify(result),
-      );
+      const params = serializeGradientToParams(result);
+      if (params) {
+        // Use replace: true to avoid cluttering browser history with every slider move
+        navigate({ search: params }, { replace: true });
+      }
+      localStorage.setItem("current_gradient", JSON.stringify(result));
     }
-    localStorage.setItem("lume-is-animated", String(isAnimated));
-    localStorage.setItem(
-      "lume-animation-speed",
-      String(animationSpeed),
-    );
-  }, [result, isAnimated, animationSpeed]);
-
-  // Light gradient detection
-  useEffect(() => {
-    if (!result) return;
-
-    const isLight = result.colors.every((color) => {
-      const hex = color.replace("#", "");
-      const r = parseInt(hex.slice(0, 2), 16);
-      const g = parseInt(hex.slice(2, 4), 16);
-      const b = parseInt(hex.slice(4, 6), 16);
-      return (r * 299 + g * 587 + b * 114) / 1000 > 200;
-    });
-
-    setIsLightGradient(isLight);
-  }, [result]);
-
-
-
-  const handleUpdateColor = (index: number, newColor: string) => {
-    if (!result) return;
-    const colors = [...result.colors];
-    colors[index] = newColor;
-    setResult({ ...result, colors });
-  };
-
-  const handleAddColor = () => {
-    if (!result) return;
-    setResult({
-      ...result,
-      colors: [...result.colors, result.colors.at(-1)!],
-    });
-  };
-
-  const handleRemoveColor = (index: number) => {
-    if (!result || result.colors.length <= 2) return;
-    setResult({
-      ...result,
-      colors: result.colors.filter((_, i) => i !== index),
-    });
-  };
+  }, [result, navigate]);
 
   const handleAngleChange = (angle: number) => {
-    if (!result) return;
-    setResult({ ...result, angle });
+    setResult((prev) => ({ ...prev, angle }));
   };
 
-  const handleMoveColor = (index: number, direction: "up" | "down") => {
-    if (!result) return;
-    const newColors = [...result.colors];
-    const newIndex = direction === "up" ? index - 1 : index + 1;
-    
-    if (newIndex < 0 || newIndex >= newColors.length) return;
-    
-    [newColors[index], newColors[newIndex]] = [newColors[newIndex], newColors[index]];
-    setResult({ ...result, colors: newColors });
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
+
+  const toggleAngleController = () => {
+    setShowAngleController(!showAngleController);
+  };
+
+  const isLightGradient = useMemo(() => {
+    if (!result?.colors) return false;
+    return false; 
+  }, [result]);
+
+  const handleUpdateColor = useCallback((index: number, newColor: string) => {
+    setResult((prev) => {
+      const newColors = [...prev.colors];
+      newColors[index] = newColor;
+      return { ...prev, colors: newColors };
+    });
+  }, []);
+
+  const handleAddColor = useCallback(() => {
+    setResult((prev) => ({ 
+      ...prev, 
+      colors: [...prev.colors, "#6366f1"] 
+    }));
+  }, []);
+
+  const handleRemoveColor = useCallback((index: number) => {
+    setResult((prev) => {
+      const newColors = prev.colors.filter((_, i) => i !== index);
+      return { ...prev, colors: newColors };
+    });
+  }, []);
+
+  const handleMoveColor = useCallback((index: number, direction: 'up' | 'down') => {
+    setResult((prev) => {
+      const newColors = [...prev.colors];
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= newColors.length) return prev;
+      
+      [newColors[index], newColors[newIndex]] = [newColors[newIndex], newColors[index]];
+      return { ...prev, colors: newColors };
+    });
+  }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background text-foreground">
+    <div className="flex min-h-[115vh] flex-col bg-background text-foreground overflow-x-hidden md:pb-12">
       <Navbar
         result={result}
         isAnimated={isAnimated}
@@ -155,47 +153,57 @@ const AIGeneratorPage = () => {
         onToggleAngleController={toggleAngleController}
         onToggleSidebar={toggleMobileSidebar}
         isLightGradient={isLightGradient}
+        onCanvasSizeSelect={setCanvasSize}
+        canvasSize={canvasSize}
       />
 
-      <div className="flex w-full flex-1 overflow-hidden p-0">
-        <div className="flex flex-1 overflow-hidden p-0">
-          <Sidebar
-            result={result}
-            setResult={setResult}
-            isAnimated={isAnimated}
-            setIsAnimated={setIsAnimated}
-            animationSpeed={animationSpeed}
-            setAnimationSpeed={setAnimationSpeed}
-            onGenerate={handleGenerate}
-            onUpdateColor={handleUpdateColor}
-            onAddColor={handleAddColor}
-            onRemoveColor={handleRemoveColor}
-            onMoveColor={handleMoveColor}
-            isMobileOpen={isMobileSidebarOpen}
-            onToggleMobile={toggleMobileSidebar}
-            loading={loading}
-          />
+      <main className="flex-1 container py-4 md:py-6">
+        <div className="grid h-full grid-cols-1 md:grid-cols-[380px_1fr] xl:grid-cols-[380px_1fr_320px] gap-6">
+          {/* Left Section: Main Sidebar */}
+          <div className="hidden md:flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-3xl shadow-2xl">
+            <Sidebar
+              result={result}
+              isAnimated={isAnimated}
+              setIsAnimated={setIsAnimated}
+              animationSpeed={animationSpeed}
+              setAnimationSpeed={setAnimationSpeed}
+              onUpdateColor={handleUpdateColor}
+              onAddColor={handleAddColor}
+              onRemoveColor={handleRemoveColor}
+              onMoveColor={handleMoveColor}
+              isMobileOpen={isMobileSidebarOpen}
+              onToggleMobile={toggleMobileSidebar}
+            />
+          </div>
 
-          <PreviewArea
-            result={result}
-            isAnimated={isAnimated}
-            animationSpeed={animationSpeed}
-            onAngleChange={handleAngleChange}
-            showAngleController={showAngleController}
-            onToggleAngleController={toggleAngleController}
-            isLightGradient={isLightGradient}
-            onGenerate={handleGenerate}
-            loading={loading}
-            setResult={setResult}
-          />
+          {/* Center Section: Preview Area */}
+          <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-black/20 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+            <PreviewArea
+              result={result}
+              isAnimated={isAnimated}
+              animationSpeed={animationSpeed}
+              onAngleChange={handleAngleChange}
+              showAngleController={showAngleController}
+              onToggleAngleController={toggleAngleController}
+              isLightGradient={isLightGradient}
+              onGenerate={handleGenerate}
+              loading={loading}
+              setResult={setResult}
+              canvasSize={canvasSize}
+            />
+          </div>
+
+          {/* Right Section: Adjustments */}
+          <div className="hidden xl:flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-3xl shadow-2xl">
+            <RightSidebar
+              result={result}
+              setResult={setResult}
+              onSave={handleSave}
+            />
+          </div>
         </div>
+      </main>
 
-        <RightSidebar
-          result={result}
-          setResult={setResult}
-          onAngleChange={handleAngleChange}
-        />
-      </div>
       <Footer />
     </div>
   );

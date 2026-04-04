@@ -4,4 +4,10 @@ export interface GeneratedGradient {
   type: "linear" | "radial" | "conic";
   angle?: number;
   reasoning?: string;
+  // Adjustment parameters
+  exposure?: number;
+  contrast?: number;
+  frequency?: number;
+  phase?: number;
+  steps?: number | null;
 }

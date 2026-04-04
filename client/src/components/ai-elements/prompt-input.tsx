@@ -66,6 +66,7 @@ import type {
 import {
   Children,
   createContext,
+  forwardRef,
   useCallback,
   useContext,
   useEffect,
@@ -1124,47 +1125,45 @@ export type PromptInputButtonProps = ComponentProps<typeof InputGroupButton> & {
   tooltip?: PromptInputButtonTooltip;
 };
 
-export const PromptInputButton = ({
-  variant = "ghost",
-  className,
-  size,
-  tooltip,
-  ...props
-}: PromptInputButtonProps) => {
-  const newSize =
-    size ?? (Children.count(props.children) > 1 ? "sm" : "icon-sm");
+export const PromptInputButton = forwardRef<HTMLButtonElement, PromptInputButtonProps>(
+  ({ variant = "ghost", className, size, tooltip, ...props }, ref) => {
+    const newSize =
+      size ?? (Children.count(props.children) > 1 ? "sm" : "icon-sm");
 
-  const button = (
-    <InputGroupButton
-      className={cn(className)}
-      size={newSize}
-      type="button"
-      variant={variant}
-      {...props}
-    />
-  );
+    const button = (
+      <InputGroupButton
+        ref={ref}
+        className={cn(className)}
+        size={newSize}
+        type="button"
+        variant={variant}
+        {...props}
+      />
+    );
 
-  if (!tooltip) {
-    return button;
+    if (!tooltip) {
+      return button;
+    }
+
+    const tooltipContent =
+      typeof tooltip === "string" ? tooltip : tooltip.content;
+    const shortcut = typeof tooltip === "string" ? undefined : tooltip.shortcut;
+    const side = typeof tooltip === "string" ? "top" : (tooltip.side ?? "top");
+
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent side={side}>
+          {tooltipContent}
+          {shortcut && (
+            <span className="ml-2 text-muted-foreground">{shortcut}</span>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    );
   }
-
-  const tooltipContent =
-    typeof tooltip === "string" ? tooltip : tooltip.content;
-  const shortcut = typeof tooltip === "string" ? undefined : tooltip.shortcut;
-  const side = typeof tooltip === "string" ? "top" : (tooltip.side ?? "top");
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent side={side}>
-        {tooltipContent}
-        {shortcut && (
-          <span className="ml-2 text-muted-foreground">{shortcut}</span>
-        )}
-      </TooltipContent>
-    </Tooltip>
-  );
-};
+);
+PromptInputButton.displayName = "PromptInputButton";
 
 export type PromptInputActionMenuProps = ComponentProps<typeof DropdownMenu>;
 export const PromptInputActionMenu = (props: PromptInputActionMenuProps) => (

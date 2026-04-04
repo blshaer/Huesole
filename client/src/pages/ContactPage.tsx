@@ -38,15 +38,15 @@ const ContactPage: React.FC = () => {
     }
   }, [user]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (formData.message.length < 10) {
       toast.error("Message too short", { description: "Message must be at least 10 characters." });
       return;
     }
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/support`, formData);
+      await axios.post(`${API_URL}/support`, { ...formData });
       setIsSuccess(true);
       toast.success("Message Sent!", { description: "We've received your inquiry and will get back to you soon." });
       setFormData(prev => ({ ...prev, subject: "", message: "" }));
@@ -57,6 +57,7 @@ const ContactPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-20">
@@ -156,6 +157,7 @@ const ContactPage: React.FC = () => {
                   />
                 </div>
               </div>
+
 
               <Button
                 type="submit"

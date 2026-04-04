@@ -1,18 +1,11 @@
 import { Button } from "@/shared/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { resetPassword } from "../features/auth/services/authService";
+import { AuthLayout } from "../features/auth/components/AuthLayout";
 
 const ResetPassword = () => {
   const { token } = useParams<{ token: string }>();
@@ -25,7 +18,6 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  // After reset, send user to login (safe route that exists in your router)
   const redirectTo = "/login";
 
   useEffect(() => {
@@ -36,7 +28,7 @@ const ResetPassword = () => {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [success, navigate, redirectTo]); // cleanup pattern is recommended for timers [web:101]
+  }, [success, navigate, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,109 +66,94 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="relative flex min-h-[90vh] items-center justify-center overflow-hidden p-6">
-      <div className="bg-primary/5 absolute left-1/2 top-1/4 h-96 w-96 -translate-x-1/2 animate-pulse rounded-full blur-3xl" />
-
-      <Card className="border-border/40 bg-background/60 z-10 w-full max-w-md shadow-2xl backdrop-blur-xl transition-all duration-300">
-        <CardHeader className="space-y-4 pb-8">
-          <div className="flex flex-col items-center space-y-2">
-            <CardTitle className="text-center text-3xl font-bold tracking-tight">
-              Reset Password
-            </CardTitle>
-            <CardDescription className="px-4 text-center text-sm text-white/50">
-              Secure your account by entering a new password below.
-            </CardDescription>
+    <AuthLayout
+      title="Reset Password"
+      description="Secure your account by entering a new password below."
+      footer={
+        <Link
+          to="/login"
+          className="flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary mx-auto"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Return to Login
+        </Link>
+      }
+    >
+      {success ? (
+        <div className="space-y-6 duration-500 animate-in fade-in zoom-in">
+          <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-4 text-center">
+            <p className="font-medium text-green-500">
+              Password Reset Successful!
+            </p>
+            <p className="mt-1 text-sm text-white/60">
+              Redirecting to login...
+            </p>
           </div>
-        </CardHeader>
 
-        <CardContent className="grid gap-6">
-          {/* FIX: show success block when success === true (ternary rendering) [web:1] */}
-          {success ? (
-            <div className="space-y-6 duration-500 animate-in fade-in zoom-in">
-              <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-4 text-center">
-                <p className="font-medium text-green-500">
-                  Password Reset Successful!
-                </p>
-                <p className="mt-1 text-sm text-white/60">
-                  Redirecting to login...
-                </p>
-              </div>
-
-              <Button className="w-full" asChild>
-                <Link to={redirectTo}>Go Now</Link>
-              </Button>
+          <Button className="w-full" asChild>
+            <Link to={redirectTo}>Go Now</Link>
+          </Button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="grid gap-5">
+          {error && (
+            <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-500">
+              {error}
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="grid gap-5">
-              {error && (
-                <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-500">
-                  {error}
-                </div>
-              )}
-
-              <div className="grid gap-2">
-                <Label htmlFor="password" className="text-sm font-semibold">
-                  New Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label
-                  htmlFor="confirmPassword"
-                  className="text-sm font-semibold"
-                >
-                  Confirm New Password
-                </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="mt-2 h-11 w-full bg-white/5 text-base font-semibold backdrop-blur-md border border-white/10 shadow-lg transition-all hover:bg-white/10 active:scale-[0.98]"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Updating Password...
-                  </span>
-                ) : (
-                  "Reset Password"
-                )}
-              </Button>
-            </form>
           )}
-        </CardContent>
 
-        <CardFooter className="border-border/40 flex justify-center border-t pt-6">
-          <Link
-            to="/login"
-            className="flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+          <div className="grid gap-2">
+            <Label htmlFor="password" className="text-sm font-semibold">
+              New Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label
+              htmlFor="confirmPassword"
+              className="text-sm font-semibold"
+            >
+              Confirm New Password
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <Button
+            type="submit"
+            className="mt-2 h-11 w-full bg-blue-600 text-base font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-[0.98]"
+            disabled={loading}
           >
-            <ArrowLeft className="h-4 w-4" />
-            Return to Login
-          </Link>
-        </CardFooter>
-      </Card>
-    </div>
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Updating Password...
+              </span>
+            ) : (
+              "Reset Password"
+            )}
+          </Button>
+        </form>
+      )}
+    </AuthLayout>
   );
 };
 
 export default ResetPassword;
+

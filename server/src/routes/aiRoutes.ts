@@ -4,7 +4,7 @@ import { protect } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.post("/generate", generateAIGradient);
+router.post("/generate", protect, generateAIGradient);
 router.post("/save", protect, saveCreatedGradient);
 router.get("/my-gradients", protect, getCreatedGradients);
 router.delete("/:id", protect, deleteCreatedGradient);

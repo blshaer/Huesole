@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import axios from "axios";
 import User, { IUser } from "../models/User";
 import sendEmail from "../utils/sendEmail";
 
@@ -15,19 +16,31 @@ const generateToken = (id: string, email: string, role: string) => {
 };
 
 export const register = async (req: Request, res: Response) => {
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
     try {
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ 
+            $or: [{ email }, { username }]
+        });
 
         if (userExists) {
-            return res.status(400).json({ message: "User already exists" });
+            const field = userExists.email === email ? "Email" : "Username";
+            return res.status(400).json({ message: `${field} already exists` });
         }
+
+        // Generate a random avatar from boring-avatars
+        const avatarVariants = ["beam", "marble", "pixel", "sunset", "ring", "bauhaus"];
+        const randomVariant = avatarVariants[Math.floor(Math.random() * avatarVariants.length)];
+        const avatarSeed = `${(name || "user").replace(/\s+/g, "")}_${Date.now()}`;
+        const avatarColors = "264653,2a9d8f,e9c46a,f4a261,e76f51";
+        const randomAvatar = `https://source.boringavatars.com/${randomVariant}/120/${encodeURIComponent(avatarSeed)}?colors=${avatarColors}`;
 
         const user = await User.create({
             name,
+            username: username || email.split("@")[0].replace(/[^a-z0-9_.-]/g, "").slice(0, 30),
             email,
             password,
+            picture: randomAvatar,
         });
 
         // Generate verification token
@@ -83,10 +96,13 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { email, username, identifier, password } = req.body;
+    const loginId = identifier || email || username;
 
     try {
-        const user = await User.findOne({ email }).select("+password");
+        const user = await User.findOne({
+            $or: [{ email: loginId }, { username: loginId }]
+        }).select("+password");
 
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
@@ -128,6 +144,7 @@ export const login = async (req: Request, res: Response) => {
             user: {
                 id: userId,
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
@@ -183,6 +200,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
             user: {
                 id: (user._id as any).toString(),
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
@@ -196,10 +214,13 @@ export const verifyEmail = async (req: Request, res: Response) => {
 };
 
 export const forgotPassword = async (req: Request, res: Response) => {
-    const { email } = req.body;
+    const { email, username, identifier } = req.body;
+    const searchId = identifier || email || username;
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({
+            $or: [{ email: searchId }, { username: searchId }]
+        });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -351,6 +372,11 @@ export const googleLogin = async (req: Request, res: Response) => {
     const { token } = req.body;
 
     try {
+        if (!process.env.GOOGLE_CLIENT_ID) {
+            console.error("GOOGLE_CLIENT_ID is missing from environment variables.");
+            return res.status(500).json({ success: false, message: "Server configuration error: Google Client ID missing." });
+        }
+
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
@@ -359,7 +385,7 @@ export const googleLogin = async (req: Request, res: Response) => {
         const payload = ticket.getPayload();
 
         if (!payload) {
-            return res.status(400).json({ message: "Invalid token" });
+            return res.status(400).json({ message: "Invalid ID token" });
         }
 
         const { sub, email, name, picture } = payload;
@@ -368,24 +394,31 @@ export const googleLogin = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Email not found in token" });
         }
 
+        const displayName = name || email.split("@")[0] || "User";
+
         let user = await User.findOne({ googleId: sub });
 
         if (!user) {
-            // Check if user exists with email but no googleId (setup via email/password previously)
             user = await User.findOne({ email });
 
             if (user) {
-                // Link google account
                 user.googleId = sub;
                 user.picture = picture || user.picture;
                 if (!user.isVerified) user.isVerified = true;
                 await user.save();
             } else {
+                const avatarVariants = ["beam", "marble", "pixel", "sunset", "ring", "bauhaus"];
+                const randomVariant = avatarVariants[Math.floor(Math.random() * avatarVariants.length)];
+                const avatarSeed = `${displayName.replace(/\s+/g, "")}_${Date.now()}`;
+                const avatarColors = "264653,2a9d8f,e9c46a,f4a261,e76f51";
+                const randomAvatar = `https://source.boringavatars.com/${randomVariant}/120/${encodeURIComponent(avatarSeed)}?colors=${avatarColors}`;
+
                 user = await User.create({
                     googleId: sub,
-                    name,
+                    name: displayName,
+                    username: email.split("@")[0].replace(/[^a-z0-9_.-]/g, "").slice(0, 25) + Date.now().toString().slice(-4),
                     email,
-                    picture,
+                    picture: randomAvatar,
                     isVerified: true,
                 });
             }
@@ -399,7 +432,6 @@ export const googleLogin = async (req: Request, res: Response) => {
             });
         }
 
-        // Hack: ensure this specific email is admin
         if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
             user.role = "admin";
             await user.save();
@@ -410,6 +442,7 @@ export const googleLogin = async (req: Request, res: Response) => {
             user: {
                 id: user._id.toString(),
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
@@ -417,9 +450,51 @@ export const googleLogin = async (req: Request, res: Response) => {
             },
             token: generateToken(user._id.toString(), user.email, user.role),
         });
-    } catch (error) {
-        console.error("Google Auth Error:", error);
-        res.status(500).json({ message: "Server error during authentication" });
+    } catch (error: any) {
+        console.error("Google Auth Error Catch (likely Access Token):", error.message);
+        
+        // Fallback for Access Tokens
+        if (token && (token.length < 500 || !token.includes("."))) {
+           try {
+              const userInfoRes = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
+              const { sub, email, name, picture } = userInfoRes.data;
+              
+              if (email) {
+                  const displayName = name || email.split("@")[0] || "User";
+                  let user = await User.findOne({ $or: [{ googleId: sub }, { email }] });
+                  if (!user) {
+                      user = await User.create({ googleId: sub, name: displayName, email, picture, isVerified: true });
+                  } else if (!user.googleId) {
+                      user.googleId = sub;
+                      user.picture = picture || user.picture;
+                      user.isVerified = true;
+                      await user.save();
+                  }
+
+                  return res.status(200).json({
+                      success: true,
+                      user: {
+                          id: user._id.toString(),
+                          name: user.name,
+                          username: user.username,
+                          email: user.email,
+                          picture: user.picture,
+                          favorites: user.favorites,
+                          role: user.role,
+                      },
+                      token: generateToken(user._id.toString(), user.email, user.role),
+                  });
+              }
+           } catch (nestedError: any) {
+              console.error("Access Token Auth Failed:", nestedError.message);
+           }
+        }
+
+        res.status(500).json({ 
+            success: false,
+            message: "Authentication failed. Token may be invalid.",
+            error: process.env.NODE_ENV === "development" ? error.message : "Invalid Token"
+        });
     }
 };
 
@@ -547,10 +622,13 @@ export const updateProfile = async (req: Request, res: Response) => {
             }
         }
 
-        // Handle file upload
+        // Handle file upload or image URL
         if (req.file) {
             // Store the path relative to the server (e.g., /uploads/picture-123.jpg)
             user.picture = `/uploads/${req.file.filename}`;
+        } else if (req.body.picture && typeof req.body.picture === "string" && req.body.picture.startsWith("http")) {
+            // Case for suggested avatars or external URLs
+            user.picture = req.body.picture;
         }
 
         await user.save();

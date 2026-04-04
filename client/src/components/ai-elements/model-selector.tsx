@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/shared/lib/utils";
 import type { ComponentProps, ReactNode } from "react";
+import { forwardRef } from "react";
 
 export type ModelSelectorProps = ComponentProps<typeof Dialog>;
 
@@ -26,9 +27,12 @@ export const ModelSelector = (props: ModelSelectorProps) => (
 
 export type ModelSelectorTriggerProps = ComponentProps<typeof DialogTrigger>;
 
-export const ModelSelectorTrigger = (props: ModelSelectorTriggerProps) => (
-  <DialogTrigger {...props} />
+export const ModelSelectorTrigger = forwardRef<HTMLButtonElement, ModelSelectorTriggerProps>(
+  (props, ref) => (
+    <DialogTrigger {...props} ref={ref} />
+  )
 );
+ModelSelectorTrigger.displayName = "ModelSelectorTrigger";
 
 export type ModelSelectorContentProps = ComponentProps<typeof DialogContent> & {
   title?: ReactNode;

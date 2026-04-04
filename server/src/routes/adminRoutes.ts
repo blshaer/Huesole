@@ -11,6 +11,8 @@ import {
     updateHomeGradient,
     updateSupportStatus,
     updateUserRole,
+    getPageContentAdmin,
+    updatePageContent,
 } from "../controllers/adminController";
 import { authorize, protect } from "../middleware/authMiddleware";
 
@@ -36,5 +38,9 @@ router.delete("/support/:id", deleteSupportMessage);
 router.post("/home-gradients", createHomeGradient);
 router.put("/home-gradients/:id", updateHomeGradient);
 router.delete("/home-gradients/:id", deleteHomeGradient);
+
+// Page Content Management
+router.get("/page-content/:pageName", getPageContentAdmin);
+router.put("/page-content/:pageName", updatePageContent);
 
 export default router;

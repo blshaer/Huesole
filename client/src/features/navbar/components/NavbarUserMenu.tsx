@@ -1,10 +1,6 @@
-// src/shared/layout/Navbar/NavbarUserMenu.tsx
-
-import { LogOut } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronRight, LayoutDashboard, LogOut, User as UserIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,152 +9,118 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { User } from "@/features/auth/context/AuthContext";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
 
 interface NavbarUserMenuProps {
-  user: {
-    name: string;
-    email: string;
-    picture?: string;
-    role: "user" | "admin";
-  } | null;
+  user: User;
+  loading: boolean;
   onLogout: () => void;
-  loading?: boolean;
 }
 
-export const NavbarUserMenu = ({
-  user,
-  onLogout,
-  loading = false
-}: NavbarUserMenuProps) => {
-  // Check loading FIRST before anything else
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-9 w-9 rounded-full" />
-      </div>
-    );
-  }
+const textVariants = {
+  initial: { opacity: 1, x: 0 },
+  hover: { opacity: 0, x: -15 },
+};
 
-  // Then check if user exists
+const iconVariants = {
+  initial: { opacity: 0, x: 15 },
+  hover: { opacity: 1, x: 0 },
+};
+
+export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps) {
+  if (loading) return null;
+
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Link
-          to="/login"
-          className="rounded-[8px] bg-white px-4 py-1.5 text-sm font-semibold text-black transition-all hover:bg-white/90"
-        >
-          Sign in
+        <Link to="/login">
+          <motion.button
+            initial="initial"
+            whileHover="hover"
+            whileTap={{ scale: 0.98 }}
+            className="relative overflow-hidden flex items-center justify-center w-[130px] h-9 bg-[#edf0f1] text-black border border-black/10 rounded-md font-medium text-xs shadow-sm"
+          >
+            <motion.span
+              variants={textVariants}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              Start Generating
+            </motion.span>
+
+            <motion.span
+              variants={iconVariants}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <ChevronRight className="h-4 w-4 stroke-[2.5px]" />
+            </motion.span>
+          </motion.button>
         </Link>
       </div>
     );
   }
 
-  // Finally, show the user menu
   return (
-    <div className="relative flex items-center">
-      <DropdownMenu>
-        <DropdownMenuTrigger className="focus-visible:ring-ring/70 relative z-50 rounded-full outline-none focus-visible:ring-2">
-          <Avatar className="h-9 w-9 border-2 border-white/10 backdrop-blur-sm transition-all duration-300">
-            <AvatarImage src={getFullImageUrl(user.picture)} alt={user.name} />
-            <AvatarFallback
-              className="bg-cover bg-center font-semibold text-white"
-              style={{
-                backgroundImage:
-                  'url("https://vercel.com/api/www/avatar/SA7kRQYuUGOPuPmxWAQycgXZ")',
-              }}
-            >
-              {user.name.charAt(0).toUpperCase()}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex h-10 w-10 overflow-hidden items-center justify-center rounded-full border border-border hover:opacity-90 transition-all active:scale-95 shadow-sm outline-none">
+          <Avatar className="h-full w-full">
+            <AvatarImage
+              src={getFullImageUrl(user.picture)}
+              alt={user.name}
+              className="object-cover"
+            />
+            <AvatarFallback className="bg-gradient-to-br from-[#92A1C6] via-[#146A7C] to-[#C271B4] text-white text-[10px] font-bold uppercase transition-all">
+              {user.name
+                ? user.name.split(" ").length > 1
+                  ? user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)
+                  : user.name.slice(0, 2)
+                : "UA"}
             </AvatarFallback>
           </Avatar>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent
-          align="end"
-          sideOffset={8}
-          className="z-[150] w-56 overflow-hidden rounded-2xl border border-white/10 bg-gray-950/90 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] backdrop-blur-xl dark:bg-gray-950/90"
-        >
-          <DropdownMenuLabel className="px-3 py-2 backdrop-blur-sm">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-semibold leading-none text-white">
-                {user.name}
-              </p>
-              <p className="truncate text-xs leading-none text-gray-400">
-                {user.email}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-
-          <DropdownMenuSeparator className="my-1 bg-white/10" />
-
-          <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-            asChild
-          >
-            <Link to="/profile" className="flex items-center px-2 py-1.5">
-              <span>Profile</span>
-            </Link>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56 bg-background border-border z-[9999]">
+        <DropdownMenuLabel className="font-normal px-2 py-1.5">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-semibold leading-none truncate max-w-[180px]">
+              {user.name}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground opacity-70 hover:text-primary transition-colors truncate max-w-[180px]">
+              {user.username ? `@${user.username}` : user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        
+        <Link to="/profile">
+          <DropdownMenuItem className="cursor-pointer">
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>Profile</span>
           </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-            asChild
-          >
-            <Link to="/favorites" className="flex items-center px-2 py-1.5">
-              <span>Favorites</span>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-            asChild
-          >
-            <Link to="/my-gradients" className="flex items-center px-2 py-1.5">
-              <span>My Gradients</span>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-            asChild
-          >
-            <Link to="/ai-generator" className="flex items-center px-2 py-1.5">
-              <span>AI Generator</span>
-            </Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-            asChild
-          >
-            <Link to="/contact" className="flex items-center px-2 py-1.5">
-              <span>Contact</span>
-            </Link>
-          </DropdownMenuItem>
-
-          {user.role === "admin" && (
-            <DropdownMenuItem
-              className="mx-2 my-1 cursor-pointer rounded-lg text-gray-200 transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
-              asChild
-            >
-              <Link to="/admin" className="flex items-center px-2 py-1.5">
-                <span>Admin Dashboard</span>
-              </Link>
+        </Link>
+        
+        {user.role === "admin" && (
+          <Link to="/admin">
+            <DropdownMenuItem className="cursor-pointer text-primary focus:text-primary">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Admin Dashboard</span>
             </DropdownMenuItem>
-          )}
+          </Link>
+        )}
+        <DropdownMenuSeparator />
 
-          <DropdownMenuSeparator className="my-1 bg-white/10" />
-
-          <DropdownMenuItem
-            className="mx-2 my-1 cursor-pointer rounded-lg px-2 py-1.5 text-red-400 transition-all duration-200 hover:bg-red-500/20 hover:text-red-300 focus:bg-red-500/30 focus:text-red-300"
-            onClick={onLogout}
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+        <DropdownMenuItem onClick={onLogout} className="text-red-500 focus:text-red-500 focus:bg-red-500/10 cursor-pointer">
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-};
+}

@@ -1,18 +1,20 @@
 // src/shared/layout/Navbar/Navbar.tsx
 
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
-
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Menu, Sparkles } from "lucide-react";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { toast } from "sonner";
 import { GeneratedGradient } from "@/features/gradients/types";
+import { cn } from "@/shared/lib/utils";
 
 import { NavbarLogo } from "./NavbarLogo";
 import { NavbarAiControls } from "./NavbarAiControls";
 import { NavbarColorPicker } from "./NavbarColorPicker";
 import { NavbarUserMenu } from "./NavbarUserMenu";
 import { NavbarAngleToggle } from "./NavbarAngleToggle";
+import { NavbarCanvasSize, CanvasSize } from "./NavbarCanvasSize";
 
 interface NavbarProps {
   result?: GeneratedGradient | null;
@@ -24,6 +26,8 @@ interface NavbarProps {
   onToggleSidebar?: () => void;
   isLightGradient?: boolean;
   showAngleController?: boolean;
+  onCanvasSizeSelect?: (size: CanvasSize | null) => void;
+  canvasSize?: CanvasSize | null;
 }
 
 export const Navbar = ({
@@ -34,6 +38,8 @@ export const Navbar = ({
   onToggleSidebar,
   onToggleAngleController,
   showAngleController = false,
+  onCanvasSizeSelect,
+  canvasSize,
 }: NavbarProps) => {
   const { user, logout, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -114,10 +120,36 @@ export const Navbar = ({
 
       <div className="mx-auto flex w-full items-center justify-between py-3 lg:py-5">
         <nav
-          className="flex items-center gap-6 md:gap-10"
+          className="flex items-center gap-6 md:gap-4"
           aria-label="Primary navigation"
         >
           <NavbarLogo />
+
+          {user && (
+            <div className="hidden items-center gap-3 ps-4 md:flex pt-1">
+
+
+              <Link
+                to="/ai-generator"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-white",
+                  location.pathname === "/favorites" ? "text-white" : "text-muted-foreground"
+                )}
+              >
+                AI Generator
+
+              </Link>
+              <Link
+                to="/favorites"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-white",
+                  location.pathname === "/favorites" ? "text-white" : "text-muted-foreground"
+                )}
+              >
+                Favorites
+              </Link>
+            </div>
+          )}
         </nav>
 
         <div className="relative z-50 flex items-center  gap-3">
@@ -138,6 +170,14 @@ export const Navbar = ({
               showAngleController={showAngleController}
               onToggle={onToggleAngleController}
               isAngleSupported={result?.type === "linear" || result?.type === "conic"}
+            />
+          )}
+
+          {/* Canvas Size Selector - Only show on AI Generator page */}
+          {isAIGeneratorPage && (
+            <NavbarCanvasSize
+              onSizeSelect={onCanvasSizeSelect}
+              selectedSize={canvasSize}
             />
           )}
 

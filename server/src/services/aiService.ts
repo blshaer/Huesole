@@ -9,6 +9,12 @@ export interface GeneratedGradient {
     type: "linear" | "radial" | "conic";
     angle?: number;
     reasoning?: string;
+    // Adjustment fields
+    exposure?: number;
+    contrast?: number;
+    frequency?: number;
+    phase?: number;
+    steps?: number | null;
 }
 
 export const generateGradient = async (prompt: string): Promise<GeneratedGradient> => {
@@ -26,27 +32,30 @@ export const generateGradient = async (prompt: string): Promise<GeneratedGradien
 
     if (isEditMode) {
         fullPrompt = `
-            You are a master UI/UX designer helping a user refine their existing gradient. The user wants to edit their current gradient with this instruction: "${cleanPrompt}".
+            You are a master digital artist and UI/UX expert. The user wants to refine their current gradient using procedural adjustments.
+            Instruction: "${cleanPrompt}".
             
-            First, explain your reasoning about what adjustments you are making in 2-3 short paragraphs. Think about:
-            - What specific adjustments (exposure, contrast, saturation, hue shifts) the user's request implies
-            - How you are modifying the existing colors rather than creating entirely new ones
-            - The visual impact of your adjustments
-
+            Instead of just giving new hex codes, you must return adjustment parameters that will be applied to the existing base colors.
+            
+            First, explain your reasoning about what adjustments you are making in 2-3 short paragraphs.
+            
             Then, output the adjusted gradient as a valid JSON object in this exact format:
             \`\`\`json
             {
                 "name": "Adjusted Descriptive Title",
-                "colors": ["#hex1", "#hex2", ...],
+                "exposure": number (from -2.0 to 2.0, where 0.0 is neutral),
+                "contrast": number (from 0.0 to 3.0, where 1.0 is neutral),
+                "frequency": number (from 0.0 to 5.0, where 0.0 is neutral),
+                "phase": number (from -3.14 to 3.14, where 0.0 is neutral),
                 "type": "linear" | "radial" | "conic",
-                "angle": number (only for linear, 0-360)
+                "angle": number (0-360)
             }
             \`\`\`
+            Note: Do NOT include a "colors" array in the JSON if you only want to use adjustments. If the user explicitly asks for totally different colors, you may include a new "colors" array.
             
             Requirements:
-            1. Adjust existing colors rather than generating completely new ones, unless the user explicitly asks for new colors.
-            2. Focus on subtle refinements like exposure, contrast, warmth, and tone adjustments.
-            3. Your reasoning must come BEFORE the JSON block and should describe the adjustments made.
+            1. Favor adjusting exposure (brightness), contrast, and frequency (color repetition) to achieve the mood.
+            2. Your reasoning must come BEFORE the JSON block.
         `;
     } else {
         fullPrompt = `
@@ -100,9 +109,12 @@ export const generateGradient = async (prompt: string): Promise<GeneratedGradien
 
         const parsed = JSON.parse(jsonMatch[0]);
 
-        // Basic validation of the parsed object
-        if (!parsed.colors || !Array.isArray(parsed.colors)) {
-            throw new Error("AI generated an invalid gradient (missing colors)");
+        // Basic validation - check for colors OR adjustments
+        const hasColors = parsed.colors && Array.isArray(parsed.colors);
+        const hasAdjustments = parsed.exposure !== undefined || parsed.contrast !== undefined;
+        
+        if (!hasColors && !hasAdjustments) {
+            throw new Error("AI generated an invalid gradient - missing both colors and adjustments");
         }
 
         return {

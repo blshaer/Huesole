@@ -183,7 +183,7 @@ const ManageUsers: React.FC = () => {
                                     <div className="flex items-center gap-3">
                                         <Avatar className="h-10 w-10 border border-white/10 ring-2 ring-indigo-500/0 group-hover:ring-indigo-500/20 transition-all">
                                             <AvatarImage src={getFullImageUrl(user.picture)} alt={user.name} />
-                                            <AvatarFallback className="bg-white/5 text-white/50">{user.name.charAt(0)}</AvatarFallback>
+                                            <AvatarFallback className="bg-white/5 text-white/50">{user.name.split(" ").length > 1 ? user.name.split(" ").map(n => n[0]).join("").slice(0, 2) : user.name.slice(0, 2)}</AvatarFallback>
                                         </Avatar>
                                         <div className="font-medium text-white group-hover:text-indigo-400 transition-colors flex items-center gap-2">
                                             {user.name}
@@ -279,7 +279,7 @@ const ManageUsers: React.FC = () => {
                                 <div className="flex items-center gap-4">
                                     <Avatar className="h-16 w-16 border-2 border-indigo-500/20 ring-4 ring-indigo-500/5">
                                         <AvatarImage src={getFullImageUrl(selectedUser.picture)} />
-                                        <AvatarFallback className="bg-white/5 text-2xl text-white/50">{selectedUser.name.charAt(0)}</AvatarFallback>
+                                        <AvatarFallback className="bg-white/5 text-2xl text-white/50">{selectedUser.name.split(" ").length > 1 ? selectedUser.name.split(" ").map(n => n[0]).join("").slice(0, 2) : selectedUser.name.slice(0, 2)}</AvatarFallback>
                                     </Avatar>
                                     <div>
                                         <DialogTitle className="text-2xl font-bold">{selectedUser.name}</DialogTitle>
@@ -311,7 +311,7 @@ const ManageUsers: React.FC = () => {
                                     <ScrollArea className="h-[380px] pr-4">
                                         {selectedUser.favorites?.length === 0 ? (
                                             <div className="flex flex-col items-center justify-center h-full text-white/20 pt-20">
-                                                <Heart size={40} className="mb-2 opacity-10" />
+                                                <Heart size={40} className="mb-2" />
                                                 <p>No favorites yet</p>
                                             </div>
                                         ) : (

@@ -38,17 +38,18 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
       : animatedStyle;
 
   return (
-    <header className="relative w-full">
+    <div className="relative flex h-48 w-48 items-center justify-center">
       <div
         className="absolute inset-0 opacity-50 blur-[42px]"
         style={{
           background: `radial-gradient(circle, ${glowColor} 0%, transparent 30%)`,
-          transform: "translate(-25%, -25%) scale(1.5)",
+          transform: "scale(1.5)",
         }}
       />
       <motion.div
-        className={`relative left-0 right-0 m-auto mt-6 flex h-48 w-48 items-center justify-center overflow-hidden ${gradientType === "image" ? "rounded-[12px]" : "rounded-full"
-          }`}
+        className={`relative flex h-full w-full items-center justify-center overflow-hidden ${
+          gradientType === "image" ? "rounded-[12px]" : "rounded-full"
+        }`}
         style={gradientType === "background" ? animatedStyle : {}}
         transition={{ duration: 0.3 }}
       >
@@ -64,7 +65,7 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
           </motion.span>
         ) : gradientType === "image" ? (
           <motion.div
-            className="relative h-48 w-48 overflow-hidden rounded-lg border-4 border-white/20 shadow-lg"
+            className="relative h-full w-full overflow-hidden rounded-lg border-4 border-white/20 shadow-lg"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
@@ -79,17 +80,8 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
                 : undefined,
             }}
           ></motion.div>
-        ) : (
-          <motion.span
-            className="text-2xl font-bold text-white"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* {gradient.name} */}
-          </motion.span>
-        )}
+        ) : null}
       </motion.div>
-    </header>
+    </div>
   );
 };

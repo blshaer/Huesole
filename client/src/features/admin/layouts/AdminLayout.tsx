@@ -39,6 +39,10 @@ const AdminLayout: React.FC = () => {
             label: "Support Messages",
             href: "/admin/support",
         },
+        {
+            label: "Manage Pages",
+            href: "/admin/pages",
+        },
     ];
 
     const toggleMobileMenu = () => {

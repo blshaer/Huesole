@@ -10,12 +10,20 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider, useAuth } from "./features/auth/context/AuthContext";
 import { Navbar } from "./features/navbar/components/Navbar";
 import Footer from "./features/footer/components/Footer";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import BannedScreen from "./features/auth/components/BannedScreen";
+import { CookieConsent } from "@/shared/ui/CookieConsent";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const { banInfo } = useAuth();
+  const navigate = useNavigate();
+  const { banInfo, user, token, isLoading } = useAuth();
+
+  React.useEffect(() => {
+    if (user && token && !isLoading && !user.username && location.pathname !== "/onboarding") {
+      navigate("/onboarding", { replace: true });
+    }
+  }, [user, token, isLoading, location.pathname, navigate]);
 
   // Hide navbar and footer on AI Generator and Admin pages
   const isAIGeneratorPage = location.pathname === "/ai-generator";
@@ -30,8 +38,9 @@ const AppContent: React.FC = () => {
   return (
     <div
       dir="ltr"
-      className={`App relative ${isAIGeneratorPage ? "h-screen overflow-hidden" : "min-h-screen overflow-x-hidden pb-[30px]"}`}
+      className={`App relative min-h-screen overflow-x-hidden pb-[30px]`}
     >
+      <CookieConsent />
       {!hideGlobalElements && <Navbar showAngleController={false} />}
       {!hideGlobalElements && <Support />}
       {!hideGlobalElements && <GridBackground />}

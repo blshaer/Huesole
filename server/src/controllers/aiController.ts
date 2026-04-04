@@ -14,7 +14,9 @@ export const generateAIGradient = async (req: Request, res: Response) => {
         const gradient = await generateGradient(prompt);
         res.status(200).json({ success: true, data: gradient });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        const is503 = error.message?.includes("503") || error.status === 503;
+        const statusCode = is503 ? 503 : 500;
+        res.status(statusCode).json({ message: error.message });
     }
 };
 
@@ -33,13 +35,23 @@ export const saveCreatedGradient = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        const gradientId = gradient.id || crypto.randomUUID();
         const newGradient = {
             ...gradient,
-            id: crypto.randomUUID(),
+            id: gradientId,
             createdAt: new Date(),
         };
 
-        user.createdGradients.push(newGradient);
+        const existingIndex = user.createdGradients.findIndex(
+            (g: any) => g.id === gradientId
+        );
+
+        if (existingIndex === -1) {
+            user.createdGradients.push(newGradient);
+        } else {
+            // Update existing entry
+            user.createdGradients[existingIndex] = newGradient;
+        }
 
         // Sort by createdAt descending
         user.createdGradients.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -69,6 +81,11 @@ export const getCreatedGradients = async (req: Request, res: Response) => {
             colors: g.colors,
             type: g.type,
             angle: g.angle,
+            exposure: g.exposure,
+            contrast: g.contrast,
+            frequency: g.frequency,
+            phase: g.phase,
+            steps: g.steps,
             createdAt: g.createdAt
         }));
 
@@ -108,6 +125,11 @@ export const deleteCreatedGradient = async (req: Request, res: Response) => {
             colors: g.colors,
             type: g.type,
             angle: g.angle,
+            exposure: g.exposure,
+            contrast: g.contrast,
+            frequency: g.frequency,
+            phase: g.phase,
+            steps: g.steps,
             createdAt: g.createdAt
         }));
 

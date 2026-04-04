@@ -6,7 +6,7 @@ import { ColorStopItem } from "./ColorStopItem";
 
 import { useEffect, useState, useRef } from "react";
 
-const MAX_COLOR_STOPS = 10;
+const MAX_COLOR_STOPS = 5;
 
 interface ColorStopsSectionProps {
   result: GeneratedGradient | null;
@@ -79,7 +79,7 @@ export const ColorStopsSection = ({
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-2">
           <Label className="text-foreground/40 text-[11px] font-bold uppercase tracking-[0.2em]">
             Color Stops

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import HomeGradient from "../models/HomeGradient";
 import SupportMessage from "../models/SupportMessage";
 import User from "../models/User";
+import PageContent from "../models/PageContent";
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -212,6 +213,51 @@ export const deleteHomeGradient = async (req: Request, res: Response) => {
 
         await gradient.deleteOne();
         res.status(200).json({ success: true, message: "Gradient deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+// --- Page Content Admin Controllers ---
+
+// @desc    Get or create page content
+// @route   GET /api/admin/page-content/:pageName
+// @access  Private/Admin
+export const getPageContentAdmin = async (req: Request, res: Response) => {
+    try {
+        const { pageName } = req.params;
+        let content = await PageContent.findOne({ pageName: pageName.toLowerCase() });
+
+        if (!content) {
+            // Create default template if it doesn't exist
+            content = await PageContent.create({
+                pageName: pageName.toLowerCase(),
+                title: pageName.charAt(0).toUpperCase() + pageName.slice(1),
+                description: `Default description for ${pageName}`,
+                content: `<h1>${pageName}</h1><p>Edit this content in the admin dashboard.</p>`
+            });
+        }
+
+        res.status(200).json({ success: true, data: content });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// @desc    Update page content
+// @route   PUT /api/admin/page-content/:pageName
+// @access  Private/Admin
+export const updatePageContent = async (req: Request, res: Response) => {
+    try {
+        const { pageName } = req.params;
+        const { title, description, content } = req.body;
+
+        const updatedContent = await PageContent.findOneAndUpdate(
+            { pageName: pageName.toLowerCase() },
+            { title, description, content },
+            { new: true, upsert: true, runValidators: true }
+        );
+
+        res.status(200).json({ success: true, data: updatedContent });
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
     }

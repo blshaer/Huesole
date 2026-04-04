@@ -10,11 +10,19 @@ import aiRoutes from "./routes/aiRoutes";
 import adminRoutes from "./routes/adminRoutes";
 import supportRoutes from "./routes/supportRoutes";
 import homeGradientRoutes from "./routes/homeGradientRoutes";
+import pageRoutes from "./routes/pageRoutes";
 
 dotenv.config();
-connectDB();
 
 const app = express();
+
+/**
+ * Security: Allow Google Auth Popups to close correctly
+ */
+app.use((_req, res, next) => {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    next();
+});
 
 app.use(
     cors({
@@ -43,16 +51,29 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/home-gradients", homeGradientRoutes);
+app.use("/api/pages", pageRoutes);
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../../client/dist")));
+const clientDistPath = path.join(__dirname, "../../client/dist");
+app.use(express.static(clientDistPath));
 
 // Handle React routing, return all requests to React app
 app.get("*", (_req, res) => {
-    res.sendFile(path.join(__dirname, "../../client/dist", "index.html"));
+    res.sendFile(path.join(clientDistPath, "index.html"));
 });
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+    } catch (error) {
+        console.error("❌ Failed to connect to Database:", (error as Error).message);
+        console.warn("⚠️  Server starting WITHOUT database connection. Many features will not work until fixed.");
+    }
+
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
+};
+
+startServer();

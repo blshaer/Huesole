@@ -1,20 +1,13 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-
-const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:5001" : "");
-
-const API_URL = `${BASE_URL}/api`;
-
+import axios from "@/shared/lib/axios";
+import localGradients from "@/shared/lib/gradients.json";
 
 // --- Types ---
 interface Gradient {
   _id?: string;
   name?: string;
   colors: string[];
-  type: string;
+  type?: string;
   angle?: number;
   colorsname?: string[];
   keywords?: string[][];
@@ -36,13 +29,19 @@ export function useGradients(): UseGradientsReturn {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await axios.get<{ data: Gradient[] }>(`${API_URL}/home-gradients`);
-        setGradients(response.data.data);
+        // Attempt to fetch from API
+        const response = await axios.get<{ success: boolean; data: Gradient[] }>("/home-gradients");
+        
+        // Use API data if available, otherwise fallback to local JSON
+        if (response.data.success && response.data.data && response.data.data.length > 0) {
+          setGradients(response.data.data);
+        } else {
+          setGradients(localGradients as Gradient[]);
+        }
       } catch (err: any) {
-        setError(
-          err.response?.data?.message || err.message || "Failed to load gradients"
-        );
-        // Fallback or empty state is handled by the UI
+        console.warn("API gradients fetch failed, using local fallback:", err.message);
+        // Fallback to local gradients if API fails (useful for local development or fresh DBs)
+        setGradients(localGradients as Gradient[]);
       } finally {
         setIsLoading(false);
       }

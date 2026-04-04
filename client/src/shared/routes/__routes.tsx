@@ -1,6 +1,5 @@
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import ErrorBoundary from "@/shared/components/ErrorBoundary";
-import { Button } from "@/shared/ui/button";
 import { motion } from "framer-motion";
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
@@ -30,21 +29,27 @@ const AdminDashboard = React.lazy(() => import("@/features/admin/pages/AdminDash
 const ManageUsers = React.lazy(() => import("@/features/admin/pages/ManageUsers"));
 const ManageHomeGradients = React.lazy(() => import("@/features/admin/pages/ManageHomeGradients"));
 const SupportInbox = React.lazy(() => import("@/features/admin/pages/SupportInbox"));
+const ManagePages = React.lazy(() => import("@/features/admin/pages/ManagePages"));
+
+import { VercelSpinner } from "@/shared/ui/VercelSpinner";
 
 const AppRoutes: React.FC = () => {
   const LoadingFallback = () => (
     <motion.div
-      className="flex h-screen items-center justify-center bg-[var(--background)]"
+      className="flex h-screen flex-col items-center justify-center bg-background gap-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <Button
-        isLoading
-        className="cursor-text border-none bg-transparent"
+      <VercelSpinner size={80} />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="text-xs font-bold uppercase tracking-[0.3em] text-white/30"
       >
-        Loading...
-      </Button>
+        Initializing Gradly
+      </motion.div>
     </motion.div>
   );
 
@@ -79,6 +84,7 @@ const AppRoutes: React.FC = () => {
             <Route path="users" element={<ManageUsers />} />
             <Route path="gradients" element={<ManageHomeGradients />} />
             <Route path="support" element={<SupportInbox />} />
+            <Route path="pages" element={<ManagePages />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

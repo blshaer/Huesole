@@ -39,7 +39,7 @@ export default function Logo() {
 
       {/* Text Branding */}
       <div className="relative text-left">
-        <h1 className="text-2xl font-black tracking-tighter text-white">
+        <h1 className="text-xl font-black text-white">
           LumeGradients
         </h1>
       </div>

@@ -1,19 +1,43 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { Heart } from "lucide-react";
 import { Slider } from "@/shared/ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
 import { GeneratedGradient } from "../types";
+import { useFavorites } from "@/features/gradients/hooks/useFavorites";
+import { toast } from "sonner";
+import {
+  Area,
+  AreaChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/shared/ui/chart";
+
+const chartConfig = {
+  r: {
+    label: "Red",
+    color: "#EF4444",
+  },
+  g: {
+    label: "Green",
+    color: "#22C55E",
+  },
+  b: {
+    label: "Blue",
+    color: "#3B82F6",
+  },
+} satisfies ChartConfig;
 
 interface RightSidebarProps {
   result: GeneratedGradient | null;
-  setResult: (gradient: GeneratedGradient) => void;
-  onAngleChange?: (angle: number) => void;
+  setResult: React.Dispatch<React.SetStateAction<GeneratedGradient>>;
+  onSave?: (gradient: GeneratedGradient) => Promise<void>;
 }
 
 // Parse hex to RGB
@@ -51,18 +75,20 @@ const applyTransform = (
 export const RightSidebar = ({
   result,
   setResult,
-  onAngleChange,
+  onSave,
 }: RightSidebarProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false);
+  const { favorites, toggleFavorite } = useFavorites();
+  
+  const isFavorited = favorites.includes(result?.name || "");
 
   // Controls
-  const [steps, setSteps] = useState(15);
-  const [exposure, setExposure] = useState(0.003);
-  const [contrast, setContrast] = useState(1.0);
-  const [frequency, setFrequency] = useState(1.0);
-  const [phase, setPhase] = useState(0.0);
+  const [steps, setSteps] = useState<number | null>(result?.steps ?? null);
+  const [exposure, setExposure] = useState(result?.exposure ?? 0.0);
+  const [contrast, setContrast] = useState(result?.contrast ?? 1.0);
+  const [frequency, setFrequency] = useState(result?.frequency ?? 0.0);
+  const [phase, setPhase] = useState(result?.phase ?? 0.0);
 
   // Swatch rendering type
   const [swatchType, setSwatchType] = useState<
@@ -80,25 +106,16 @@ export const RightSidebar = ({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Update baseColors if result.colors changed from outside (e.g. user added a color in left sidebar)
-  useEffect(() => {
-    if (!result) return;
-    const currentStr = JSON.stringify(result.colors);
-    const pushedStr = JSON.stringify(lastPushedColorsRef.current);
-    if (currentStr !== pushedStr) {
-      setBaseColors(result.colors);
-    }
-  }, [result?.colors]);
-
   // Compute final colors whenever slider values or base colors change
   const computeColors = useCallback(() => {
     if (baseColors.length < 2) return baseColors;
     
     const rgbColors = baseColors.map(hexToRgb);
-    const out = [];
+    const out: string[] = [];
 
-    for (let i = 0; i < steps; i++) {
-        const t = steps <= 1 ? 0 : i / (steps - 1);
+    const currentSteps = steps ?? baseColors.length;
+    for (let i = 0; i < currentSteps; i++) {
+        const t = currentSteps <= 1 ? 0 : i / (currentSteps - 1);
         const pos = t * (rgbColors.length - 1);
         const idx = Math.floor(pos);
         const frac = pos - idx;
@@ -119,125 +136,115 @@ export const RightSidebar = ({
     return out;
   }, [baseColors, steps, exposure, contrast, frequency, phase]);
 
-  // Push computed colors to global result state
+  // Sync colors from outside AND push computed colors back up in a controlled way
   useEffect(() => {
     if (!result) return;
     
+    const currentColorsStr = JSON.stringify(result.colors);
+    const pushedStr = JSON.stringify(lastPushedColorsRef.current);
+    
+    // 1. If result.colors changed from OUTSIDE (don't match our last push)
+    if (currentColorsStr !== pushedStr) {
+      setBaseColors(result.colors);
+      lastPushedColorsRef.current = result.colors; // prevent immediate re-push of same values
+      return; 
+    }
+
+    // 2. External -> Internal Sync: If result changed externally (e.g. by AI), update local state and STOP this effect run
+    let externalAdjustmentsChanged = false;
+    if (result.exposure !== undefined && result.exposure !== exposure) { 
+      setExposure(result.exposure); 
+      externalAdjustmentsChanged = true; 
+    }
+    if (result.contrast !== undefined && result.contrast !== contrast) { 
+      setContrast(result.contrast); 
+      externalAdjustmentsChanged = true; 
+    }
+    if (result.frequency !== undefined && result.frequency !== frequency) { 
+      setFrequency(result.frequency); 
+      externalAdjustmentsChanged = true; 
+    }
+    if (result.phase !== undefined && result.phase !== phase) { 
+      setPhase(result.phase); 
+      externalAdjustmentsChanged = true; 
+    }
+    if (result.steps !== undefined && result.steps !== steps) { 
+      setSteps(result.steps); 
+      externalAdjustmentsChanged = true; 
+    }
+
+    if (externalAdjustmentsChanged) {
+      // Return and wait for next render where local state matches external result
+      return;
+    }
+
+    // 3. Internal -> External Sync: compute new colors and push up if they differ
     const newColors = computeColors();
-    const currentStr = JSON.stringify(result.colors);
     const newStr = JSON.stringify(newColors);
 
-    if (currentStr !== newStr) {
+    const hasAdjustmentDiff = 
+      result.exposure !== exposure ||
+      result.contrast !== contrast ||
+      result.frequency !== frequency ||
+      result.phase !== phase ||
+      result.steps !== steps;
+
+    if (currentColorsStr !== newStr || hasAdjustmentDiff) {
       lastPushedColorsRef.current = newColors;
-      setResult({ ...result, colors: newColors });
+      setResult({ 
+        ...result, 
+        colors: newColors,
+        exposure,
+        contrast,
+        frequency,
+        phase,
+        steps
+      });
     }
-  }, [computeColors, result, setResult]);
+  }, [result, computeColors, setResult, exposure, contrast, frequency, phase, steps]);
 
-  // Draw the RGB curves on canvas
-  const drawCurves = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !result) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-
-    const w = rect.width;
-    const h = rect.height;
-
-    ctx.clearRect(0, 0, w, h);
-
-    // Grid lines (dotted)
-    ctx.setLineDash([2, 4]);
-    ctx.strokeStyle = "rgba(255,255,255,0.1)";
-    ctx.lineWidth = 1;
-    const gridSteps = 6; // 0, 0.2, 0.4, 0.6, 0.8, 1.0
-    for (let i = 0; i <= gridSteps; i++) {
-      const y = (i / gridSteps) * h;
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
+  // Sync swatch type highlight separately
+  useEffect(() => {
+    if (!result) return;
+    const resType = result.type === "conic" ? "angular" : result.type;
+    if (resType !== swatchType) {
+      setSwatchType(resType as "angular" | "linear" | "radial");
     }
-    ctx.setLineDash([]);
+  }, [result?.type, swatchType]);
 
-    // Grid labels on right side
-    ctx.fillStyle = "rgba(255,255,255,0.35)";
-    ctx.font = "11px Inter, sans-serif";
-    ctx.textAlign = "right";
-    for (let i = 0; i <= gridSteps; i++) {
-      const val = (1 - i / gridSteps).toFixed(1);
-      const y = (i / gridSteps) * h + 4;
-      ctx.fillText(val, w - 4, y);
-    }
-
-    // Extract average RGB from each base color position (so curves don't reflect already-transformed values!)
+  // Calculate Chart Data for EvilCharts
+  const chartData = useMemo(() => {
+    if (!result) return [];
+    
+    // Extract base RGB colors
     const colors = baseColors.map((c) => hexToRgb(c));
+    const data = [];
+    const points = 60; // Enough detail for a smooth curve
+    
+    for (let i = 0; i <= points; i++) {
+      const t = i / points;
+      
+      // Interpolate base color at position t
+      const pos = t * (colors.length - 1);
+      const idx = Math.floor(pos);
+      const frac = pos - idx;
+      const c1 = colors[Math.min(idx, colors.length - 1)];
+      const c2 = colors[Math.min(idx + 1, colors.length - 1)];
+      
+      const rawR = c1.r * (1 - frac) + c2.r * frac;
+      const rawG = c1.g * (1 - frac) + c2.g * frac;
+      const rawB = c1.b * (1 - frac) + c2.b * frac;
 
-    // Draw a curve for each RGB channel
-    const channels = ["r", "g", "b"] as const;
-    const channelColors = [
-      "rgba(239, 68, 68, 0.9)", // red
-      "rgba(74, 222, 128, 0.9)", // green
-      "rgba(96, 165, 250, 0.9)", // blue
-    ];
-
-    channels.forEach((channel, ci) => {
-      ctx.strokeStyle = channelColors[ci];
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-
-      const curvePoints = 200;
-      for (let i = 0; i <= curvePoints; i++) {
-        const t = i / curvePoints;
-        const x = t * w;
-
-        // Interpolate color at position t
-        const pos = t * (colors.length - 1);
-        const idx = Math.floor(pos);
-        const frac = pos - idx;
-        const c1 = colors[Math.min(idx, colors.length - 1)];
-        const c2 = colors[Math.min(idx + 1, colors.length - 1)];
-        const raw = c1[channel] * (1 - frac) + c2[channel] * frac;
-
-        // Apply transforms
-        const transformed = applyTransform(
-          raw,
-          exposure,
-          contrast,
-          frequency,
-          phase,
-        );
-        const y = (1 - transformed) * h;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.stroke();
-    });
-  }, [result, exposure, contrast, frequency, phase]);
-
-  useEffect(() => {
-    drawCurves();
-  }, [drawCurves]);
-
-  // Resize observer for canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const observer = new ResizeObserver(() => drawCurves());
-    observer.observe(canvas);
-    return () => observer.disconnect();
-  }, [drawCurves]);
+      // Apply transforms and add to data
+      data.push({
+        t: (t * 100).toFixed(0),
+        r: applyTransform(rawR, exposure, contrast, frequency, phase),
+        g: applyTransform(rawG, exposure, contrast, frequency, phase),
+        b: applyTransform(rawB, exposure, contrast, frequency, phase),
+      });
+    }
+    return data;
+  }, [baseColors, exposure, contrast, frequency, phase, result]);
 
   // Generate dot-pattern swatch preview
   const renderSwatch = (
@@ -292,98 +299,12 @@ export const RightSidebar = ({
 
   if (!result || isMobile) return null;
 
-  const angle = result.angle ?? 0;
-  const displayType =
-    result.type === "conic"
-      ? "angular"
-      : result.type === "radial"
-        ? "radial"
-        : "linear";
-
   return (
-    <aside className="relative z-20 flex h-full w-[320px] flex-shrink-0 flex-col border-l border-border bg-[#0d0f14]/95 backdrop-blur-3xl">
-      <div className="custom-scrollbar flex-1 overflow-y-auto p-5 pt-6 space-y-6">
-        {/* Top Controls: Angle, Steps, Type */}
-        <div className="flex items-center gap-2">
-          {/* Angle */}
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-            <span className="text-sm font-medium text-white tabular-nums">
-              {angle}°
-            </span>
-            <div className="flex flex-col gap-0.5">
-              <button
-                onClick={() => {
-                  const newAngle = Math.min(360, angle + 1);
-                  onAngleChange?.(newAngle);
-                }}
-                className="text-white/40 hover:text-white transition-colors leading-none text-[8px]"
-              >
-                ▲
-              </button>
-              <button
-                onClick={() => {
-                  const newAngle = Math.max(0, angle - 1);
-                  onAngleChange?.(newAngle);
-                }}
-                className="text-white/40 hover:text-white transition-colors leading-none text-[8px]"
-              >
-                ▼
-              </button>
-            </div>
-          </div>
-
-          {/* Steps */}
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-            <span className="text-sm font-medium text-white tabular-nums">
-              {steps}
-            </span>
-            <div className="flex flex-col gap-0.5">
-              <button
-                onClick={() => setSteps((s) => Math.min(50, s + 1))}
-                className="text-white/40 hover:text-white transition-colors leading-none text-[8px]"
-              >
-                ▲
-              </button>
-              <button
-                onClick={() => setSteps((s) => Math.max(2, s - 1))}
-                className="text-white/40 hover:text-white transition-colors leading-none text-[8px]"
-              >
-                ▼
-              </button>
-            </div>
-          </div>
-
-          {/* Type Selector */}
-          <Select
-            value={displayType}
-            onValueChange={(val: string) => {
-              const type = val as "angular" | "linear" | "radial";
-              setSwatchType(type);
-              const gradType =
-                type === "angular"
-                  ? "conic"
-                  : type === "radial"
-                    ? "radial"
-                    : "linear";
-              setResult({
-                ...result,
-                type: gradType as "linear" | "radial" | "conic",
-              });
-            }}
-          >
-            <SelectTrigger className="h-auto flex-1 border-white/10 bg-white/5 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="border-white/10 bg-[#181a20] text-white">
-              <SelectItem value="angular">Angular Swatches</SelectItem>
-              <SelectItem value="linear">Linear Swatches</SelectItem>
-              <SelectItem value="radial">Radial Swatches</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <aside className="relative  pt-4 z-20 flex h-full w-full flex-shrink-0 flex-col border-l border-border bg-background/40 backdrop-blur-3xl">
+      <div className="custom-scrollbar flex-1 overflow-y-auto px-6 pb-6 md:pb-12 space-y-6">
 
         {/* Color Swatches */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center pt-2 justify-between">
           <div className="flex items-center gap-3">
             {renderSwatch(
               result.colors,
@@ -404,7 +325,29 @@ export const RightSidebar = ({
 
           {/* Favorite Button */}
           <button
-            onClick={() => setIsFavorited((f) => !f)}
+            onClick={async () => {
+              if (!result) return;
+              
+              // 1. Ensure we have a name
+              const nameToToggle = result.name || `Generated Gradient ${Date.now()}`;
+              if (!result.name) setResult((prev) => ({ ...prev, name: nameToToggle }));
+              
+              const wasFavorited = favorites.some(f => f === nameToToggle);
+              
+              // 2. If we are favoriting an unsaved gradient (not in favorites yet), 
+              // we should also save it to make it permanent and visible in gallery/favorites pages.
+              if (!wasFavorited && onSave) {
+                // We pass the up-to-date name we just calculated
+                await onSave({ ...result, name: nameToToggle });
+              }
+
+              // 3. Toggle the favorite status
+              await toggleFavorite(nameToToggle);
+              
+              toast(!wasFavorited ? "❤️ Added to Favorites" : "Removed from Favorites", {
+                description: nameToToggle,
+              });
+            }}
             className="group transition-all duration-200"
           >
             <Heart
@@ -417,13 +360,70 @@ export const RightSidebar = ({
           </button>
         </div>
 
-        {/* RGB Curves Chart */}
-        <div className="space-y-2">
-          <canvas
-            ref={canvasRef}
-            className="w-full rounded-lg"
-            style={{ height: 180 }}
-          />
+        {/* RGB Curves Chart - EvilCharts Aesthetic */}
+        <div className="h-[180px] w-full pt-2">
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <AreaChart 
+              data={chartData} 
+              margin={{ top: 5, right: 5, left: 0, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="fillR" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="fillG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#22C55E" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#22C55E" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="fillB" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid 
+                vertical={false} 
+                strokeDasharray="3 3" 
+                stroke="#ffffff10" 
+              />
+              <YAxis 
+                hide 
+                domain={[0, 1]} 
+              />
+              <XAxis hide dataKey="t" />
+              <ChartTooltip 
+                cursor={false}
+                content={<ChartTooltipContent hideLabel indicator="line" />} 
+              />
+              <Area
+                type="monotone"
+                dataKey="r"
+                stroke="#EF4444"
+                fillOpacity={1}
+                fill="url(#fillR)"
+                strokeWidth={2}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="g"
+                stroke="#22C55E"
+                fillOpacity={1}
+                fill="url(#fillG)"
+                strokeWidth={2}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="b"
+                stroke="#3B82F6"
+                fillOpacity={1}
+                fill="url(#fillB)"
+                strokeWidth={2}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ChartContainer>
         </div>
 
         {/* Sliders */}
@@ -512,3 +512,5 @@ export const RightSidebar = ({
     </aside>
   );
 };
+
+export default RightSidebar;

@@ -17,11 +17,7 @@ import { AnimationSpeedControl } from "./AnimationSpeedControl";
 import { ColorSwatches } from "./ColorSwatches";
 import { GradientHeader } from "./GradientHeader";
 import { GradientPreview } from "./GradientPreview";
-import {
-  imageExportUtils,
-  type ImageExportOptions,
-} from "@/features/gradients/utils/imageExportUtils";
-import { ImageDownloadControl } from "./ImageDownloadControl";
+import { DownloadOptionsDropdown } from "./DownloadOptionsDropdown";
 
 import { GradientCardProps } from "@/shared/types/types";
 import { CodePreview } from "./CodePreview";
@@ -175,8 +171,19 @@ export default function GradientCard({
       const dx = clientX - centerX;
       const dy = clientY - centerY;
 
+      // Invert dy for standard coordinate system if needed, but atan2(dy, dx) is fine
+      // We want 0 degrees to be TOP (linear-gradient style)
+      // Atan2(dy, dx) returns 0 for RIGHT, Math.PI/2 for BOTTOM, -Math.PI/2 for TOP
+      // Adding 90 degrees (Math.PI/2) makes:
+      // RIGHT: 0 + 90 = 90
+      // BOTTOM: 90 + 90 = 180
+      // LEFT: 180 + 90 = 270
+      // TOP: -90 + 90 = 0
       let calculatedAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+      
+      // Normalize to 0-360
       if (calculatedAngle < 0) calculatedAngle += 360;
+      if (calculatedAngle >= 360) calculatedAngle -= 360;
 
       const roundedAngle = Math.round(calculatedAngle);
       setAngle(roundedAngle);
@@ -201,7 +208,11 @@ export default function GradientCard({
 
   const handleEditButtonClick = () => {
     if (onEditClick) {
-      onEditClick(gradient);
+      onEditClick({
+        ...gradient,
+        angle: angle,
+        type: globalGradientShape || "linear"
+      });
     } else {
       console.warn("onEditClick prop is not provided");
     }
@@ -215,21 +226,6 @@ export default function GradientCard({
     }
   };
 
-  const handleDownloadImage = async () => {
-    try {
-      const options: ImageExportOptions = {
-        colors: gradient.colors,
-        angle,
-        width: 1024,
-        height: 1024,
-        isAnimated: false,
-        animationSpeed: 1,
-      };
-      await imageExportUtils.downloadImage(options, "png", `${gradient.name || "gradient"}-${Date.now()}.png`);
-    } catch (error) {
-      console.error("Failed to download gradient image:", error);
-    }
-  };
 
   const formattedColors = gradient.colors.map((color) =>
     getColorInFormat(color),
@@ -414,7 +410,7 @@ export default function GradientCard({
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
       className="relative overflow-hidden transition-all duration-300"
     >
-      <div className="absolute left-0 right-0 top-3 z-50 flex items-center justify-between px-4">
+      <div className="absolute left-0 right-0 top-3 z-[60] flex items-center justify-between px-4">
         <AnimatedCheckbox
           checked={isAnimated}
           onChange={setIsAnimated}
@@ -484,20 +480,27 @@ export default function GradientCard({
             </Tooltip>
 
             {/* Download Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={handleDownloadImage}
-                  className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
-                >
-                  <Download className="h-4 w-4 text-white" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="bg-black/90 border-white/10">
-                <p className="text-white">Download as image</p>
-              </TooltipContent>
-            </Tooltip>
+            <DownloadOptionsDropdown
+              colors={formattedColors}
+              angle={angle}
+              name={gradient.name}
+              isAnimated={isAnimated}
+              animationSpeed={animationSpeed}
+              trigger={
+                <div className="p-1 rounded-md hover:bg-white/10 transition-colors cursor-pointer">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="p-0.5 nofocus">
+                        <Download className="h-4 w-4 text-white" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-black/90 border-white/10">
+                      <p className="text-white">Export options</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              }
+            />
           </div>
         </TooltipProvider>
       </div>
@@ -522,7 +525,7 @@ export default function GradientCard({
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 exit={{ opacity: 0, scale: 0.9, rotate: 10 }}
                 transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+                className="pointer-events-none absolute inset-0 z-[40] flex items-center justify-center"
               >
                 <div
                   className="absolute h-2 w-2 rounded-full"
@@ -533,8 +536,16 @@ export default function GradientCard({
                   className="pointer-events-auto absolute"
                   width={size}
                   height={size}
-                  style={{ overflow: "visible", touchAction: "none" }}
+                  viewBox={`0 0 ${size} ${size}`}
+                  style={{ 
+                    overflow: "visible", 
+                    touchAction: "none",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)"
+                  }}
                   onPointerDown={(e) => {
+                    e.stopPropagation();
                     isDraggingRef.current = true;
                     (e.currentTarget as SVGSVGElement).setPointerCapture(
                       e.pointerId,
@@ -555,7 +566,6 @@ export default function GradientCard({
                       // ignore
                     }
                   }}
-                  onPointerDownCapture={(e) => e.stopPropagation()}
                 >
                   <g transform={`rotate(${angle} ${cx} ${cy})`}>
                     <line
@@ -649,13 +659,6 @@ export default function GradientCard({
           visible={isAnimated && gradientType !== "image"}
         />
 
-        <ImageDownloadControl
-          colors={formattedColors}
-          angle={angle}
-          isAnimated={isAnimated}
-          animationSpeed={animationSpeed}
-          visible={gradientType === "image"}
-        />
 
         <>
           <DropdownMenu>
