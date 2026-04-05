@@ -16897,5 +16897,612 @@
         "warm"
       ]
     ]
+  },
+  {
+    "name": "Neon Sunset",
+    "colors": [
+      "#FE019A",
+      "#FF00DC"
+    ],
+    "colorsname": [
+      "modern #FE0",
+      "modern #FF0"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Electric Indigo",
+    "colors": [
+      "#6600FF",
+      "#00CCFF"
+    ],
+    "colorsname": [
+      "modern #660",
+      "modern #00C"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Modern Peach",
+    "colors": [
+      "#FF9A8B",
+      "#FF6A88",
+      "#FF99AC"
+    ],
+    "colorsname": [
+      "modern #FF9",
+      "modern #FF6",
+      "modern #FF9"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Aurora Teal",
+    "colors": [
+      "#00F2FE",
+      "#4FACFE"
+    ],
+    "colorsname": [
+      "modern #00F",
+      "modern #4FA"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Midnight Cyber",
+    "colors": [
+      "#243B55",
+      "#141E30"
+    ],
+    "colorsname": [
+      "modern #243",
+      "modern #141"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Toxic Glow",
+    "colors": [
+      "#00FF87",
+      "#60EFFF"
+    ],
+    "colorsname": [
+      "modern #00F",
+      "modern #60E"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Ethereal Dream",
+    "colors": [
+      "#A18CD1",
+      "#FBC2EB"
+    ],
+    "colorsname": [
+      "modern #A18",
+      "modern #FBC"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Ocean Breeze",
+    "colors": [
+      "#209cff",
+      "#68e0cf"
+    ],
+    "colorsname": [
+      "modern #209",
+      "modern #68e"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Plum Mist",
+    "colors": [
+      "#7028e4",
+      "#e5b2ca"
+    ],
+    "colorsname": [
+      "modern #702",
+      "modern #e5b"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Modern Mint",
+    "colors": [
+      "#00cdac",
+      "#8ddad5"
+    ],
+    "colorsname": [
+      "modern #00c",
+      "modern #8dd"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Sunlight Amber",
+    "colors": [
+      "#f6d365",
+      "#fda085"
+    ],
+    "colorsname": [
+      "modern #f6d",
+      "modern #fda"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Cyber Red",
+    "colors": [
+      "#f78ca0",
+      "#f9748f",
+      "#fd868c",
+      "#fe9a8b"
+    ],
+    "colorsname": [
+      "modern #f78",
+      "modern #f97",
+      "modern #fd8",
+      "modern #fe9"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Space Dust",
+    "colors": [
+      "#30cfd0",
+      "#330867"
+    ],
+    "colorsname": [
+      "modern #30c",
+      "modern #330"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Neon Lime",
+    "colors": [
+      "#d4fc79",
+      "#96e6a1"
+    ],
+    "colorsname": [
+      "modern #d4f",
+      "modern #96e"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Aqua Marine",
+    "colors": [
+      "#4facfe",
+      "#00f2fe"
+    ],
+    "colorsname": [
+      "modern #4fa",
+      "modern #00f"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Modern Orange",
+    "colors": [
+      "#fa709a",
+      "#fee140"
+    ],
+    "colorsname": [
+      "modern #fa7",
+      "modern #fee"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Vibrant Sky",
+    "colors": [
+      "#89f7fe",
+      "#66a6ff"
+    ],
+    "colorsname": [
+      "modern #89f",
+      "modern #66a"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Lush Green",
+    "colors": [
+      "#5ee7df",
+      "#b490ca"
+    ],
+    "colorsname": [
+      "modern #5ee",
+      "modern #b49"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Midnight Purple",
+    "colors": [
+      "#c471ed",
+      "#f64f59",
+      "#12c2e9"
+    ],
+    "colorsname": [
+      "modern #c47",
+      "modern #f64",
+      "modern #12c"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Soft Glow",
+    "colors": [
+      "#6a11cb",
+      "#2575fc"
+    ],
+    "colorsname": [
+      "modern #6a1",
+      "modern #257"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Modern Gold",
+    "colors": [
+      "#fccb90",
+      "#d57eeb"
+    ],
+    "colorsname": [
+      "modern #fcc",
+      "modern #d57"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Electric Berry",
+    "colors": [
+      "#e14fad",
+      "#f9d423"
+    ],
+    "colorsname": [
+      "modern #e14",
+      "modern #f9d"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
+  },
+  {
+    "name": "Modern Teal",
+    "colors": [
+      "#43e97b",
+      "#38f9d7"
+    ],
+    "colorsname": [
+      "modern #43e",
+      "modern #38f"
+    ],
+    "keywords": [
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ],
+      [
+        "modern",
+        "grabient",
+        "vibrant",
+        "clean"
+      ]
+    ]
   }
 ]
