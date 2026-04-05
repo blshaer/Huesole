@@ -23,6 +23,7 @@ export interface User {
   picture?: string;
   username?: string;
   favorites: string[];
+  dislikes: string[];
   role: "user" | "admin";
   isBanned?: boolean;
   banMessage?: string;
@@ -49,8 +50,8 @@ interface AuthContextType {
   register: (userData: any) => Promise<void>;
   logout: () => void;
   setAuth: (data: AuthResponse) => void;
-
   updateFavorites: (favorites: string[]) => void;
+  updateDislikes: (dislikes: string[]) => void;
   updateUser: (userData: Partial<User>) => void;
 
   isSignInOpen: boolean;
@@ -180,6 +181,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateDislikes = (dislikes: string[]) => {
+    if (user) {
+      setUser({ ...user, dislikes });
+    }
+  };
+
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       setUser({ ...user, ...userData });
@@ -205,8 +212,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         register,
         logout,
         setAuth,
-
         updateFavorites,
+        updateDislikes,
         updateUser,
 
         isSignInOpen,

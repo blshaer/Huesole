@@ -19,7 +19,7 @@ const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
 
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
-  const [globalGradientType, setGlobalGradientType] = useState<"background" | "text" | "image">((searchParams.get("type") as any) || "background");
+  const [globalGradientType, setGlobalGradientType] = useState<"background" | "text">((searchParams.get("type") as any) || "background");
   const [globalGradientShape, setGlobalGradientShape] = useState<"linear" | "radial" | "conic" | "auto">((searchParams.get("shape") as any) || "auto");
 
   // Sync state to URL
@@ -75,8 +75,8 @@ const HomePage: React.FC = () => {
   }, [currentPage, filteredGradients, gradientsPerPage]);
 
   // --- Handlers ---
-  const handlePageChange = (direction: "next" | "prev") => {
-    setCurrentPage((prev) => (direction === "next" ? prev + 1 : prev - 1));
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   // --- Render ---
@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
         <div className="mx-auto space-y-2">
           <HeroSection />
 
-          <div className="container max-md:pt-8 pb-32">
+          <div className="container max-md:pt-8 pb-16 home-page-header">
             <div className="flex flex-col gap-4">
               <SearchAndFilters
                 searchTerm={searchTerm}

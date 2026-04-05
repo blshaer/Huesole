@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "@/shared/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Button } from "@/shared/ui/button";
-import { Plus, Trash2, Edit2, Loader2, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Trash2, Edit2, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
+
+import Pagination from "@/features/landing/components/Pagination";
 
 import { API_URL } from "@/shared/config";
 
@@ -187,34 +182,17 @@ const ManageHomeGradients: React.FC = () => {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-2 pt-4">
-                <div className="text-sm text-white/40 font-medium">
+            <div className="flex flex-col md:flex-row items-center justify-between px-2 pt-8 gap-4">
+                <div className="text-sm text-white/40 font-medium order-2 md:order-1">
                     Showing <span className="text-white">{(page - 1) * limit + 1}</span> to <span className="text-white">{Math.min(page * limit, totalGradients)}</span> of <span className="text-white">{totalGradients}</span> gradients
                 </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                        className="rounded-xl border border-white/5 hover:bg-white/10 text-white disabled:opacity-30"
-                    >
-                        <ChevronLeft size={16} className="mr-1" />
-                        Previous
-                    </Button>
-                    <div className="flex items-center px-4 text-sm font-bold text-indigo-400 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-                        {page} / {totalPages}
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                        className="rounded-xl border border-white/5 hover:bg-white/10 text-white disabled:opacity-30"
-                    >
-                        Next
-                        <ChevronRight size={16} className="ml-1" />
-                    </Button>
+                <div className="order-1 md:order-2">
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={(p) => setPage(p)}
+                        isLoading={false}
+                    />
                 </div>
             </div>
 

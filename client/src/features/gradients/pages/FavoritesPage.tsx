@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "@/shared/lib/axios";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
+import { useDislikes } from "@/features/gradients/hooks/useDislikes";
 import { useGradients } from "@/features/gradients/hooks/useGradients";
 import GradientCard from "@/features/gradients/components/GradientCard";
 import { motion } from "framer-motion";
@@ -10,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 const FavoritesPage = () => {
   const { favorites, toggleFavorite } = useFavorites();
+  const { dislikes, toggleDislike } = useDislikes();
   const { gradients: libraryGradients, isLoading: loadingLibrary } = useGradients();
   const [createdGradients, setCreatedGradients] = useState<any[]>([]);
   const [loadingCreated, setLoadingCreated] = useState(true);
@@ -83,6 +85,8 @@ const FavoritesPage = () => {
                   gradient={gradient as any}
                   isFavorite={true}
                   onFavoriteToggle={toggleFavorite}
+                  isDisliked={dislikes.includes(gradient.name || "")}
+                  onDislikeToggle={toggleDislike}
                 />
               </motion.div>
             ))}

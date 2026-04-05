@@ -3,7 +3,7 @@ export interface AnimatedGradientOptions {
   angle: number;
   isAnimated: boolean;
   animationSpeed: number;
-  gradientType?: "background" | "text" | "image";
+  gradientType?: "background" | "text";
   customCss?: string;
 }
 
@@ -18,7 +18,7 @@ export const animatedGradientUtils = {
       gradientType = "background",
     } = options;
 
-    const gradientStyle = `linear-gradient(${angle}deg, ${colors.join(", ")})`;
+    const gradientStyle = options.customCss || `linear-gradient(${angle}deg, ${colors.join(", ")})`;
 
     if (!isAnimated) {
       if (gradientType === "text") {
@@ -231,7 +231,7 @@ animation: gradientShift $animation-duration ease infinite;
       gradientType = "background",
     } = options;
 
-    const gradientStyle = `linear-gradient(${angle}deg, ${colors.join(", ")})`;
+    const gradientStyle = options.customCss || `linear-gradient(${angle}deg, ${colors.join(", ")})`;
 
     if (!isAnimated) {
       if (gradientType === "text") {

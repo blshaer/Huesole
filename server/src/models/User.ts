@@ -18,6 +18,7 @@ export interface IUser extends Document {
     createdAt: Date;
     role: "user" | "admin";
     favorites: string[];
+    dislikes: string[];
     createdGradients: {
         id: string;
         name: string;
@@ -90,6 +91,11 @@ const UserSchema: Schema = new Schema({
         default: Date.now,
     },
     favorites: [
+        {
+            type: String,
+        },
+    ],
+    dislikes: [
         {
             type: String,
         },

@@ -9,8 +9,10 @@ interface GradientGridProps {
   gradients: Array<{ name: string; colors: string[] }>;
   favorites: string[];
   toggleFavorite: (name: string) => void;
+  dislikes?: string[];
+  toggleDislike?: (name: string) => void;
   isLoading: boolean;
-  globalGradientType: "background" | "text" | "image";
+  globalGradientType: "background" | "text";
   globalGradientShape: "linear" | "radial" | "conic" | "auto";
   selectedNames?: string[];
   onSelectToggle?: (name: string) => void;
@@ -20,6 +22,8 @@ export default function GradientGrid({
   gradients,
   favorites,
   toggleFavorite,
+  dislikes = [],
+  toggleDislike,
   isLoading,
   globalGradientType,
   globalGradientShape,
@@ -95,6 +99,8 @@ export default function GradientGrid({
                 gradient={gradient}
                 isFavorite={favorites.includes(gradient.name || "")}
                 onFavoriteToggle={() => toggleFavorite(gradient.name || "")}
+                isDisliked={dislikes.includes(gradient.name || "")}
+                onDislikeToggle={toggleDislike ? () => toggleDislike(gradient.name || "") : undefined}
                 onEditClick={handleEditGradient}
                 globalGradientType={globalGradientType}
                 globalGradientShape={globalGradientShape}

@@ -148,6 +148,7 @@ export const login = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
             },
             token: generateToken(userId, user.email, user.role),
@@ -204,6 +205,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
             },
             message: "Email Verified",
@@ -446,6 +448,7 @@ export const googleLogin = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
             },
             token: generateToken(user._id.toString(), user.email, user.role),
@@ -480,6 +483,7 @@ export const googleLogin = async (req: Request, res: Response) => {
                           email: user.email,
                           picture: user.picture,
                           favorites: user.favorites,
+                          dislikes: user.dislikes,
                           role: user.role,
                       },
                       token: generateToken(user._id.toString(), user.email, user.role),
@@ -527,6 +531,7 @@ export const getMe = async (req: Request, res: Response) => {
             email: user.email,
             picture: user.picture,
             favorites: user.favorites,
+            dislikes: user.dislikes,
             role: user.role,
             isVerified: user.isVerified,
             createdAt: user.createdAt,
@@ -591,6 +596,35 @@ export const toggleFavorite = async (req: Request, res: Response) => {
     }
 };
 
+export const toggleDislike = async (req: Request, res: Response) => {
+    const { gradientName } = req.body;
+
+    try {
+        // @ts-ignore
+        const user = await User.findById(req.user?.id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const index = user.dislikes.indexOf(gradientName);
+        if (index === -1) {
+            user.dislikes.push(gradientName);
+        } else {
+            user.dislikes.splice(index, 1);
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            dislikes: user.dislikes,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
 export const updateProfile = async (req: Request, res: Response) => {
     try {
         // @ts-ignore
@@ -642,6 +676,7 @@ export const updateProfile = async (req: Request, res: Response) => {
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
                 isVerified: user.isVerified,
                 createdAt: user.createdAt,

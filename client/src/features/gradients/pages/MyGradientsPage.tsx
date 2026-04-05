@@ -5,6 +5,7 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import GradientCard from "@/features/gradients/components/GradientCard";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
+import { useDislikes } from "@/features/gradients/hooks/useDislikes";
 import { Button } from "@/shared/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ interface Gradient {
 
 const MyGradientsPage = () => {
   const { favorites, toggleFavorite } = useFavorites();
+  const { dislikes, toggleDislike } = useDislikes();
   const [gradients, setGradients] = useState<Gradient[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,9 +36,6 @@ const MyGradientsPage = () => {
   const navigate = useNavigate();
   
 
-  const setBackground = (background: string) => {
-    console.log("Setting background:", background);
-  };
 
   const handleEditGradient = (gradient: any) => {
     navigate("/ai-generator", {
@@ -134,6 +133,8 @@ const MyGradientsPage = () => {
                       gradient={gradient}
                       isFavorite={favorites.includes(gradient.name)}
                       onFavoriteToggle={toggleFavorite}
+                      isDisliked={dislikes.includes(gradient.name)}
+                      onDislikeToggle={toggleDislike}
                       onEditClick={handleEditGradient}
                       onDeleteClick={handleDeleteClick as any}
                     />

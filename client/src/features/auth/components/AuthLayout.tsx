@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -88,11 +89,20 @@ export const AuthLayout = ({
           {children}
         </CardContent>
 
-        {footer && (
-          <CardFooter className="border-border/40 flex flex-col gap-4 border-t pb-8 pt-6">
-            {footer}
-          </CardFooter>
-        )}
+        <CardFooter className="border-border/40 flex flex-col gap-4 border-t pb-8 pt-6">
+          {footer}
+          <p className="px-8 text-center text-[11px] text-muted-foreground leading-relaxed">
+            By continuing, you agree to our{" "}
+            <Link to="/terms" className="underline underline-offset-2 hover:text-primary transition-colors">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="underline underline-offset-2 hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -8,6 +8,7 @@ export interface AuthResponse {
     email: string;
     picture?: string;
     favorites: string[];
+    dislikes: string[];
     role: "user" | "admin";
   };
   token: string;
@@ -65,6 +66,16 @@ export const toggleFavorite = async (
 ): Promise<{ success: boolean; favorites: string[] }> => {
   const response = await axios.put<{ success: boolean; favorites: string[] }>(
     `${AUTH_URL}/toggle-favorite`,
+    { gradientName }
+  );
+  return response.data;
+};
+
+export const toggleDislike = async (
+  gradientName: string,
+): Promise<{ success: boolean; dislikes: string[] }> => {
+  const response = await axios.put<{ success: boolean; dislikes: string[] }>(
+    `${AUTH_URL}/toggle-dislike`,
     { gradientName }
   );
   return response.data;

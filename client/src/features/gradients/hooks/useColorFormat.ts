@@ -4,7 +4,7 @@ import { colorUtils } from "../utils/colorUtils";
 export const useColorFormat = () => {
   const [selectedColorFormat, setSelectedColorFormat] = useState("HEX");
   const [gradientType, setGradientType] = useState<
-    "background" | "text" | "image"
+    "background" | "text"
   >("background");
 
   const updateColorFormat = (format: string) => {

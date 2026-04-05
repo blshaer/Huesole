@@ -38,7 +38,7 @@ const AppContent: React.FC = () => {
   return (
     <div
       dir="ltr"
-      className={`App relative min-h-screen overflow-x-hidden pb-[30px]`}
+      className={`App relative min-h-screen pb-[30px] `}
     >
       <CookieConsent />
       {!hideGlobalElements && <Navbar showAngleController={false} />}

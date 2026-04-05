@@ -8,10 +8,10 @@ interface SearchAndFiltersProps {
     name?: string;
     colors?: string[];
     colorsname?: string[];
-    keywords?: string[][];
+    keywords?: (string | string[])[];
   }>;
-  gradientType: "background" | "text" | "image";
-  onGradientTypeChange: (type: "background" | "text" | "image") => void;
+  gradientType: "background" | "text";
+  onGradientTypeChange: (type: "background" | "text") => void;
   gradientShape: "linear" | "radial" | "conic" | "auto";
   onGradientShapeChange: (shape: "linear" | "radial" | "conic" | "auto") => void;
 }

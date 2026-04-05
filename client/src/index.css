@@ -6,10 +6,32 @@
 
 @layer components {
   .container {
-    @apply w-full mx-auto px-6 md:px-12 lg:px-24;
+    @apply w-full mx-auto px-6;
     max-width: none;
 
   }
+
+
+  @media screen and (min-width: 1297px) {
+    .container {
+      @apply px-16;
+    }
+  }
+
+
+
+  @media screen and (max-width: 754px) {
+    .home-page-header {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+
+
+
+
+
 
   /* Responsive grid improvements */
   .gradient-grid {
@@ -90,6 +112,7 @@
 
 html,
 body {
+  overflow-x: hidden;
   overscroll-behavior: none;
 }
 

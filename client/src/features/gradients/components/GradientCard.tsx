@@ -115,6 +115,8 @@ export default function GradientCard({
   gradient,
   isFavorite,
   onFavoriteToggle,
+  isDisliked = false,
+  onDislikeToggle,
   editable = false,
   onColorsChange,
   onEditClick,
@@ -125,7 +127,6 @@ export default function GradientCard({
   const [activeTab, setActiveTab] = useState("tailwind");
   const [angle, setAngle] = useState((gradient as any).angle ?? 90);
   const [showAngleController, setShowAngleController] = useState(false);
-  const [localDisliked, setLocalDisliked] = useState(false);
 
   useEffect(() => {
     if (gradient.angle !== undefined) {
@@ -185,7 +186,7 @@ export default function GradientCard({
       // LEFT: 180 + 90 = 270
       // TOP: -90 + 90 = 0
       let calculatedAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
-      
+
       // Normalize to 0-360
       if (calculatedAngle < 0) calculatedAngle += 360;
       if (calculatedAngle >= 360) calculatedAngle -= 360;
@@ -227,7 +228,7 @@ export default function GradientCard({
     } else {
       console.warn("onEditClick prop is not provided");
     }
-};
+  };
 
   const handleDeleteButtonClick = () => {
     if (onDeleteClick && gradient.id) {
@@ -247,7 +248,7 @@ export default function GradientCard({
     if (gradientShape === "auto" || (gradient.rawCss && !globalGradientShape)) {
       if (gradient.rawCss) {
         let css = gradient.rawCss;
-        
+
         // Convert all colors in the raw CSS to the selected format
         gradient.colors.forEach((hexColor, index) => {
           const formattedColor = formattedColors[index];
@@ -407,8 +408,8 @@ export default function GradientCard({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setLocalDisliked(false);
-              if (!isFavorite) handleFavoriteToggle();
+              if (isDisliked && onDislikeToggle) onDislikeToggle(gradient.name);
+              onFavoriteToggle(gradient.name);
             }}
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 p-0 rounded-l-[5px] transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
@@ -426,16 +427,16 @@ export default function GradientCard({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setLocalDisliked(true);
-              if (isFavorite) handleFavoriteToggle();
+              if (isFavorite) onFavoriteToggle(gradient.name);
+              if (onDislikeToggle) onDislikeToggle(gradient.name);
             }}
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 p-0 rounded-r-[5px] transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
-              localDisliked && !isFavorite
+              isDisliked && !isFavorite
                 ? "text-red-500 bg-red-500/10"
                 : "text-white/60 hover:text-white hover:bg-background/60"
             )}
-            aria-pressed={localDisliked}
+            aria-pressed={isDisliked}
             title="Dislike"
           >
             <ThumbsDown className="w-4 h-4" strokeWidth={2.5} />
@@ -562,8 +563,8 @@ export default function GradientCard({
                   width={size}
                   height={size}
                   viewBox={`0 0 ${size} ${size}`}
-                  style={{ 
-                    overflow: "visible", 
+                  style={{
+                    overflow: "visible",
                     touchAction: "none",
                     top: "50%",
                     left: "50%",

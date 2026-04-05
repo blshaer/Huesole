@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <div className="container pt-8">
+    <div className="container pt-8 max-md:pt-0">
       <div
         className="h-[1px] w-full opacity-30"
         style={{
@@ -25,7 +25,7 @@ export default function Footer() {
         </div>
 
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/30">
-          &copy; {new Date().getFullYear()} LumeGradients. All rights reserved.
+          &copy; {new Date().getFullYear()} LumeGradients.
 
         </p>
       </footer>

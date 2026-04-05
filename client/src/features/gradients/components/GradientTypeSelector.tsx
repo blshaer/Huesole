@@ -7,8 +7,8 @@ import {
 import { ChevronDown } from "lucide-react";
 
 interface GradientTypeSelectorProps {
-  gradientType: "background" | "text" | "image";
-  setGradientType: (type: "background" | "text" | "image") => void;
+  gradientType: "background" | "text";
+  setGradientType: (type: "background" | "text") => void;
 }
 
 export const GradientTypeSelector: React.FC<GradientTypeSelectorProps> = ({
@@ -28,11 +28,11 @@ export const GradientTypeSelector: React.FC<GradientTypeSelectorProps> = ({
       align="end"
       className="w-32 rounded-md border border-border bg-secondary p-1"
     >
-      {["background", "text", "image"].map((type) => (
+      {["background", "text"].map((type) => (
         <DropdownMenuItem
           key={type}
           onSelect={() =>
-            setGradientType(type as "background" | "text" | "image")
+            setGradientType(type as "background" | "text")
           }
           className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
         >

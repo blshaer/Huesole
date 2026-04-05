@@ -9,6 +9,7 @@ import {
     verifyEmail,
     updatePassword,
     toggleFavorite,
+    toggleDislike,
     resendVerification,
     updateProfile,
     deleteAccount,
@@ -58,6 +59,7 @@ router.put("/reset-password/:token", resetPassword);
 router.get("/verify-email/:token", verifyEmail);
 router.put("/updatepassword", protect, updatePassword);
 router.put("/toggle-favorite", protect, toggleFavorite);
+router.put("/toggle-dislike", protect, toggleDislike);
 router.put("/update-profile", protect, upload.single("picture"), updateProfile);
 router.post("/resend-verification", resendVerification);
 
