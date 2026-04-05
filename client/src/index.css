@@ -110,10 +110,15 @@
   }
 }
 
-html,
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 body {
   overflow-x: hidden;
-  overscroll-behavior: none;
+  height: auto;
+  min-height: 100vh;
 }
 
 :root {

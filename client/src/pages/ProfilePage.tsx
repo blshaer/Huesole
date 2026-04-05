@@ -143,11 +143,7 @@ const ProfilePage = () => {
       setName(user.name);
       setUsername(user.username || "");
       if (!selectedFile && !selectedSuggestedAvatar) {
-        // Cache bust the preview URL
-        const timestamp = Date.now();
-        const basePic = user.picture || "";
-        const url = basePic ? (basePic.includes('http') || basePic.includes('data:') ? basePic : (basePic.includes('?') ? `${basePic}&t=${timestamp}` : `${basePic}?t=${timestamp}`)) : "";
-        setPreviewUrl(url);
+        setPreviewUrl(user.picture || "");
       }
     }
   }, [user, isLoading, navigate]);
@@ -334,7 +330,7 @@ const ProfilePage = () => {
               <CardContent className="px-6 py-6 space-y-6">
                 <div className="flex items-center gap-6">
                   <Avatar className="h-20 w-20 border border-border">
-                    <AvatarImage src={getFullImageUrl(previewUrl)} alt={user.name} />
+                    <AvatarImage src={previewUrl.startsWith("blob:") ? previewUrl : getFullImageUrl(previewUrl)} alt={user.name} />
                     <AvatarFallback className="text-xl">
                       {user.name && user.name.split(" ").length > 1
                         ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)
@@ -447,8 +443,8 @@ const ProfilePage = () => {
             </Card>
 
             {/* DANGER ZONE CARD */}
-            <Card id="danger-zone" className="scroll-mt-24 border-red-500 bg-red-500/[0.02] shadow-sm">
-              <CardHeader className="pb-6 border-b border-red-500/10 px-6 pt-6">
+            <Card id="danger-zone" className="scroll-mt-24 border border-red-500/10 bg-red-500/[0.01] shadow-sm">
+              <CardHeader className="pb-6 border-b border-red-500/5 px-6 pt-6">
                 <CardTitle className="text-lg text-red-500">Danger Zone</CardTitle>
                 <CardDescription className="text-sm mt-1">Irreversible actions for your account</CardDescription>
               </CardHeader>
