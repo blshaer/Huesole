@@ -5,6 +5,8 @@ export interface ImageExportOptions {
   height: number;
   isAnimated: boolean;
   animationSpeed: number;
+  shape?: string;
+  customCss?: string;
 }
 
 export interface ImageFormat {
@@ -24,7 +26,7 @@ export const imageFormats: ImageFormat[] = [
 export const imageExportUtils = {
   // Create a canvas with gradient
   createGradientCanvas: (options: ImageExportOptions): HTMLCanvasElement => {
-    const { colors, angle, width, height } = options;
+    const { colors, angle, width, height, shape = "linear", customCss } = options;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
@@ -35,25 +37,45 @@ export const imageExportUtils = {
     canvas.width = width;
     canvas.height = height;
 
-    // Convert angle to radians
-    const angleRad = (angle * Math.PI) / 180;
+    const cx = width / 2;
+    const cy = height / 2;
+    let canvasGradient;
+    
+    let actualShape = shape;
+    if ((actualShape === "auto" || !actualShape) && customCss) {
+      if (customCss.includes("conic-gradient")) actualShape = "conic";
+      else if (customCss.includes("radial-gradient")) actualShape = "radial";
+      else actualShape = "linear";
+    }
 
-    // Calculate gradient direction
-    const x1 = (Math.cos(angleRad) * width) / 2 + width / 2;
-    const y1 = (Math.sin(angleRad) * height) / 2 + height / 2;
-    const x2 = width - x1;
-    const y2 = height - y1;
+    if (actualShape === "radial") {
+      // Create radial gradient centered
+      const r = Math.max(width, height) / 2;
+      canvasGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    } else if (actualShape === "conic") {
+      // Conic gradient mapping 0deg to top (standard CSS behavior)
+      const startAngleRad = ((angle - 90) * Math.PI) / 180;
+      canvasGradient = ctx.createConicGradient(startAngleRad, cx, cy);
+    } else {
+      // Linear gradient mapped with accurate points bounding the rect
+      const angleRad = ((angle - 90) * Math.PI) / 180;
+      const length = Math.abs(width * Math.cos(angleRad)) + Math.abs(height * Math.sin(angleRad));
+      const halfLength = length / 2;
+      
+      const x1 = cx - Math.cos(angleRad) * halfLength;
+      const y1 = cy - Math.sin(angleRad) * halfLength;
+      const x2 = cx + Math.cos(angleRad) * halfLength;
+      const y2 = cy + Math.sin(angleRad) * halfLength;
+      
+      canvasGradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    }
 
-    // Create linear gradient
-    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-
-    // Add color stops
+    // Add color stops uniformly
     colors.forEach((color, index) => {
-      gradient.addColorStop(index / (colors.length - 1), color);
+      canvasGradient.addColorStop(index / (colors.length - 1), color);
     });
 
-    // Fill canvas with gradient
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = canvasGradient;
     ctx.fillRect(0, 0, width, height);
 
     return canvas;
@@ -61,8 +83,15 @@ export const imageExportUtils = {
 
   // Generate SVG string
   generateSVG: (options: ImageExportOptions): string => {
-    const { colors, angle, width, height, isAnimated, animationSpeed } =
+    const { colors, angle, width, height, isAnimated, animationSpeed, shape = "linear", customCss } =
       options;
+
+    let actualShape = shape;
+    if ((actualShape === "auto" || !actualShape) && customCss) {
+      if (customCss.includes("conic-gradient")) actualShape = "conic";
+      else if (customCss.includes("radial-gradient")) actualShape = "radial";
+      else actualShape = "linear";
+    }
 
     const gradientId = `gradient-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -73,7 +102,7 @@ export const imageExportUtils = {
       })
       .join("\n    ");
 
-    const animationElements = isAnimated
+    const animationElements = isAnimated && actualShape !== "radial"
       ? `
     <animateTransform
       attributeName="gradientTransform"
@@ -83,6 +112,18 @@ export const imageExportUtils = {
       repeatCount="indefinite"
     />`
       : "";
+
+    if (actualShape === "radial") {
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="${gradientId}" cx="50%" cy="50%" r="50%">
+      ${colorStops}
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#${gradientId})" />
+</svg>`;
+    }
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">

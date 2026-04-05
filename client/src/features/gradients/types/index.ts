@@ -1,7 +1,7 @@
 export interface GeneratedGradient {
   name: string;
   colors: string[];
-  type: "linear" | "radial" | "conic";
+  type: "linear" | "radial" | "conic" | "default";
   angle?: number;
   reasoning?: string;
   // Adjustment parameters
@@ -10,4 +10,5 @@ export interface GeneratedGradient {
   frequency?: number;
   phase?: number;
   steps?: number | null;
+  baseColors?: string[];
 }

@@ -1,4 +1,4 @@
-import { Download, ChevronRight } from "lucide-react";
+import { Download } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,8 @@ interface DownloadOptionsDropdownProps {
   name?: string;
   isAnimated?: boolean;
   animationSpeed?: number;
+  shape?: string;
+  customCss?: string;
   trigger: React.ReactNode;
 }
 
@@ -30,6 +32,8 @@ export const DownloadOptionsDropdown = ({
   name = "gradient",
   isAnimated = false,
   animationSpeed = 1,
+  shape = "linear",
+  customCss,
   trigger
 }: DownloadOptionsDropdownProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -48,6 +52,8 @@ export const DownloadOptionsDropdown = ({
         height: size.height,
         isAnimated,
         animationSpeed,
+        shape,
+        customCss,
       };
 
       const formatConfig = imageFormats.find((f) => f.value === format);

@@ -12,8 +12,8 @@ interface SearchAndFiltersProps {
   }>;
   gradientType: "background" | "text" | "image";
   onGradientTypeChange: (type: "background" | "text" | "image") => void;
-  gradientShape: "linear" | "radial" | "conic";
-  onGradientShapeChange: (shape: "linear" | "radial" | "conic") => void;
+  gradientShape: "linear" | "radial" | "conic" | "auto";
+  onGradientShapeChange: (shape: "linear" | "radial" | "conic" | "auto") => void;
 }
 
 

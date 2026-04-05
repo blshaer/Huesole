@@ -1,34 +1,24 @@
 export interface GradientCardProps {
-  gradient: { name: string; colors: string[] };
+  gradient: Gradient;
   isFavorite: boolean;
   onFavoriteToggle: (name: string) => void;
   editable?: boolean;
   onColorsChange?: (newColors: string[]) => void;
-  onEditClick?: (gradient: {
-    name: string;
-    colors: string[];
-    angle?: number;
-    type?: string;
-    exposure?: number;
-    contrast?: number;
-    frequency?: number;
-    phase?: number;
-    steps?: number | null;
-  }) => void;
-  onDeleteClick?: (gradient: {
-    id: string;
-    name: string;
-    colors: string[];
-  }) => void;
+  onEditClick?: (gradient: Gradient) => void;
+  onDeleteClick?: (gradient: Gradient & { id: string }) => void;
   globalGradientType?: "background" | "text" | "image";
-  globalGradientShape?: "linear" | "radial" | "conic";
+  globalGradientShape?: "linear" | "radial" | "conic" | "auto";
+  isSelected?: boolean;
+  onSelectToggle?: (name: string) => void;
 }
 
 export interface Gradient {
+  id?: string;
   name: string;
   colors: string[];
   angle?: number;
   type?: string;
+  rawCss?: string;
   isAnimated?: boolean;
   animationSpeed?: number;
   colorsname?: string[];
@@ -38,6 +28,7 @@ export interface Gradient {
   frequency?: number;
   phase?: number;
   steps?: number | null;
+  baseColors?: string[];
 }
 
 export type MoodBoardThemeKey =

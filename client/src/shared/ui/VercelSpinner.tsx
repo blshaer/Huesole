@@ -50,10 +50,10 @@ export const VercelSpinner: React.FC<VercelSpinnerProps> = ({ size = 80, classNa
       geometry.center();
 
       const material = new THREE.MeshStandardMaterial({
-        color: 0x0070f3,
+        color: 0xffffff,
         metalness: 0.9,
         roughness: 0.1,
-        emissive: 0x0070f3,
+        emissive: 0xffffff,
         emissiveIntensity: 0.5
       });
 
@@ -67,7 +67,7 @@ export const VercelSpinner: React.FC<VercelSpinnerProps> = ({ size = 80, classNa
       p1.position.set(20, 20, 40);
       scene.add(p1);
 
-      const p2 = new THREE.PointLight(0x0070f3, 1.5);
+      const p2 = new THREE.PointLight(0xffffff, 1.5);
       p2.position.set(-20, -10, 20);
       scene.add(p2);
 

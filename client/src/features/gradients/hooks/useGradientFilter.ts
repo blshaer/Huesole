@@ -25,11 +25,14 @@ export function useGradientFilter({
         colorsname.some((color) =>
           (color ?? "").toLowerCase().includes(debouncedLower),
         ) ||
-        keywords.some((kwList) =>
-          (kwList ?? []).some((kw) =>
-            (kw ?? "").toLowerCase().includes(debouncedLower),
-          ),
-        )
+        keywords.some((kwOrList) => {
+          if (Array.isArray(kwOrList)) {
+            return kwOrList.some((kw) =>
+              (kw ?? "").toLowerCase().includes(debouncedLower),
+            );
+          }
+          return (kwOrList ?? "").toLowerCase().includes(debouncedLower);
+        })
       );
     });
   }, [debouncedSearch, gradients]);

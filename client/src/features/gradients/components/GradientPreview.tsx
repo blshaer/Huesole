@@ -4,38 +4,25 @@ interface GradientPreviewProps {
   style: React.CSSProperties;
   gradientType: "background" | "text" | "image";
   gradient: { name: string; colors: string[] };
-  isAnimated?: boolean;
-  animationSpeed?: number;
 }
 
 export const GradientPreview: React.FC<GradientPreviewProps> = ({
   style,
   gradientType,
   gradient,
-  isAnimated = false,
-  animationSpeed = 1,
 }) => {
   const glowColor = gradient.colors[0];
-
-  // Create animated style if animation is enabled
-  const animatedStyle = isAnimated
-    ? {
-      ...style,
-      backgroundSize: "400% 400%",
-      animation: `gradientShift ${4 / animationSpeed}s ease infinite`,
-    }
-    : style;
 
   // For text gradients, ensure proper text styling
   const textGradientStyle =
     gradientType === "text"
       ? {
-        ...animatedStyle,
+        ...style,
         color: "transparent",
         backgroundClip: "text",
         WebkitBackgroundClip: "text",
       }
-      : animatedStyle;
+      : style;
 
   return (
     <div className="relative flex h-48 w-48 items-center justify-center">
@@ -50,7 +37,7 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
         className={`relative flex h-full w-full items-center justify-center overflow-hidden ${
           gradientType === "image" ? "rounded-[12px]" : "rounded-full"
         }`}
-        style={gradientType === "background" ? animatedStyle : {}}
+        style={gradientType === "background" ? style : {}}
         transition={{ duration: 0.3 }}
       >
         {gradientType === "text" ? (
@@ -71,13 +58,10 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
             transition={{ duration: 0.4, ease: "easeOut" }}
             style={{
               background:
-                animatedStyle.backgroundImage || style.backgroundImage,
-              backgroundSize: isAnimated ? "400% 400%" : "100% 100%",
+                style.backgroundImage,
+              backgroundSize: "100% 100%",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              animation: isAnimated
-                ? `gradientShift ${4 / animationSpeed}s ease infinite`
-                : undefined,
             }}
           ></motion.div>
         ) : null}

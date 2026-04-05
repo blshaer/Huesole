@@ -69,7 +69,7 @@ const FeatureBadge: React.FC<FeatureBadgeProps> = memo(
           <RoughNotation
             type="circle"
             show={true}
-            color="#edf0f1" // Brand highlight color
+            color="#E0E0E0" // Brand highlight color
             padding={isMobile ? 7 : 14} // Responsive padding
             animationDuration={750}
           >

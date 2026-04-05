@@ -72,9 +72,13 @@ export function TextScramble({
 
   useEffect(() => {
     if (!trigger) return;
-
     scramble();
-  }, [trigger]);
+  }, [trigger]); // Only rescramble when trigger changes (e.g. dialog turns open)
+
+  useEffect(() => {
+    // When code changes (e.g. switching format HEX->RGB), update instantly
+    setDisplayText(children);
+  }, [children]);
 
   return (
     <MotionComponent className={className} {...props}>

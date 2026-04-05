@@ -5,6 +5,7 @@ export const serializeGradientToParams = (gradient: GeneratedGradient): string =
   
   if (gradient.name) params.set("name", gradient.name);
   if (gradient.colors) params.set("colors", gradient.colors.join(","));
+  if (gradient.baseColors) params.set("baseColors", gradient.baseColors.join(","));
   if (gradient.type) params.set("type", gradient.type);
   if (gradient.angle !== undefined) params.set("angle", gradient.angle.toString());
   if (gradient.exposure !== undefined) params.set("exposure", gradient.exposure.toString());
@@ -23,7 +24,9 @@ export const deserializeGradientFromParams = (paramsStr: string): Partial<Genera
   if (!colorsStr) return null;
   
   const colors = colorsStr.split(",");
-  const type = params.get("type") as "linear" | "radial" | "conic" | null;
+  const baseColorsStr = params.get("baseColors");
+  const baseColors = baseColorsStr ? baseColorsStr.split(",") : colors;
+  const type = params.get("type") as "linear" | "radial" | "conic" | "default" | null;
   
   return {
     name: params.get("name") || undefined,
@@ -35,5 +38,6 @@ export const deserializeGradientFromParams = (paramsStr: string): Partial<Genera
     frequency: params.get("frequency") ? Number(params.get("frequency")) : undefined,
     phase: params.get("phase") ? Number(params.get("phase")) : undefined,
     steps: params.get("steps") ? Number(params.get("steps")) : null,
+    baseColors,
   };
 };

@@ -40,7 +40,7 @@ export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps)
             initial="initial"
             whileHover="hover"
             whileTap={{ scale: 0.98 }}
-            className="relative overflow-hidden flex items-center justify-center w-[130px] h-9 bg-[#edf0f1] text-black border border-black/10 rounded-md font-medium text-xs shadow-sm"
+            className="relative overflow-hidden flex items-center justify-center w-[130px] h-9 bg-[#E0E0E0] text-black border border-black/10 rounded-md font-medium text-xs shadow-sm"
           >
             <motion.span
               variants={textVariants}
@@ -76,10 +76,10 @@ export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps)
               {user.name
                 ? user.name.split(" ").length > 1
                   ? user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
                   : user.name.slice(0, 2)
                 : "UA"}
             </AvatarFallback>
@@ -98,14 +98,14 @@ export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps)
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         <Link to="/profile">
           <DropdownMenuItem className="cursor-pointer">
             <UserIcon className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
         </Link>
-        
+
         {user.role === "admin" && (
           <Link to="/admin">
             <DropdownMenuItem className="cursor-pointer text-primary focus:text-primary">

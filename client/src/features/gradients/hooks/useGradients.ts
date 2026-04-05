@@ -10,7 +10,7 @@ interface Gradient {
   type?: string;
   angle?: number;
   colorsname?: string[];
-  keywords?: string[][];
+  keywords?: (string | string[])[];
 }
 
 interface UseGradientsReturn {

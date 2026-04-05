@@ -4,6 +4,7 @@ export interface AnimatedGradientOptions {
   isAnimated: boolean;
   animationSpeed: number;
   gradientType?: "background" | "text" | "image";
+  customCss?: string;
 }
 
 export const animatedGradientUtils = {
@@ -157,7 +158,7 @@ animation: ${keyframeName} ${animationDuration} ease infinite;
       gradientType = "background",
     } = options;
 
-    const gradientStyle = `linear-gradient(${angle}deg, ${colors.join(", ")})`;
+    const gradientStyle = options.customCss || `linear-gradient(${angle}deg, ${colors.join(", ")})`;
 
     if (!isAnimated) {
       if (gradientType === "text") {
@@ -350,7 +351,7 @@ animation: gradientShift $animation-duration ease infinite;
         animated: isAnimated,
         animationSpeed: animationSpeed,
         animationDuration: isAnimated ? `${4 / animationSpeed}s` : null,
-        css: animatedGradientUtils.generateAnimatedCSS(options),
+        css: options.customCss || animatedGradientUtils.generateAnimatedCSS(options),
         tailwind: animatedGradientUtils.generateAnimatedTailwind(options),
       },
       null,
@@ -695,7 +696,7 @@ animatedGradient.startAnimation()`;
       animationSpeed,
       gradientType = "background",
     } = options;
-    const gradientStyle = `linear-gradient(${angle}deg, ${colors.join(", ")})`;
+    const gradientStyle = options.customCss || `linear-gradient(${angle}deg, ${colors.join(", ")})`;
 
     if (!isAnimated) {
       return `<!-- Vue.js with CSS -->
@@ -761,7 +762,7 @@ animatedGradient.startAnimation()`;
       animationSpeed,
       gradientType = "background",
     } = options;
-    const gradientStyle = `linear-gradient(${angle}deg, ${colors.join(", ")})`;
+    const gradientStyle = options.customCss || `linear-gradient(${angle}deg, ${colors.join(", ")})`;
 
     if (!isAnimated) {
       return `<!-- Angular with CSS -->
@@ -821,7 +822,7 @@ animatedGradient.startAnimation()`;
       animationSpeed,
       gradientType = "background",
     } = options;
-    const gradientStyle = `linear-gradient(${angle}deg, ${colors.join(", ")})`;
+    const gradientStyle = options.customCss || `linear-gradient(${angle}deg, ${colors.join(", ")})`;
 
     if (!isAnimated) {
       return `// React component with styled-components or CSS-in-JS

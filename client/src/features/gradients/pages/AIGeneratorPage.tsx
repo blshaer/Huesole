@@ -73,7 +73,7 @@ const AIGeneratorPage: React.FC = () => {
   const [showAngleController, setShowAngleController] = useState(true);
   const [canvasSize, setCanvasSize] = useState<CanvasSize | null>(null);
 
-  const { handleGenerate, handleSave, loading } = useGradientGeneration({
+  const { handleGenerate, loading } = useGradientGeneration({
     user,
     navigate,
     setResult,
@@ -198,7 +198,6 @@ const AIGeneratorPage: React.FC = () => {
             <RightSidebar
               result={result}
               setResult={setResult}
-              onSave={handleSave}
             />
           </div>
         </div>

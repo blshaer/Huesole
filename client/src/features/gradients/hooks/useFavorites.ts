@@ -27,14 +27,33 @@ export function useFavorites() {
       return;
     }
 
+    // Optimistic update
+    const previousFavorites = [...favorites];
+    const isFavorited = favorites.includes(name);
+    const newFavorites = isFavorited
+      ? favorites.filter((f) => f !== name)
+      : [...favorites, name];
+
+    // Apply immediately
+    setFavorites(newFavorites);
+    updateFavorites(newFavorites);
+
     try {
       const data = await toggleFavoriteService(name);
-      if (data.success) {
+      if (!data.success) {
+        // Rollback if the service explicitly returns success: false
+        setFavorites(previousFavorites);
+        updateFavorites(previousFavorites);
+      } else {
+        // Final sync with server data
         setFavorites(data.favorites);
         updateFavorites(data.favorites);
       }
     } catch (error) {
       console.error("Failed to toggle favorite", error);
+      // Rollback on network error or exception
+      setFavorites(previousFavorites);
+      updateFavorites(previousFavorites);
     }
   };
 

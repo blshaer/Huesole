@@ -1,16 +1,14 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import { Heart } from "lucide-react";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Slider } from "@/shared/ui/slider";
 import { GeneratedGradient } from "../types";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
-import { toast } from "sonner";
 import {
   Area,
   AreaChart,
   XAxis,
   YAxis,
   CartesianGrid,
-  ResponsiveContainer,
 } from "recharts";
 import {
   ChartContainer,
@@ -37,7 +35,6 @@ const chartConfig = {
 interface RightSidebarProps {
   result: GeneratedGradient | null;
   setResult: React.Dispatch<React.SetStateAction<GeneratedGradient>>;
-  onSave?: (gradient: GeneratedGradient) => Promise<void>;
 }
 
 // Parse hex to RGB
@@ -75,9 +72,7 @@ const applyTransform = (
 export const RightSidebar = ({
   result,
   setResult,
-  onSave,
 }: RightSidebarProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const { favorites, toggleFavorite } = useFavorites();
   
@@ -96,7 +91,7 @@ export const RightSidebar = ({
   >("angular");
 
   // State to hold the original un-mutated colors from the AI/left sidebar before curve/slider edits
-  const [baseColors, setBaseColors] = useState<string[]>(result?.colors || []);
+  const [baseColors, setBaseColors] = useState<string[]>(result?.baseColors || result?.colors || []);
   const lastPushedColorsRef = useRef<string[]>([]);
 
   useEffect(() => {
@@ -145,40 +140,19 @@ export const RightSidebar = ({
     
     // 1. If result.colors changed from OUTSIDE (don't match our last push)
     if (currentColorsStr !== pushedStr) {
-      setBaseColors(result.colors);
+      setBaseColors(result.baseColors || result.colors);
+      
+      if (result.exposure !== undefined) setExposure(result.exposure);
+      if (result.contrast !== undefined) setContrast(result.contrast);
+      if (result.frequency !== undefined) setFrequency(result.frequency);
+      if (result.phase !== undefined) setPhase(result.phase);
+      if (result.steps !== undefined) setSteps(result.steps);
+      
       lastPushedColorsRef.current = result.colors; // prevent immediate re-push of same values
       return; 
     }
 
-    // 2. External -> Internal Sync: If result changed externally (e.g. by AI), update local state and STOP this effect run
-    let externalAdjustmentsChanged = false;
-    if (result.exposure !== undefined && result.exposure !== exposure) { 
-      setExposure(result.exposure); 
-      externalAdjustmentsChanged = true; 
-    }
-    if (result.contrast !== undefined && result.contrast !== contrast) { 
-      setContrast(result.contrast); 
-      externalAdjustmentsChanged = true; 
-    }
-    if (result.frequency !== undefined && result.frequency !== frequency) { 
-      setFrequency(result.frequency); 
-      externalAdjustmentsChanged = true; 
-    }
-    if (result.phase !== undefined && result.phase !== phase) { 
-      setPhase(result.phase); 
-      externalAdjustmentsChanged = true; 
-    }
-    if (result.steps !== undefined && result.steps !== steps) { 
-      setSteps(result.steps); 
-      externalAdjustmentsChanged = true; 
-    }
-
-    if (externalAdjustmentsChanged) {
-      // Return and wait for next render where local state matches external result
-      return;
-    }
-
-    // 3. Internal -> External Sync: compute new colors and push up if they differ
+    // 2. Internal -> External Sync: compute new colors and push up if they differ
     const newColors = computeColors();
     const newStr = JSON.stringify(newColors);
 
@@ -193,6 +167,7 @@ export const RightSidebar = ({
       lastPushedColorsRef.current = newColors;
       setResult({ 
         ...result, 
+        baseColors: baseColors,
         colors: newColors,
         exposure,
         contrast,
@@ -218,7 +193,7 @@ export const RightSidebar = ({
     
     // Extract base RGB colors
     const colors = baseColors.map((c) => hexToRgb(c));
-    const data = [];
+    const data: { t: string; r: number; g: number; b: number }[] = [];
     const points = 60; // Enough detail for a smooth curve
     
     for (let i = 0; i <= points; i++) {
@@ -324,40 +299,32 @@ export const RightSidebar = ({
           </div>
 
           {/* Favorite Button */}
-          <button
-            onClick={async () => {
-              if (!result) return;
-              
-              // 1. Ensure we have a name
-              const nameToToggle = result.name || `Generated Gradient ${Date.now()}`;
-              if (!result.name) setResult((prev) => ({ ...prev, name: nameToToggle }));
-              
-              const wasFavorited = favorites.some(f => f === nameToToggle);
-              
-              // 2. If we are favoriting an unsaved gradient (not in favorites yet), 
-              // we should also save it to make it permanent and visible in gallery/favorites pages.
-              if (!wasFavorited && onSave) {
-                // We pass the up-to-date name we just calculated
-                await onSave({ ...result, name: nameToToggle });
-              }
-
-              // 3. Toggle the favorite status
-              await toggleFavorite(nameToToggle);
-              
-              toast(!wasFavorited ? "❤️ Added to Favorites" : "Removed from Favorites", {
-                description: nameToToggle,
-              });
-            }}
-            className="group transition-all duration-200"
-          >
-            <Heart
-              className={`h-5 w-5 transition-all duration-300 ${
-                isFavorited
-                  ? "fill-red-500 text-red-500 scale-110"
-                  : "text-white/30 group-hover:text-white/60"
-              }`}
-            />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => !isFavorited && toggleFavorite(result.name || "")}
+              className="group"
+            >
+              <ThumbsUp
+                className={`h-5 w-5 ${
+                  isFavorited
+                    ? "fill-blue-500 text-blue-500"
+                    : "text-white/30 group-hover:text-white/60"
+                }`}
+              />
+            </button>
+            <button
+              onClick={() => isFavorited && toggleFavorite(result.name || "")}
+              className="group"
+            >
+              <ThumbsDown
+                className={`h-5 w-5 ${
+                  !isFavorited
+                    ? "text-white/60"
+                    : "text-white/30 group-hover:text-white/60"
+                }`}
+              />
+            </button>
+          </div>
         </div>
 
         {/* RGB Curves Chart - EvilCharts Aesthetic */}

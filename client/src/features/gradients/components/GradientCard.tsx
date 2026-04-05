@@ -8,18 +8,16 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { MagicCard } from "@/shared/ui/MagicCard";
-import { ChevronDown, Download, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, Download, Eye, EyeOff, Pencil, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AnimatedCheckbox } from "./AnimatedCheckbox";
-import { AnimationSpeedControl } from "./AnimationSpeedControl";
 import { ColorSwatches } from "./ColorSwatches";
-import { GradientHeader } from "./GradientHeader";
 import { GradientPreview } from "./GradientPreview";
 import { DownloadOptionsDropdown } from "./DownloadOptionsDropdown";
+import { cn } from "@/shared/lib/utils";
 
-import { GradientCardProps } from "@/shared/types/types";
+import { Gradient, GradientCardProps } from "@/shared/types/types";
 import { CodePreview } from "./CodePreview";
 import {
   Tooltip,
@@ -125,10 +123,16 @@ export default function GradientCard({
   globalGradientShape,
 }: GradientCardProps) {
   const [activeTab, setActiveTab] = useState("tailwind");
-  const [angle, setAngle] = useState(90);
-  const [isAnimated, setIsAnimated] = useState(false);
-  const [animationSpeed, setAnimationSpeed] = useState(1);
+  const [angle, setAngle] = useState((gradient as any).angle ?? 90);
   const [showAngleController, setShowAngleController] = useState(false);
+  const [localDisliked, setLocalDisliked] = useState(false);
+
+  useEffect(() => {
+    if (gradient.angle !== undefined) {
+      setAngle(gradient.angle);
+    }
+  }, [gradient]);
+
   const {
     selectedColorFormat,
     setSelectedColorFormat,
@@ -137,8 +141,9 @@ export default function GradientCard({
   } = useColorFormat();
 
   // Use props instead of local state
+  // 'default' shape means use rawCss verbatim
+  const gradientShape = globalGradientShape || (gradient.rawCss ? "auto" : "linear");
   const gradientType = globalGradientType || "background";
-  const gradientShape = globalGradientShape || "linear";
   const { copiedStates, copyToClipboard } = useCopyState();
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -210,17 +215,23 @@ export default function GradientCard({
     if (onEditClick) {
       onEditClick({
         ...gradient,
-        angle: angle,
-        type: globalGradientShape || "linear"
+        angle: gradient.angle ?? angle,
+        type: gradient.type || (gradientShape === "auto" ? "linear" : gradientShape),
+        exposure: gradient.exposure,
+        contrast: gradient.contrast,
+        frequency: gradient.frequency,
+        phase: gradient.phase,
+        steps: gradient.steps,
+        baseColors: gradient.baseColors,
       });
     } else {
       console.warn("onEditClick prop is not provided");
     }
-  };
+};
 
   const handleDeleteButtonClick = () => {
-    if (onDeleteClick && (gradient as any).id) {
-      onDeleteClick(gradient as any);
+    if (onDeleteClick && gradient.id) {
+      onDeleteClick(gradient as Gradient & { id: string });
     } else {
       console.warn("onDeleteClick prop is not provided or gradient id is missing");
     }
@@ -232,6 +243,34 @@ export default function GradientCard({
   );
 
   const getGradientStyle = () => {
+    // If the gradient has a raw CSS string and we're in 'auto' mode
+    if (gradientShape === "auto" || (gradient.rawCss && !globalGradientShape)) {
+      if (gradient.rawCss) {
+        let css = gradient.rawCss;
+        
+        // Convert all colors in the raw CSS to the selected format
+        gradient.colors.forEach((hexColor, index) => {
+          const formattedColor = formattedColors[index];
+          // Replace exact match (case insensitive)
+          css = css.split(new RegExp(hexColor, 'i')).join(formattedColor);
+        });
+
+        // If it's a linear or conic gradient, we can try to inject the current angle
+        if (css.includes('linear-gradient')) {
+          // Replace ONLY the first degree value or direction found
+          css = css.replace(/(-?\d+(\.\d+)?deg|to (top|bottom|left|right|top right|top left|bottom right|bottom left))/, `${angle}deg`);
+          return css;
+        }
+        if (css.includes('conic-gradient')) {
+          // Specifically target the 'from' angle if present
+          css = css.replace(/from\s+(\d+(\.\d+)?deg)/, `from ${angle}deg`);
+          return css;
+        }
+        return css;
+      }
+      return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
+    }
+
     if (gradientShape === "linear") {
       return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
     }
@@ -247,32 +286,14 @@ export default function GradientCard({
     return `radial-gradient(circle at ${posX}% ${posY}%, ${formattedColors.join(", ")})`;
   };
 
-  const getCodePreview = () => {
+  const getCodePreview = (): React.CSSProperties => {
     const gradientStyle = getGradientStyle();
-
-    if (!isAnimated) {
-      return gradientType === "background"
-        ? { backgroundImage: gradientStyle }
-        : {
-          color: "transparent",
-          backgroundImage: gradientStyle,
-          WebkitBackgroundClip: "text",
-        };
-    }
-
-    const animationDuration = `${4 / animationSpeed}s`;
     return gradientType === "background"
-      ? {
-        backgroundImage: gradientStyle,
-        backgroundSize: "400% 400%",
-        animation: `gradientShift ${animationDuration} ease infinite`,
-      }
+      ? { background: gradientStyle }
       : {
         color: "transparent",
         backgroundImage: gradientStyle,
-        backgroundSize: "400% 400%",
         WebkitBackgroundClip: "text",
-        animation: `gradientShift ${animationDuration} ease infinite`,
       };
   };
 
@@ -280,9 +301,10 @@ export default function GradientCard({
     const animationOptions = {
       colors: formattedColors,
       angle,
-      isAnimated,
-      animationSpeed,
+      isAnimated: false,
+      animationSpeed: 1,
       gradientType,
+      customCss: getGradientStyle(),
     };
 
     switch (format) {
@@ -315,36 +337,7 @@ export default function GradientCard({
       case "xml":
         return animatedGradientUtils.generateAnimatedXML(animationOptions);
       case "svg": {
-        return isAnimated
-          ? `<!-- Animated SVG Linear Gradient -->
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      ${formattedColors
-            .map((color, index) => {
-              const offset =
-                formattedColors.length === 1
-                  ? 0
-                  : (index / (formattedColors.length - 1)) * 100;
-              return `<stop offset="${offset}%" stop-color="${color}">
-        <animate attributeName="stop-color" 
-                 values="${color};${formattedColors[(index + 1) % formattedColors.length]
-                };${color}" 
-                 dur="${4 / animationSpeed}s" 
-                 repeatCount="indefinite"/>
-      </stop>`;
-            })
-            .join("\n      ")}
-      <animateTransform attributeName="gradientTransform"
-                        type="rotate"
-                        values="0 100 100;360 100 100;0 100 100"
-                        dur="${4 / animationSpeed}s"
-                        repeatCount="indefinite"/>
-    </linearGradient>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#gradient)" />
-</svg>`
-          : `<!-- SVG Linear Gradient -->
+        return `<!-- SVG Linear Gradient -->
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -377,13 +370,10 @@ export default function GradientCard({
                   : "conic-gradient",
             format: selectedColorFormat,
             gradientType: gradientType,
-            isAnimated: isAnimated,
-            animationSpeed: animationSpeed,
+            isAnimated: false,
+            animationSpeed: 1,
             css: gradientStyle,
-            animatedCSS: isAnimated
-              ? `${gradientStyle}; background-size: 400% 400%; animation: gradientShift ${4 / animationSpeed
-              }s ease infinite;`
-              : null,
+            animatedCSS: null,
             metadata: {
               exportedAt: new Date().toISOString(),
               tool: "GradientsCSS",
@@ -408,20 +398,55 @@ export default function GradientCard({
   return (
     <MagicCard
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
-      className="relative overflow-hidden transition-all duration-300"
+      className="group relative overflow-hidden transition-all duration-300"
     >
-      <div className="absolute left-0 right-0 top-3 z-[60] flex items-center justify-between px-4">
-        <AnimatedCheckbox
-          checked={isAnimated}
-          onChange={setIsAnimated}
-          className="text-white drop-shadow-lg"
-        />
+      <div className="absolute left-0 right-0 top-3.5 z-[70] flex items-center justify-between px-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+        {/* User-specified Like/Dislike UI in TOP LEFT */}
+        <div className="disable-animation-on-theme-change pointer-events-auto inline-flex items-center rounded-md border border-solid border-white/10 backdrop-blur-sm bg-background/60 shadow-lg">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLocalDisliked(false);
+              if (!isFavorite) handleFavoriteToggle();
+            }}
+            className={cn(
+              "inline-flex items-center justify-center w-8 h-8 p-0 rounded-l-[5px] transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
+              isFavorite
+                ? "text-blue-500 bg-blue-500/10"
+                : "text-white/60 hover:text-white hover:bg-background/60"
+            )}
+            aria-pressed={isFavorite}
+            title="Like"
+          >
+            <ThumbsUp className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          <div className="w-px h-4 bg-white/10"></div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLocalDisliked(true);
+              if (isFavorite) handleFavoriteToggle();
+            }}
+            className={cn(
+              "inline-flex items-center justify-center w-8 h-8 p-0 rounded-r-[5px] transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
+              localDisliked && !isFavorite
+                ? "text-red-500 bg-red-500/10"
+                : "text-white/60 hover:text-white hover:bg-background/60"
+            )}
+            aria-pressed={localDisliked}
+            title="Dislike"
+          >
+            <ThumbsDown className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+        </div>
 
         <TooltipProvider>
-          <div className="relative flex gap-1 px-1.5 py-1.5 items-center justify-center rounded-[10px] backdrop-blur-md transition-all duration-300 hover:bg-white/5"
+          <div className="relative pointer-events-auto flex gap-0.5 px-1 py-1 items-center justify-center rounded-[8px] backdrop-blur-md transition-all duration-300 hover:bg-white/5"
             style={{
-              backgroundColor: "rgba(0,0,0,0.2)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              backgroundColor: "rgba(0,0,0,0.25)",
+              border: "1px solid rgba(255,255,255,0.1)",
             }}
           >
             {/* Edit Button */}
@@ -430,9 +455,9 @@ export default function GradientCard({
                 <button
                   type="button"
                   onClick={handleEditButtonClick}
-                  className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                  className="p-1 rounded-md hover:bg-white/10 transition-colors"
                 >
-                  <Pencil className="h-4 w-4 text-white" />
+                  <Pencil className="h-3.5 w-3.5 text-white" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="bg-black/90 border-white/10">
@@ -447,9 +472,9 @@ export default function GradientCard({
                   <button
                     type="button"
                     onClick={handleDeleteButtonClick}
-                    className="p-1.5 rounded-md hover:bg-red-500/20 transition-colors group"
+                    className="p-1 rounded-md hover:bg-red-500/20 transition-colors group"
                   >
-                    <Trash2 className="h-4 w-4 transition-colors group-hover:text-red-500" style={{ color: "rgba(239, 68, 68, 0.7)" }} />
+                    <Trash2 className="h-3.5 w-3.5 transition-colors group-hover:text-red-500" style={{ color: "rgba(239, 68, 68, 0.7)" }} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-red-950 border-red-500/20 text-white">
@@ -465,12 +490,12 @@ export default function GradientCard({
                   type="button"
                   aria-label={tooltipText}
                   onClick={() => setShowAngleController((v) => !v)}
-                  className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
+                  className="p-1 rounded-md hover:bg-white/10 transition-colors"
                 >
                   {showAngleController ? (
-                    <Eye className="h-4 w-4 text-white" />
+                    <Eye className="h-3.5 w-3.5 text-white" />
                   ) : (
-                    <EyeOff className="h-4 w-4 text-white" />
+                    <EyeOff className="h-3.5 w-3.5 text-white" />
                   )}
                 </button>
               </TooltipTrigger>
@@ -484,14 +509,16 @@ export default function GradientCard({
               colors={formattedColors}
               angle={angle}
               name={gradient.name}
-              isAnimated={isAnimated}
-              animationSpeed={animationSpeed}
+              isAnimated={false}
+              animationSpeed={1}
+              shape={gradientShape}
+              customCss={getGradientStyle()}
               trigger={
                 <div className="p-1 rounded-md hover:bg-white/10 transition-colors cursor-pointer">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button type="button" className="p-0.5 nofocus">
-                        <Download className="h-4 w-4 text-white" />
+                        <Download className="h-3.5 w-3.5 text-white" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="bg-black/90 border-white/10">
@@ -514,8 +541,6 @@ export default function GradientCard({
             style={getCodePreview()}
             gradientType={gradientType}
             gradient={gradient}
-            isAnimated={isAnimated}
-            animationSpeed={animationSpeed}
           />
 
           <AnimatePresence>
@@ -629,18 +654,12 @@ export default function GradientCard({
             )}
           </AnimatePresence>
         </div>
+
+
       </div>
 
-      <footer className="flex flex-col items-start space-y-4 p-4">
-        <div className="flex w-full items-center justify-between">
-          <GradientHeader
-            name={gradient.name}
-            isFavorite={isFavorite}
-            onFavoriteToggle={handleFavoriteToggle}
-          />
-        </div>
-
-        <div className="flex w-full flex-col items-start justify-between gap-2">
+      <footer className="flex flex-col items-start space-y-3 p-4 pt-2">
+        <div className="flex-1 w-full overflow-hidden">
           <ColorSwatches
             colors={gradient.colors}
             getColorInFormat={getColorInFormat}
@@ -648,16 +667,9 @@ export default function GradientCard({
             onColorChange={handleColorChange}
             copyToClipboard={(text) => copyToClipboard(text, "colors")}
           />
-
-          {/* Selectors moved to global bar */}
         </div>
 
-        <AnimationSpeedControl
-          speed={animationSpeed}
-          onChange={setAnimationSpeed}
-          disabled={!isAnimated}
-          visible={isAnimated && gradientType !== "image"}
-        />
+
 
 
         <>
@@ -783,15 +795,7 @@ export default function GradientCard({
         </>
       </footer>
 
-      <style>{`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          25% { background-position: 100% 50%; }
-          50% { background-position: 100% 100%; }
-          75% { background-position: 0% 100%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
+
     </MagicCard>
   );
 }

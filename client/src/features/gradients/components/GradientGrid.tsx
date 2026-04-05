@@ -11,7 +11,9 @@ interface GradientGridProps {
   toggleFavorite: (name: string) => void;
   isLoading: boolean;
   globalGradientType: "background" | "text" | "image";
-  globalGradientShape: "linear" | "radial" | "conic";
+  globalGradientShape: "linear" | "radial" | "conic" | "auto";
+  selectedNames?: string[];
+  onSelectToggle?: (name: string) => void;
 }
 
 export default function GradientGrid({
@@ -21,23 +23,31 @@ export default function GradientGrid({
   isLoading,
   globalGradientType,
   globalGradientShape,
+  selectedNames = [],
+  onSelectToggle,
 }: GradientGridProps) {
   const navigate = useNavigate();
 
-  const handleEditGradient = (gradient: { name: string; colors: string[]; angle?: number; type?: string }) => {
+  const handleEditGradient = (gradient: any) => {
     navigate("/ai-generator", {
       state: {
         name: gradient.name,
         colors: gradient.colors,
         angle: gradient.angle,
-        type: gradient.type
+        type: gradient.type,
+        exposure: gradient.exposure,
+        contrast: gradient.contrast,
+        frequency: gradient.frequency,
+        phase: gradient.phase,
+        steps: gradient.steps,
+        baseColors: gradient.baseColors,
       },
     });
   };
 
   return (
     <div className="grid grid-cols-1 gap-6 pt-6 sm:grid-cols-2 lg:grid-cols-3 min-h-[400px]">
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {isLoading ? (
           Array.from({ length: 9 }).map((_, index) => (
             <motion.div
@@ -88,6 +98,8 @@ export default function GradientGrid({
                 onEditClick={handleEditGradient}
                 globalGradientType={globalGradientType}
                 globalGradientShape={globalGradientShape}
+                isSelected={selectedNames.includes(gradient.name || "")}
+                onSelectToggle={onSelectToggle}
               />
             </motion.div>
           ))
