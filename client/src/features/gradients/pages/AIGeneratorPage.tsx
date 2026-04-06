@@ -30,18 +30,20 @@ const AIGeneratorPage: React.FC = () => {
 
     // 2. Check for navigation state
     if (location.state) {
-      const { name, colors, angle, type, exposure, contrast, frequency, phase, steps } = location.state as any;
+      const { name, colors, angle, type, exposure, contrast, frequency, phase, steps, baseColors, rawCss } = location.state as any;
       if (colors && colors.length > 0) {
         return {
           name: name || "Custom Gradient",
           colors: colors,
-          angle: angle || 135,
-          type: type || "linear",
-          exposure,
-          contrast,
-          frequency,
-          phase,
-          steps,
+          baseColors: baseColors || colors,
+          angle: angle ?? 135,
+          type: type || "linear", // Preserve the gradient's actual type
+          rawCss: rawCss || undefined, // Carry over the exact CSS if available
+          exposure: exposure ?? 0,
+          contrast: contrast ?? 1,
+          frequency: frequency ?? 0,
+          phase: phase ?? 0,
+          steps: steps ?? null,
         };
       }
     }
@@ -104,29 +106,42 @@ const AIGeneratorPage: React.FC = () => {
   };
 
   const isLightGradient = useMemo(() => {
-    if (!result?.colors) return false;
-    return false; 
-  }, [result]);
+    if (!result?.colors || result.colors.length === 0) return false;
+    
+    // Weighted luminance calculation
+    const totalLuminance = result.colors.reduce((acc, hex) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return acc + (0.299 * r + 0.587 * g + 0.114 * b);
+    }, 0);
+    
+    return (totalLuminance / result.colors.length) > 128;
+  }, [result?.colors]);
 
   const handleUpdateColor = useCallback((index: number, newColor: string) => {
     setResult((prev) => {
       const newColors = [...prev.colors];
       newColors[index] = newColor;
-      return { ...prev, colors: newColors };
+      return { ...prev, colors: newColors, baseColors: newColors };
     });
   }, []);
 
   const handleAddColor = useCallback(() => {
-    setResult((prev) => ({ 
-      ...prev, 
-      colors: [...prev.colors, "#6366f1"] 
-    }));
+    setResult((prev) => {
+      const newColors = [...prev.colors, "#6366f1"];
+      return { 
+        ...prev, 
+        colors: newColors,
+        baseColors: newColors 
+      };
+    });
   }, []);
 
   const handleRemoveColor = useCallback((index: number) => {
     setResult((prev) => {
       const newColors = prev.colors.filter((_, i) => i !== index);
-      return { ...prev, colors: newColors };
+      return { ...prev, colors: newColors, baseColors: newColors };
     });
   }, []);
 
@@ -137,12 +152,12 @@ const AIGeneratorPage: React.FC = () => {
       if (newIndex < 0 || newIndex >= newColors.length) return prev;
       
       [newColors[index], newColors[newIndex]] = [newColors[newIndex], newColors[index]];
-      return { ...prev, colors: newColors };
+      return { ...prev, colors: newColors, baseColors: newColors };
     });
   }, []);
 
   return (
-    <div className="flex min-h-[115vh] flex-col bg-background text-foreground overflow-x-hidden md:pb-12">
+    <div className="flex min-h-screen flex-col bg-background text-foreground overflow-x-hidden">
       <Navbar
         result={result}
         isAnimated={isAnimated}
@@ -157,8 +172,8 @@ const AIGeneratorPage: React.FC = () => {
         canvasSize={canvasSize}
       />
 
-      <main className="flex-1 container py-4 md:py-6">
-        <div className="grid h-full grid-cols-1 md:grid-cols-[380px_1fr] xl:grid-cols-[380px_1fr_320px] gap-6">
+      <main className="flex-1 container py-4 md:py-8 overflow-hidden">
+        <div className="grid h-full md:h-[78vh] grid-cols-1 md:grid-cols-[380px_1fr] xl:grid-cols-[380px_1fr_320px] gap-6">
           {/* Left Section: Main Sidebar */}
           <div className="hidden md:flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-3xl shadow-2xl">
             <Sidebar

@@ -7,6 +7,7 @@ interface AngleControllerProps {
   isDragging?: boolean;
   onDraggingChange?: (isDragging: boolean) => void;
   size?: number;
+  isLight?: boolean;
 }
 
 export const AngleController = ({
@@ -14,6 +15,7 @@ export const AngleController = ({
   onChange,
   onDraggingChange,
   size = 220,
+  isLight = false,
 }: AngleControllerProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const controllerRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,10 @@ export const AngleController = ({
       onPointerDown={handlePointerDown}
     >
       {/* Visual background guide */}
-      <div className="absolute inset-0 rounded-full border border-white/5 bg-white/[0.01] pointer-events-none" />
+      <div className={cn(
+        "absolute inset-0 rounded-full border pointer-events-none transition-colors duration-500",
+        isLight ? "border-black/10 bg-black/[0.02]" : "border-white/5 bg-white/[0.01]"
+      )} />
       
       {/* Unified 'Clock Hand' (Needle + Handle) */}
       <div 
@@ -88,7 +93,12 @@ export const AngleController = ({
       >
         {/* Needle */}
         <div
-          className="absolute w-[2px] bg-gradient-to-t from-transparent via-white/50 to-white/80 origin-bottom"
+          className={cn(
+            "absolute w-[2px] origin-bottom transition-colors duration-500",
+            isLight 
+              ? "bg-gradient-to-t from-transparent via-black/40 to-black/70"
+              : "bg-gradient-to-t from-transparent via-white/50 to-white/80"
+          )}
           style={{ 
             height: size / 2 - 10,
             bottom: '50%',
@@ -106,16 +116,32 @@ export const AngleController = ({
           }}
         >
           <div 
-            className="h-4 w-4 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.4)] flex items-center justify-center border border-primary/50"
+            className={cn(
+              "h-4 w-4 rounded-full flex items-center justify-center border transition-all duration-500",
+              isLight
+                ? "bg-black shadow-[0_0_10px_rgba(0,0,0,0.3)] border-black/50"
+                : "bg-white shadow-[0_0_10px_rgba(255,255,255,0.4)] border-white/50"
+            )}
           >
-            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <div className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              isLight ? "bg-white" : "bg-black"
+            )} />
           </div>
         </div>
       </div>
 
       {/* Angle Display Center - Optional aesthetic */}
-      <div className="absolute flex flex-col items-center justify-center pointer-events-none bg-black/40 backdrop-blur-md rounded-full w-12 h-12 border border-white/10 shadow-lg">
-        <span className="text-[10px] font-bold text-white leading-none">
+      <div className={cn(
+        "absolute flex flex-col items-center justify-center pointer-events-none backdrop-blur-md rounded-full w-12 h-12 border shadow-lg transition-all duration-500",
+        isLight
+          ? "bg-white/40 border-black/10"
+          : "bg-black/40 border-white/10"
+      )}>
+        <span className={cn(
+          "text-[10px] font-black leading-none",
+          isLight ? "text-black" : "text-white"
+        )}>
           {angle}°
         </span>
       </div>

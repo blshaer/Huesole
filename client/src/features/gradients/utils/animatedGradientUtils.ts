@@ -909,4 +909,22 @@ const animatedGradientStyle = {
 //   100% { background-position: 0% 50%; }
 // }`;
   },
+
+  // Generate Segmented Conic Gradient (Mesh style)
+  generateSegmentedConic: (colors: string[], angle: number): string => {
+    if (colors.length === 0) return "";
+    const step = 360 / colors.length;
+    const segments: string[] = [];
+    
+    for (let i = 0; i < colors.length; i++) {
+      const start = i * step + (i === 0 ? 0 : 0.1);
+      const end = (i + 1) * step;
+      // First stop for this color
+      segments.push(`${colors[i]} ${i === 0 ? "0deg" : `calc(${start.toFixed(3)}deg)`}`);
+      // Second stop for this color to create edge
+      segments.push(`${colors[i]} ${end.toFixed(3)}deg`);
+    }
+    
+    return `conic-gradient(from ${angle}deg, ${segments.join(", ")})`;
+  },
 };

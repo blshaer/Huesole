@@ -6,7 +6,7 @@ import { ColorStopItem } from "./ColorStopItem";
 
 import { useEffect, useState, useRef } from "react";
 
-const MAX_COLOR_STOPS = 5;
+const MAX_COLOR_STOPS = 10;
 
 interface ColorStopsSectionProps {
   result: GeneratedGradient | null;
@@ -99,7 +99,7 @@ export const ColorStopsSection = ({
         </Button>
       </div>
 
-      <div className="space-y-2 relative">
+      <div className="space-y-2 h-[35vh] overflow-y-auto pr-2 custom-scrollbar">
         {items.map((item, idx) => (
           <ColorStopItem
             key={item.id}

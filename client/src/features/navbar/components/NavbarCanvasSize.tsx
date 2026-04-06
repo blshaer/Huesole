@@ -127,7 +127,7 @@ export const NavbarCanvasSize = ({ onSizeSelect, selectedSize }: NavbarCanvasSiz
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className={cn(
-            "flex items-center justify-center rounded-lg border border-border bg-background/80 p-2 transition-all duration-200 hover:bg-white/10 hover:border-white/20 backdrop-blur-xl group outline-none"
+            "flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background/80 transition-all duration-200 hover:bg-white/10 hover:border-white/20 backdrop-blur-xl group outline-none"
           )}
           aria-label="Canvas Size"
         >
@@ -161,24 +161,58 @@ export const NavbarCanvasSize = ({ onSizeSelect, selectedSize }: NavbarCanvasSiz
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent className="w-[240px] bg-[#0d0f14]/98 border-white/10 backdrop-blur-3xl p-1">
                     {category.sizes.map((size) => {
+                      const MAX_THUMB_H = 40; // px max thumb height
+                      const MAX_THUMB_W = 56; // px max thumb width
+                      const isDefault = size.label === "Default";
+                      
+                      // Compute thumb dimensions preserving aspect ratio
+                      let thumbW = MAX_THUMB_W;
+                      let thumbH = MAX_THUMB_H;
+                      if (!isDefault && size.width && size.height) {
+                        const ratio = size.width / size.height;
+                        if (ratio >= 1) {
+                          thumbH = Math.round(MAX_THUMB_W / ratio);
+                        } else {
+                          thumbW = Math.round(MAX_THUMB_H * ratio);
+                        }
+                       // Clamp
+                        thumbH = Math.min(thumbH, MAX_THUMB_H);
+                        thumbW = Math.min(thumbW, MAX_THUMB_W);
+                      }
+
                       const isSelected =
                         (selectedSize?.label === size.label && selectedSize?.width === size.width) ||
-                        (size.label === "Default" && !selectedSize);
-                      
+                        (isDefault && !selectedSize);
                       return (
                         <DropdownMenuItem
                           key={size.label}
                           onClick={() => onSizeSelect?.(size.label === "Default" ? null : size)}
                           onPointerEnter={() => onSizeSelect?.(size.label === "Default" ? null : size)}
                           className={cn(
-                            "flex items-center justify-between px-3 py-2 rounded-md transition-colors cursor-pointer",
+                            "flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer",
                             isSelected ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
                           )}
                         >
-                          <span className="text-sm font-medium">{size.label}</span>
-                          <span className="text-[10px] tabular-nums text-white/30 group-hover:text-white/50">
-                            {formatRes(size.width, size.height)}
-                          </span>
+                          {/* Mini Preview Thumbnail */}
+                          <div className="flex shrink-0 items-center justify-center" style={{ width: MAX_THUMB_W, height: MAX_THUMB_H }}>
+                            <div
+                              className={cn(
+                                "border transition-all",
+                                isSelected ? "border-blue-500/60 bg-white/10" : "border-white/10 bg-white/5",
+                                isDefault ? "rounded-full" : "rounded-sm"
+                              )}
+                              style={{
+                                width: isDefault ? MAX_THUMB_H : thumbW,
+                                height: isDefault ? MAX_THUMB_H : thumbH,
+                              }}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <span className="text-sm font-medium leading-none">{size.label}</span>
+                            <span className="text-[10px] tabular-nums text-white/30">
+                              {formatRes(size.width, size.height)}
+                            </span>
+                          </div>
                         </DropdownMenuItem>
                       );
                     })}

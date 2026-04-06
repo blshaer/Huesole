@@ -3,15 +3,14 @@ import { Eye, EyeOff } from "lucide-react";
 interface NavbarAngleToggleProps {
   showAngleController: boolean;
   onToggle: () => void;
-  isAngleSupported: boolean;
+  isAngleSupported?: boolean; // Optional - defaults to always showing
 }
 
 export const NavbarAngleToggle = ({
   showAngleController,
   onToggle,
-  isAngleSupported,
 }: NavbarAngleToggleProps) => {
-  if (!isAngleSupported) return null;
+  // Always show - the eye icon is useful for all gradient types
 
   return (
     <button

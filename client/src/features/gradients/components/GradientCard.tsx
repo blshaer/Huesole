@@ -142,8 +142,16 @@ export default function GradientCard({
   } = useColorFormat();
 
   // Use props instead of local state
-  // 'default' shape means use rawCss verbatim
-  const gradientShape = globalGradientShape || (gradient.rawCss ? "auto" : "linear");
+  // Derive shape from: global override > gradient's stored type > rawCss > default linear
+  const getDefaultShape = () => {
+    if (gradient.rawCss) return "auto";
+    const t = (gradient as any).type;
+    if (t === "conic") return "conic";
+    if (t === "radial") return "radial";
+    if (t === "default") return "auto";
+    return "linear";
+  };
+  const gradientShape = globalGradientShape || getDefaultShape();
   const gradientType = globalGradientType || "background";
   const { copiedStates, copyToClipboard } = useCopyState();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -214,16 +222,26 @@ export default function GradientCard({
 
   const handleEditButtonClick = () => {
     if (onEditClick) {
+      // Determine the actual rendered type from the card's current display
+      const editType = (gradient as any).type || 
+        (gradientShape === "conic" ? "conic" :
+         gradientShape === "radial" ? "radial" :
+         gradientShape === "auto" ? "default" : "linear");
+
+      // Capture the EXACT CSS being rendered so the PreviewArea shows the same visual
+      const computedCss = getGradientStyle();
+
       onEditClick({
         ...gradient,
         angle: gradient.angle ?? angle,
-        type: gradient.type || (gradientShape === "auto" ? "linear" : gradientShape),
+        type: editType,
+        rawCss: computedCss, // Pass exact rendered CSS for perfect visual match
         exposure: gradient.exposure,
         contrast: gradient.contrast,
         frequency: gradient.frequency,
         phase: gradient.phase,
         steps: gradient.steps,
-        baseColors: gradient.baseColors,
+        baseColors: gradient.baseColors || gradient.colors,
       });
     } else {
       console.warn("onEditClick prop is not provided");
@@ -245,31 +263,29 @@ export default function GradientCard({
 
   const getGradientStyle = () => {
     // If the gradient has a raw CSS string and we're in 'auto' mode
-    if (gradientShape === "auto" || (gradient.rawCss && !globalGradientShape)) {
+    if (gradientShape === "auto" || (gradient.rawCss && !globalGradientShape) || (gradient as any).type === "default") {
       if (gradient.rawCss) {
         let css = gradient.rawCss;
 
         // Convert all colors in the raw CSS to the selected format
         gradient.colors.forEach((hexColor, index) => {
           const formattedColor = formattedColors[index];
-          // Replace exact match (case insensitive)
           css = css.split(new RegExp(hexColor, 'i')).join(formattedColor);
         });
 
-        // If it's a linear or conic gradient, we can try to inject the current angle
+        // Inject current angle into CSS if possible
         if (css.includes('linear-gradient')) {
-          // Replace ONLY the first degree value or direction found
           css = css.replace(/(-?\d+(\.\d+)?deg|to (top|bottom|left|right|top right|top left|bottom right|bottom left))/, `${angle}deg`);
           return css;
         }
         if (css.includes('conic-gradient')) {
-          // Specifically target the 'from' angle if present
           css = css.replace(/from\s+(\d+(\.\d+)?deg)/, `from ${angle}deg`);
           return css;
         }
         return css;
       }
-      return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
+      // Auto = "as-it-is" — use Segmented Conic to mimic the mesh look
+      return animatedGradientUtils.generateSegmentedConic(formattedColors, angle);
     }
 
     if (gradientShape === "linear") {
@@ -401,7 +417,7 @@ export default function GradientCard({
       gradientColor={theme === "dark" ? "#262626" : "#282828"}
       className="group relative overflow-hidden transition-all duration-300"
     >
-      <div className="absolute left-0 right-0 top-3.5 z-[70] flex items-center justify-between px-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+      <div className="relative md:absolute md:left-0 md:right-0 md:top-3.5 z-[70] flex items-center justify-between px-3.5 py-4 md:py-0 md:px-3.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 md:pointer-events-none">
         {/* User-specified Like/Dislike UI in TOP LEFT */}
         <div className="disable-animation-on-theme-change pointer-events-auto inline-flex items-center rounded-md border border-solid border-white/10 backdrop-blur-sm bg-background/60 shadow-lg">
           <button

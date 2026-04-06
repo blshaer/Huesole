@@ -26,7 +26,7 @@ export default function Pagination({
         {isLoading && (
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-9 w-9 animate-pulse rounded-md bg-white/5" />
+              <div key={i} className="h-10 w-10 animate-pulse rounded-md bg-white/5 border border-white/10" />
             ))}
           </div>
         )}

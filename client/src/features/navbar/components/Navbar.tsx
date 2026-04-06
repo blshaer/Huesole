@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Menu, Sparkles } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { toast } from "sonner";
 import { GeneratedGradient } from "@/features/gradients/types";
@@ -169,7 +168,6 @@ export const Navbar = ({
             <NavbarAngleToggle
               showAngleController={showAngleController}
               onToggle={onToggleAngleController}
-              isAngleSupported={result?.type === "linear" || result?.type === "conic"}
             />
           )}
 
@@ -197,7 +195,7 @@ export const Navbar = ({
           />
 
           <NavbarUserMenu
-            user={user}
+            user={user!}
             loading={isLoading}
             onLogout={handleLogout}
           />

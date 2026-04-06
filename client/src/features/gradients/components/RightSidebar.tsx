@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Slider } from "@/shared/ui/slider";
 import { GeneratedGradient } from "../types";
+import { animatedGradientUtils } from "../utils/animatedGradientUtils";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
 import {
   Area,
@@ -87,8 +88,8 @@ export const RightSidebar = ({
 
   // Swatch rendering type
   const [swatchType, setSwatchType] = useState<
-    "angular" | "linear" | "radial"
-  >("angular");
+    "angular" | "linear" | "radial" | "auto"
+  >("linear");
 
   // State to hold the original un-mutated colors from the AI/left sidebar before curve/slider edits
   const [baseColors, setBaseColors] = useState<string[]>(result?.baseColors || result?.colors || []);
@@ -142,11 +143,11 @@ export const RightSidebar = ({
     if (currentColorsStr !== pushedStr) {
       setBaseColors(result.baseColors || result.colors);
       
-      if (result.exposure !== undefined) setExposure(result.exposure);
-      if (result.contrast !== undefined) setContrast(result.contrast);
-      if (result.frequency !== undefined) setFrequency(result.frequency);
-      if (result.phase !== undefined) setPhase(result.phase);
-      if (result.steps !== undefined) setSteps(result.steps);
+      setExposure(result.exposure !== undefined ? result.exposure : 0.0);
+      setContrast(result.contrast !== undefined ? result.contrast : 1.0);
+      setFrequency(result.frequency !== undefined ? result.frequency : 0.0);
+      setPhase(result.phase !== undefined ? result.phase : 0.0);
+      setSteps(result.steps !== undefined ? result.steps : null);
       
       lastPushedColorsRef.current = result.colors; // prevent immediate re-push of same values
       return; 
@@ -181,9 +182,9 @@ export const RightSidebar = ({
   // Sync swatch type highlight separately
   useEffect(() => {
     if (!result) return;
-    const resType = result.type === "conic" ? "angular" : result.type;
+    const resType = result.type === "conic" ? "angular" : (result.type === "default" ? "auto" : result.type);
     if (resType !== swatchType) {
-      setSwatchType(resType as "angular" | "linear" | "radial");
+      setSwatchType(resType as "angular" | "linear" | "radial" | "auto");
     }
   }, [result?.type, swatchType]);
 
@@ -224,15 +225,22 @@ export const RightSidebar = ({
   // Generate dot-pattern swatch preview
   const renderSwatch = (
     colors: string[],
-    type: "angular" | "linear" | "radial",
+    type: "angular" | "linear" | "radial" | "auto",
     isActive: boolean,
   ) => {
+    // "Auto" = clean faithful linear rendering of all colors — no mesh, as-it-is
+    const autoGradient = result
+      ? (result as any).rawCss || animatedGradientUtils.generateSegmentedConic(result.colors, result.angle || 90)
+      : "";
+
     const gradient =
       type === "angular"
         ? `conic-gradient(${colors.join(", ")})`
         : type === "radial"
           ? `radial-gradient(circle, ${colors.join(", ")})`
-          : `linear-gradient(90deg, ${colors.join(", ")})`;
+          : type === "auto"
+            ? autoGradient
+            : `linear-gradient(90deg, ${colors.join(", ")})`;
 
     return (
       <button
@@ -244,11 +252,13 @@ export const RightSidebar = ({
                 ? "conic"
                 : type === "radial"
                   ? "radial"
-                  : "linear";
-            setResult({ ...result, type: newType });
+                  : type === "auto"
+                    ? "default"
+                    : "linear";
+            setResult({ ...result, type: newType as any });
           }
         }}
-        className={`relative h-12 w-12 rounded-lg overflow-hidden transition-all duration-200 ${
+        className={`relative h-12 w-12 rounded-lg overflow-hidden transition-all duration-200 group ${
           isActive
             ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0d0f14]"
             : "ring-1 ring-white/10 hover:ring-white/20"
@@ -258,9 +268,17 @@ export const RightSidebar = ({
           className="absolute inset-0"
           style={{ background: gradient }}
         />
+        
+        {/* Label Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+          <span className="text-[8px] font-black text-white uppercase tracking-[0.15em] drop-shadow-md">
+            {type === "angular" ? "Conic" : type}
+          </span>
+        </div>
+
         {/* Dot pattern overlay */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-20"
           style={{
             backgroundImage:
               "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
@@ -280,7 +298,12 @@ export const RightSidebar = ({
 
         {/* Color Swatches */}
         <div className="flex items-center pt-2 justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {renderSwatch(
+              result.colors,
+              "auto",
+              swatchType === "auto",
+            )}
             {renderSwatch(
               result.colors,
               "linear",

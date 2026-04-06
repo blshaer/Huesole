@@ -36,7 +36,7 @@ export const GradientPreview: React.FC<GradientPreviewProps> = ({
       <AnimatePresence mode="wait">
         <motion.div
           key={gradientType}
-          className={`relative flex h-full w-full items-center justify-center overflow-hidden rounded-full`}
+          className={`relative flex h-full w-full items-center  justify-center overflow-hidden rounded-full`}
           style={gradientType === "background" ? style : {}}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -81,28 +81,6 @@ const ProfilePage = () => {
     localStorage.setItem("privacy-ads", personalizedAds.toString());
   }, [personalizedAds]);
 
-  const [activeSection, setActiveSection] = useState("profile");
-
-  useEffect(() => {
-    const sections = ["profile", "account", "privacy", "danger-zone"];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { threshold: [0.1, 0.5, 0.8], rootMargin: "-100px 0px -60% 0px" }
-    );
-
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   // Listen for consent acceptance to auto-enable
   useEffect(() => {
@@ -279,11 +257,11 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground px-4 py-8 md:px-8 md:py-12">
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto max-md:px-0 max-w-[1120px]">
         <div className="grid md:grid-cols-[200px_1fr] gap-8 lg:gap-16">
           {/* Sidebar Navigation */}
           <aside className="max-md:hidden h-fit sticky top-32 z-20">
-            <nav className="flex flex-col gap-1 w-[200px]">
+            <nav className="flex flex-col  gap-1 w-[200px] ">
               {[
                 { id: "profile", label: "Profile" },
                 { id: "account", label: "Account" },
@@ -298,10 +276,7 @@ const ProfilePage = () => {
                     document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth" });
                   }}
                   className={cn(
-                    "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 outline-none",
-                    activeSection === item.id
-                      ? "bg-muted text-foreground translate-x-1"
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                    "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 outline-none text-white/45 hover:text-white hover:bg-muted/30"
                   )}
                 >
                   {item.label}
@@ -314,24 +289,38 @@ const ProfilePage = () => {
           <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center gap-4 mb-2">
-              <SettingsIcon className="w-8 h-8 text-foreground" />
+
+              <svg
+                id="Layer_2"
+                data-name="Layer 2"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 108.89 108.89"
+                className="w-8 h-8 shrink-0"
+              >
+                <g id="Layer_1-2" data-name="Layer 1">
+                  <path
+                    fill="white"
+                    d="M61.16,0l7.32,20.58,19.72-9.38q4.74,4.74,9.49,9.49l-9.38,19.72,20.58,7.32v13.42l-20.58,7.32,9.38,19.72q-4.74,4.74-9.49,9.49l-19.72-9.38-7.32,20.58h-13.42l-7.32-20.58-19.72,9.38q-4.74-4.74-9.49-9.49l9.38-19.72L0,61.16v-13.42l20.58-7.32-9.38-19.72q4.74-4.74,9.49-9.49l19.72,9.38L47.74,0h13.42Z"
+                  />
+                </g>
+              </svg>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-                <p className="text-sm text-muted-foreground mt-1">Manage your account settings and preferences</p>
+                <p className="text-sm text-white/50 mt-1">Manage your account settings and preferences</p>
               </div>
             </div>
 
             {/* PROFILE CARD */}
-            <Card id="profile" className="scroll-mt-24 shadow-sm">
-              <CardHeader className="pb-6 border-b px-6 pt-6">
+            <Card id="profile" className="scroll-mt-24 border shadow-sm">
+              <CardHeader className="pb-6 flex flex-col items-start  px-6 pt-6">
                 <CardTitle className="text-lg">Profile</CardTitle>
-                <CardDescription className="text-sm mt-1">Update your profile information and avatar</CardDescription>
+                <CardDescription className="text-sm mt-1 text-white/45">Update your profile information and avatar</CardDescription>
               </CardHeader>
-              <CardContent className="px-6 py-6 space-y-6">
+              <CardContent className="px-6 py-6 pt-0 space-y-6">
                 <div className="flex items-center gap-6">
                   <Avatar className="h-20 w-20 border border-border">
-                    <AvatarImage src={previewUrl.startsWith("blob:") ? previewUrl : getFullImageUrl(previewUrl)} alt={user.name} />
-                    <AvatarFallback className="text-xl">
+                    <AvatarImage src={previewUrl && previewUrl !== "no-photo.jpg" ? getFullImageUrl(previewUrl) : undefined} alt={user.name} />
+                    <AvatarFallback className="text-xl bg-white/10 text-white">
                       {user.name && user.name.split(" ").length > 1
                         ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)
                         : user.name?.slice(0, 2) || "UA"}
@@ -342,7 +331,7 @@ const ProfilePage = () => {
                     <Button variant="outline" size="sm" onClick={triggerFileSelect} className="h-9 transition-all">
                       Change avatar
                     </Button>
-                    <p className="text-xs text-muted-foreground mt-2">JPG, PNG or WebP. Max 5MB.<br /><span className="font-mono">256x256</span></p>
+                    <p className="text-xs text-white/45 mt-2">JPG, PNG or WebP. Max 5MB.<br /><span className="font-mono">256x256</span></p>
                   </div>
                 </div>
 
@@ -358,7 +347,7 @@ const ProfilePage = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-2">
+                  <div className="flex justify-end pt-2 max-md:pt-0">
                     <Button type="submit" disabled={profileLoading || !hasProfileChanges} className="h-9 px-4 shrink-0 transition-all font-medium py-2 bg-[#F8F8F8] text-black hover:bg-[#E5E5E5] disabled:opacity-50">
                       {profileLoading ? <Spinner size={16} className="mr-2 border-black" /> : null}
                       Save changes
@@ -369,27 +358,27 @@ const ProfilePage = () => {
             </Card>
 
             {/* ACCOUNT CARD */}
-            <Card id="account" className="scroll-mt-24 shadow-sm">
-              <CardHeader className="pb-6 border-b px-6 pt-6 flex flex-row items-center justify-between space-y-0">
+            <Card id="account" className="scroll-mt-24 border shadow-sm">
+              <CardHeader className="pb-6 px-6 pt-6  flex flex-row items-center justify-between space-y-0">
                 <div className="space-y-1">
                   <CardTitle className="text-lg">Account</CardTitle>
-                  <CardDescription className="text-sm mt-1">Manage your account settings</CardDescription>
+                  <CardDescription className="text-sm mt-1 text-white/45">Manage your account settings</CardDescription>
                 </div>
-                <Button size="sm" onClick={() => { logout(); navigate("/"); }} className="gap-2 px-4 h-9 bg-[#82181A] text-white hover:bg-[#82181A]/90 border-0">
+                <Button size="sm" onClick={() => { logout(); navigate("/"); }} className="gap-2 px-4 h-9 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all">
                   <LogOut className="h-4 w-4" />
                   Sign out
                 </Button>
               </CardHeader>
-              <CardContent className="px-6 py-6 space-y-8">
+              <CardContent className="px-6 py-6 pt-0 space-y-8">
                 <div className="space-y-1">
                   <p className="text-sm font-semibold">Account Created</p>
-                  <p className="text-sm text-muted-foreground">{getMemberSinceDate()}</p>
+                  <p className="text-sm text-white/45">{getMemberSinceDate()}</p>
                 </div>
 
                 <div className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <p className="text-sm font-semibold">Email Verification</p>
-                    <p className="text-xs text-muted-foreground">{user.email || "No email"}</p>
+                    <p className="text-xs text-white/45">{user.email || "No email"}</p>
                   </div>
                   {user.isVerified ? (
                     <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-500">
@@ -407,10 +396,10 @@ const ProfilePage = () => {
             </Card>
 
             {/* PRIVACY CARD */}
-            <Card id="privacy" className="scroll-mt-24 shadow-sm">
-              <CardHeader className="pb-6 border-b px-6 pt-6">
+            <Card id="privacy" className="scroll-mt-24 border shadow-sm">
+              <CardHeader className="pb-6 flex flex-col items-start   px-6 pt-6">
                 <CardTitle className="text-lg">Privacy & Consent</CardTitle>
-                <CardDescription className="text-sm mt-1">Manage your data privacy and cookie preferences</CardDescription>
+                <CardDescription className="text-sm mt-1 text-white/45">Manage your data privacy and cookie preferences</CardDescription>
               </CardHeader>
               <CardContent className="px-6 py-6 space-y-4">
                 <div className={cn("flex items-center justify-between gap-4 rounded-lg border p-4 transition-all", !isCookieAccepted && "opacity-50 grayscale pointer-events-none")}>
@@ -443,20 +432,20 @@ const ProfilePage = () => {
             </Card>
 
             {/* DANGER ZONE CARD */}
-            <Card id="danger-zone" className="scroll-mt-24 border border-red-500/10 bg-red-500/[0.01] shadow-sm">
-              <CardHeader className="pb-6 border-b border-red-500/5 px-6 pt-6">
-                <CardTitle className="text-lg text-red-500">Danger Zone</CardTitle>
-                <CardDescription className="text-sm mt-1">Irreversible actions for your account</CardDescription>
+            <Card id="danger-zone" className="scroll-mt-24 border border-[#761618] shadow-sm">
+              <CardHeader className="pb-6 flex flex-col items-start px-6 pt-6">
+                <CardTitle className="text-lg">Danger Zone</CardTitle>
+                <CardDescription className="text-sm mt-1 text-white/45">Irreversible actions for your account</CardDescription>
               </CardHeader>
-              <CardContent className="px-6 py-6">
+              <CardContent className="px-6 py-6 border">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">Delete account</p>
-                    <p className="text-xs text-muted-foreground mt-1 max-w-[400px]">
+                    <p className="text-xs text-white/45 mt-1 max-w-[400px]">
                       Permanently delete your account and all data
                     </p>
                   </div>
-                  <Button variant="destructive" className="bg-[#82181A] hover:bg-[#751617] h-9 shrink-0" onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}>
+                  <Button variant="outline" className="h-9 shrink-0 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all" onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}>
                     Delete account
                   </Button>
                 </div>
@@ -468,7 +457,7 @@ const ProfilePage = () => {
                     </p>
                     <div className="flex items-center gap-3">
                       <Input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder="Type DELETE to confirm" className="max-w-xs border-red-500/20 focus-visible:ring-red-500/30 h-9" />
-                      <Button variant="destructive" size="sm" disabled={deleteConfirmText !== "DELETE" || deleteLoading} onClick={handleDeleteAccount} className="h-9">
+                      <Button size="sm" disabled={deleteConfirmText !== "DELETE" || deleteLoading} onClick={handleDeleteAccount} className="h-9 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all">
                         {deleteLoading ? <Spinner size={16} className="mr-1.5" /> : null}
                         Permanently Delete
                       </Button>

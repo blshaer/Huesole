@@ -40,7 +40,7 @@ const MyGradientsPage = () => {
   const handleEditGradient = (gradient: any) => {
     navigate("/ai-generator", {
       state: {
-        ...gradient
+        ...gradient,
       },
     });
   };

@@ -48,10 +48,11 @@ export const useGradientGeneration = ({
       );
       const generated = {
         ...response.data.data,
+        type: "default" as const,
         id: crypto.randomUUID(),
       };
       setLocalResult(generated);
-      setResult((prev: any) => ({ ...prev, ...generated }));
+      setResult(generated);
 
       // Only show toast on desktop
       if (!isMobile) {

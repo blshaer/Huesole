@@ -73,7 +73,7 @@ export const Sidebar = ({
     <>
       <div
         ref={sidebarRef}
-        className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-6 pb-6 md:pb-12"
+        className="custom-scrollbar flex-1 space-y-8 overflow-hidden px-6 pb-6 md:pb-12"
       >
         <ColorStopsSection
           result={result}
