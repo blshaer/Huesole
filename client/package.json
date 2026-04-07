@@ -7,7 +7,7 @@
     "dev": "vite",
     "start": "vite preview",
     "build": "tsc && vite build",
-    "vercel-build": "rm -rf node_modules package-lock.json && npm install && npm run build",
+    "vercel-build": "npm run build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write .",
