@@ -21,6 +21,8 @@ interface ColorStopItemProps {
   onRemove: (index: number) => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const ColorStopItem = ({
@@ -31,6 +33,8 @@ export const ColorStopItem = ({
   onRemove,
   onMoveUp,
   onMoveDown,
+  isOpen,
+  onOpenChange,
 }: ColorStopItemProps) => {
   return (
     <div
@@ -59,7 +63,7 @@ export const ColorStopItem = ({
         </button>
       </div>
 
-      <Popover>
+      <Popover open={isOpen} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <div className="flex flex-1 items-center gap-3 cursor-pointer">
             <div className="shrink-0">

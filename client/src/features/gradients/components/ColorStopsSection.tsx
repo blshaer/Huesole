@@ -29,6 +29,7 @@ export const ColorStopsSection = ({
   onMoveColor,
 }: ColorStopsSectionProps) => {
   const [items, setItems] = useState<Item[]>([]);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const lastColorsRef = useRef<string[]>([]);
 
   // Sync items when colors array changes length or content
@@ -37,6 +38,11 @@ export const ColorStopsSection = ({
     
     // Check if lengths match
     if (items.length !== result.colors.length) {
+      // If a color was added, set it to open immediately
+      if (result.colors.length > items.length && items.length > 0) {
+        setOpenIndex(result.colors.length - 1);
+      }
+
       setItems(result.colors.map((color, idx) => ({
         id: `stop-${idx}-${Date.now()}`,
         color
@@ -114,6 +120,8 @@ export const ColorStopsSection = ({
                 ? () => handleMove(idx, "down")
                 : undefined
             }
+            isOpen={openIndex === idx}
+            onOpenChange={(open) => setOpenIndex(open ? idx : null)}
           />
         ))}
       </div>

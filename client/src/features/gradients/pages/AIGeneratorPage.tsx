@@ -129,7 +129,8 @@ const AIGeneratorPage: React.FC = () => {
 
   const handleAddColor = useCallback(() => {
     setResult((prev) => {
-      const newColors = [...prev.colors, "#6366f1"];
+      const lastColor = prev.colors[prev.colors.length - 1] || "#6366f1";
+      const newColors = [...prev.colors, lastColor];
       return { 
         ...prev, 
         colors: newColors,
