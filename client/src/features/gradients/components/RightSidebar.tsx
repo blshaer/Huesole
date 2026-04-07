@@ -37,6 +37,7 @@ const chartConfig = {
 interface RightSidebarProps {
   result: GeneratedGradient | null;
   setResult: React.Dispatch<React.SetStateAction<GeneratedGradient>>;
+  forceMobileVisible?: boolean;
 }
 
 // Parse hex to RGB
@@ -74,6 +75,7 @@ const applyTransform = (
 export const RightSidebar = ({
   result,
   setResult,
+  forceMobileVisible = false,
 }: RightSidebarProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const { favorites, toggleFavorite } = useFavorites();
@@ -231,10 +233,22 @@ export const RightSidebar = ({
     type: "angular" | "linear" | "radial" | "auto",
     isActive: boolean,
   ) => {
-    // "Auto" = clean faithful linear rendering of all colors — no mesh, as-it-is
-    const autoGradient = result
-      ? (result as any).rawCss || animatedGradientUtils.generateSegmentedConic(result.colors, result.angle || 90)
-      : "";
+    const determineAutoGradient = () => {
+      if (!result) return "";
+      const raw = result.rawCss || "";
+      if (raw.includes("radial-gradient")) {
+        return `radial-gradient(circle, ${colors.join(", ")})`;
+      }
+      if (raw.includes("linear-gradient")) {
+        return `linear-gradient(90deg, ${colors.join(", ")})`;
+      }
+      if (raw.includes("conic-gradient")) {
+        return `conic-gradient(from 90deg, ${colors.join(", ")})`;
+      }
+      return animatedGradientUtils.generateSegmentedConic(colors, result.angle || 90);
+    };
+
+    const autoGradient = determineAutoGradient();
 
     const gradient =
       type === "angular"
@@ -293,7 +307,7 @@ export const RightSidebar = ({
     );
   };
 
-  if (!result || isMobile) return null;
+  if (!result || (isMobile && !forceMobileVisible)) return null;
 
   return (
     <aside className="relative  pt-4 z-20 flex h-full w-full flex-shrink-0 flex-col border-l border-border bg-background/40 backdrop-blur-3xl">

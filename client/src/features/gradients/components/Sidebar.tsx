@@ -11,11 +11,12 @@ interface SidebarProps {
   animationSpeed: number;
   setAnimationSpeed: (value: number) => void;
   onUpdateColor: (index: number, color: string) => void;
-  onAddColor: () => void;
+  onAddColor: (color?: string) => void;
   onRemoveColor: (index: number) => void;
   onMoveColor: (index: number, direction: "up" | "down") => void;
   isMobileOpen: boolean;
   onToggleMobile: () => void;
+  forceMobileVisible?: boolean;
 }
 
 export const Sidebar = ({
@@ -26,6 +27,7 @@ export const Sidebar = ({
   onMoveColor,
   isMobileOpen,
   onToggleMobile,
+  forceMobileVisible = false,
 }: SidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [, setScrollProgress] = useState(0);
@@ -99,7 +101,7 @@ export const Sidebar = ({
   return (
     <>
       {/* Desktop Sidebar - Always Visible */}
-      {!isMobile && (
+      {(!isMobile || forceMobileVisible) && (
         <aside className="bg-background/40 relative z-20 flex h-full w-full flex-shrink-0 flex-col border-r border-border backdrop-blur-3xl">
           {sidebarContent}
         </aside>
