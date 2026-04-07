@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Monitor, Smartphone, Tablet } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Monitor, Smartphone, Tablet, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import {
   DropdownMenu,
@@ -116,10 +117,76 @@ interface NavbarCanvasSizeProps {
 }
 
 export const NavbarCanvasSize = ({ onSizeSelect, selectedSize }: NavbarCanvasSizeProps) => {
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const formatRes = (w: number, h: number) => (w === 0 ? "Original" : `${w}×${h}`);
 
+  const activeCategory = CANVAS_CATEGORIES.find(c => c.id === activeCategoryId);
+
+  const renderSizeItem = (size: CanvasSize) => {
+    const MAX_THUMB_H = 40;
+    const MAX_THUMB_W = 56;
+    const isDefault = size.label === "Default";
+    
+    let thumbW = MAX_THUMB_W;
+    let thumbH = MAX_THUMB_H;
+    if (!isDefault && size.width && size.height) {
+      const ratio = size.width / size.height;
+      if (ratio >= 1) {
+        thumbH = Math.round(MAX_THUMB_W / ratio);
+      } else {
+        thumbW = Math.round(MAX_THUMB_H * ratio);
+      }
+      thumbH = Math.min(thumbH, MAX_THUMB_H);
+      thumbW = Math.min(thumbW, MAX_THUMB_W);
+    }
+
+    const isSelected =
+      (selectedSize?.label === size.label && selectedSize?.width === size.width) ||
+      (isDefault && !selectedSize);
+
+    return (
+      <DropdownMenuItem
+        key={size.label}
+        onClick={() => onSizeSelect?.(size.label === "Default" ? null : size)}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer",
+          isSelected ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+        )}
+      >
+        <div className="flex shrink-0 items-center justify-center" style={{ width: MAX_THUMB_W, height: MAX_THUMB_H }}>
+          <div
+            className={cn(
+              "border transition-all",
+              isSelected ? "border-blue-500/60 bg-white/10" : "border-white/10 bg-white/5",
+              isDefault ? "rounded-full" : "rounded-sm"
+            )}
+            style={{
+              width: isDefault ? MAX_THUMB_H : thumbW,
+              height: isDefault ? MAX_THUMB_H : thumbH,
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span className="text-sm font-medium leading-none">{size.label}</span>
+          <span className="text-[10px] tabular-nums text-white/30">
+            {formatRes(size.width, size.height)}
+          </span>
+        </div>
+      </DropdownMenuItem>
+    );
+  };
+
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={(open) => { if (!open) setActiveCategoryId(null); }}>
       <DropdownMenuTrigger asChild>
         <motion.button
           id="navbar-canvas-size-btn"
@@ -149,78 +216,79 @@ export const NavbarCanvasSize = ({ onSizeSelect, selectedSize }: NavbarCanvasSiz
           )}
         </div>
 
-        <div className="py-1">
-          {CANVAS_CATEGORIES.map((category) => {
-            const Icon = category.icon;
-            return (
-              <DropdownMenuSub key={category.id}>
-                <DropdownMenuSubTrigger className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-white/5 text-white/70 hover:text-white focus:bg-white/10 focus:text-white transition-all">
-                  <Icon className="h-3.5 w-3.5 text-white/40" />
-                  <span className="text-sm font-bold">{category.label}</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent className="w-[240px] bg-[#0d0f14]/98 border-white/10 backdrop-blur-3xl p-1">
-                    {category.sizes.map((size) => {
-                      const MAX_THUMB_H = 40; // px max thumb height
-                      const MAX_THUMB_W = 56; // px max thumb width
-                      const isDefault = size.label === "Default";
-                      
-                      // Compute thumb dimensions preserving aspect ratio
-                      let thumbW = MAX_THUMB_W;
-                      let thumbH = MAX_THUMB_H;
-                      if (!isDefault && size.width && size.height) {
-                        const ratio = size.width / size.height;
-                        if (ratio >= 1) {
-                          thumbH = Math.round(MAX_THUMB_W / ratio);
-                        } else {
-                          thumbW = Math.round(MAX_THUMB_H * ratio);
-                        }
-                       // Clamp
-                        thumbH = Math.min(thumbH, MAX_THUMB_H);
-                        thumbW = Math.min(thumbW, MAX_THUMB_W);
-                      }
-
-                      const isSelected =
-                        (selectedSize?.label === size.label && selectedSize?.width === size.width) ||
-                        (isDefault && !selectedSize);
-                      return (
-                        <DropdownMenuItem
-                          key={size.label}
-                          onClick={() => onSizeSelect?.(size.label === "Default" ? null : size)}
-                          onPointerEnter={() => onSizeSelect?.(size.label === "Default" ? null : size)}
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer",
-                            isSelected ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
-                          )}
-                        >
-                          {/* Mini Preview Thumbnail */}
-                          <div className="flex shrink-0 items-center justify-center" style={{ width: MAX_THUMB_W, height: MAX_THUMB_H }}>
-                            <div
-                              className={cn(
-                                "border transition-all",
-                                isSelected ? "border-blue-500/60 bg-white/10" : "border-white/10 bg-white/5",
-                                isDefault ? "rounded-full" : "rounded-sm"
-                              )}
-                              style={{
-                                width: isDefault ? MAX_THUMB_H : thumbW,
-                                height: isDefault ? MAX_THUMB_H : thumbH,
-                              }}
-                            />
-                          </div>
-                          <div className="flex flex-col gap-0.5 min-w-0">
-                            <span className="text-sm font-medium leading-none">{size.label}</span>
-                            <span className="text-[10px] tabular-nums text-white/30">
-                              {formatRes(size.width, size.height)}
-                            </span>
-                          </div>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            );
-          })}
+        <div className="py-1 min-h-[300px]">
+          {isMobile ? (
+            <AnimatePresence mode="wait">
+              {!activeCategoryId ? (
+                <motion.div
+                  key="categories"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                >
+                  {CANVAS_CATEGORIES.map((category) => {
+                    const Icon = category.icon;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setActiveCategoryId(category.id);
+                        }}
+                        className="flex w-full items-center justify-between px-3 py-3 hover:bg-white/5 text-white/70 hover:text-white transition-all text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="h-4 w-4 text-white/40" />
+                          <span className="text-sm font-bold">{category.label}</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-white/20" />
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="sizes"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveCategoryId(null);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-blue-400 hover:text-blue-300 text-xs font-bold uppercase tracking-wider"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                    Back to categories
+                  </button>
+                  <div className="px-1 py-1">
+                    {activeCategory?.sizes.map(renderSizeItem)}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ) : (
+            CANVAS_CATEGORIES.map((category) => {
+              const Icon = category.icon;
+              return (
+                <DropdownMenuSub key={category.id}>
+                  <DropdownMenuSubTrigger className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-white/5 text-white/70 hover:text-white focus:bg-white/10 focus:text-white transition-all">
+                    <Icon className="h-3.5 w-3.5 text-white/40" />
+                    <span className="text-sm font-bold">{category.label}</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent className="w-[240px] bg-[#0d0f14]/98 border-white/10 backdrop-blur-3xl p-1">
+                      {category.sizes.map(renderSizeItem)}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              );
+            })
+          )}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
