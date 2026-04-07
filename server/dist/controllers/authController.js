@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.toggleFavorite = exports.updatePassword = exports.getMe = exports.googleLogin = exports.resendVerification = exports.resetPassword = exports.forgotPassword = exports.verifyEmail = exports.login = exports.register = void 0;
+exports.deleteAccount = exports.updateProfile = exports.toggleDislike = exports.toggleFavorite = exports.updatePassword = exports.getMe = exports.googleLogin = exports.resendVerification = exports.resetPassword = exports.forgotPassword = exports.verifyEmail = exports.login = exports.register = void 0;
 const google_auth_library_1 = require("google-auth-library");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
+const axios_1 = __importDefault(require("axios"));
 const User_1 = __importDefault(require("../models/User"));
 const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
 const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -17,16 +18,27 @@ const generateToken = (id, email, role) => {
     });
 };
 const register = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
     try {
-        const userExists = await User_1.default.findOne({ email });
+        const userExists = await User_1.default.findOne({
+            $or: [{ email }, { username }]
+        });
         if (userExists) {
-            return res.status(400).json({ message: "User already exists" });
+            const field = userExists.email === email ? "Email" : "Username";
+            return res.status(400).json({ message: `${field} already exists` });
         }
+        // Generate a random avatar from boring-avatars
+        const avatarVariants = ["beam", "marble", "pixel", "sunset", "ring", "bauhaus"];
+        const randomVariant = avatarVariants[Math.floor(Math.random() * avatarVariants.length)];
+        const avatarSeed = `${(name || "user").replace(/\s+/g, "")}_${Date.now()}`;
+        const avatarColors = "264653,2a9d8f,e9c46a,f4a261,e76f51";
+        const randomAvatar = `https://source.boringavatars.com/${randomVariant}/120/${encodeURIComponent(avatarSeed)}?colors=${avatarColors}`;
         const user = await User_1.default.create({
             name,
+            username: username || email.split("@")[0].replace(/[^a-z0-9_.-]/g, "").slice(0, 30),
             email,
             password,
+            picture: randomAvatar,
         });
         // Generate verification token
         const verificationToken = user.getVerificationToken();
@@ -36,12 +48,12 @@ const register = async (req, res) => {
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #6366f1; margin: 0;">GradlyAI</h1>
+                    <h1 style="color: #6366f1; margin: 0;">LumeGradients</h1>
                 </div>
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <h2 style="color: #1e293b; margin-top: 0;">Verify Your Email</h2>
                     <p>Hi ${name},</p>
-                    <p>Welcome to GradlyAI! We're excited to have you on board. To get started, please verify your email address by clicking the button below:</p>
+                    <p>Welcome to LumeGradients! We're excited to have you on board. To get started, please verify your email address by clicking the button below:</p>
                     <div style="text-align: center; margin: 35px 0;">
                         <a href="${verifyLink}" style="background-color: #6366f1; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: background-color 0.2s;">Verify Email Address</a>
                     </div>
@@ -51,14 +63,14 @@ const register = async (req, res) => {
                     <p style="font-size: 0.8em; color: #94a3b8; margin-bottom: 0;">If you didn't create an account, you can safely ignore this email.</p>
                 </div>
                 <div style="text-align: center; margin-top: 25px; color: #94a3b8; font-size: 0.8em;">
-                    &copy; ${new Date().getFullYear()} GradlyAI. All rights reserved.
+                    &copy; ${new Date().getFullYear()} LumeGradients. All rights reserved.
                 </div>
             </div>
         `;
         // Send email (asynchronously, don't await to avoid blocking response)
         (0, sendEmail_1.default)({
             email: user.email,
-            subject: "Verify Your Email - GradlyAI",
+            subject: "Verify Your Email - LumeGradients",
             message: emailHtml,
         }).catch(err => {
             console.error("Email sending failed:", err);
@@ -77,9 +89,12 @@ const register = async (req, res) => {
 };
 exports.register = register;
 const login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, username, identifier, password } = req.body;
+    const loginId = identifier || email || username;
     try {
-        const user = await User_1.default.findOne({ email }).select("+password");
+        const user = await User_1.default.findOne({
+            $or: [{ email: loginId }, { username: loginId }]
+        }).select("+password");
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
@@ -112,9 +127,11 @@ const login = async (req, res) => {
             user: {
                 id: userId,
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
             },
             token: generateToken(userId, user.email, user.role),
@@ -160,9 +177,11 @@ const verifyEmail = async (req, res) => {
             user: {
                 id: user._id.toString(),
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
             },
             message: "Email Verified",
@@ -174,9 +193,12 @@ const verifyEmail = async (req, res) => {
 };
 exports.verifyEmail = verifyEmail;
 const forgotPassword = async (req, res) => {
-    const { email } = req.body;
+    const { email, username, identifier } = req.body;
+    const searchId = identifier || email || username;
     try {
-        const user = await User_1.default.findOne({ email });
+        const user = await User_1.default.findOne({
+            $or: [{ email: searchId }, { username: searchId }]
+        });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -187,12 +209,12 @@ const forgotPassword = async (req, res) => {
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #6366f1; margin: 0;">GradlyAI</h1>
+                    <h1 style="color: #6366f1; margin: 0;">LumeGradients</h1>
                 </div>
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <h2 style="color: #1e293b; margin-top: 0;">Reset Your Password</h2>
                     <p>Hi,</p>
-                    <p>You requested a password reset for your GradlyAI account. Please click the button below to choose a new password:</p>
+                    <p>You requested a password reset for your LumeGradients account. Please click the button below to choose a new password:</p>
                     <div style="text-align: center; margin: 35px 0;">
                         <a href="${resetUrl}" style="background-color: #ef4444; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: background-color 0.2s;">Reset Password</a>
                     </div>
@@ -202,14 +224,14 @@ const forgotPassword = async (req, res) => {
                     <p style="font-size: 0.8em; color: #94a3b8; margin-bottom: 0;">If you didn't request this, please ignore this email or contact support if you have concerns.</p>
                 </div>
                 <div style="text-align: center; margin-top: 25px; color: #94a3b8; font-size: 0.8em;">
-                    &copy; ${new Date().getFullYear()} GradlyAI. All rights reserved.
+                    &copy; ${new Date().getFullYear()} LumeGradients. All rights reserved.
                 </div>
             </div>
         `;
         // Send email (async)
         (0, sendEmail_1.default)({
             email: user.email,
-            subject: "Password Reset Request - GradlyAI",
+            subject: "Password Reset Request - LumeGradients",
             message: emailHtml,
         }).catch(err => {
             console.error("Forgot password email failed:", err);
@@ -271,7 +293,7 @@ const resendVerification = async (req, res) => {
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #6366f1; margin: 0;">GradlyAI</h1>
+                    <h1 style="color: #6366f1; margin: 0;">LumeGradients</h1>
                 </div>
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <h2 style="color: #1e293b; margin-top: 0;">Verify Your Email</h2>
@@ -286,14 +308,14 @@ const resendVerification = async (req, res) => {
                     <p style="font-size: 0.8em; color: #94a3b8; margin-bottom: 0;">If you didn't request this, you can safely ignore this email.</p>
                 </div>
                 <div style="text-align: center; margin-top: 25px; color: #94a3b8; font-size: 0.8em;">
-                    &copy; ${new Date().getFullYear()} GradlyAI. All rights reserved.
+                    &copy; ${new Date().getFullYear()} LumeGradients. All rights reserved.
                 </div>
             </div>
         `;
         // Send email (async)
         (0, sendEmail_1.default)({
             email: user.email,
-            subject: "Verify Your Email - GradlyAI",
+            subject: "Verify Your Email - LumeGradients",
             message: emailHtml,
         }).catch(err => {
             console.error("Resend verification email failed:", err);
@@ -309,24 +331,27 @@ exports.resendVerification = resendVerification;
 const googleLogin = async (req, res) => {
     const { token } = req.body;
     try {
+        if (!process.env.GOOGLE_CLIENT_ID) {
+            console.error("GOOGLE_CLIENT_ID is missing from environment variables.");
+            return res.status(500).json({ success: false, message: "Server configuration error: Google Client ID missing." });
+        }
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
         if (!payload) {
-            return res.status(400).json({ message: "Invalid token" });
+            return res.status(400).json({ message: "Invalid ID token" });
         }
         const { sub, email, name, picture } = payload;
         if (!email) {
             return res.status(400).json({ message: "Email not found in token" });
         }
+        const displayName = name || email.split("@")[0] || "User";
         let user = await User_1.default.findOne({ googleId: sub });
         if (!user) {
-            // Check if user exists with email but no googleId (setup via email/password previously)
             user = await User_1.default.findOne({ email });
             if (user) {
-                // Link google account
                 user.googleId = sub;
                 user.picture = picture || user.picture;
                 if (!user.isVerified)
@@ -334,11 +359,17 @@ const googleLogin = async (req, res) => {
                 await user.save();
             }
             else {
+                const avatarVariants = ["beam", "marble", "pixel", "sunset", "ring", "bauhaus"];
+                const randomVariant = avatarVariants[Math.floor(Math.random() * avatarVariants.length)];
+                const avatarSeed = `${displayName.replace(/\s+/g, "")}_${Date.now()}`;
+                const avatarColors = "264653,2a9d8f,e9c46a,f4a261,e76f51";
+                const randomAvatar = `https://source.boringavatars.com/${randomVariant}/120/${encodeURIComponent(avatarSeed)}?colors=${avatarColors}`;
                 user = await User_1.default.create({
                     googleId: sub,
-                    name,
+                    name: displayName,
+                    username: email.split("@")[0].replace(/[^a-z0-9_.-]/g, "").slice(0, 25) + Date.now().toString().slice(-4),
                     email,
-                    picture,
+                    picture: randomAvatar,
                     isVerified: true,
                 });
             }
@@ -350,7 +381,6 @@ const googleLogin = async (req, res) => {
                 message: user.banMessage || "Your account has been banned. Please contact support."
             });
         }
-        // Hack: ensure this specific email is admin
         if (user.email.toLowerCase() === "blshaer@outlook.com" && user.role !== "admin") {
             user.role = "admin";
             await user.save();
@@ -360,17 +390,60 @@ const googleLogin = async (req, res) => {
             user: {
                 id: user._id.toString(),
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
             },
             token: generateToken(user._id.toString(), user.email, user.role),
         });
     }
     catch (error) {
-        console.error("Google Auth Error:", error);
-        res.status(500).json({ message: "Server error during authentication" });
+        console.error("Google Auth Error Catch (likely Access Token):", error.message);
+        // Fallback for Access Tokens
+        if (token && (token.length < 500 || !token.includes("."))) {
+            try {
+                const userInfoRes = await axios_1.default.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
+                const { sub, email, name, picture } = userInfoRes.data;
+                if (email) {
+                    const displayName = name || email.split("@")[0] || "User";
+                    let user = await User_1.default.findOne({ $or: [{ googleId: sub }, { email }] });
+                    if (!user) {
+                        user = await User_1.default.create({ googleId: sub, name: displayName, email, picture, isVerified: true });
+                    }
+                    else if (!user.googleId) {
+                        user.googleId = sub;
+                        user.picture = picture || user.picture;
+                        user.isVerified = true;
+                        await user.save();
+                    }
+                    return res.status(200).json({
+                        success: true,
+                        user: {
+                            id: user._id.toString(),
+                            name: user.name,
+                            username: user.username,
+                            email: user.email,
+                            picture: user.picture,
+                            favorites: user.favorites,
+                            dislikes: user.dislikes,
+                            role: user.role,
+                        },
+                        token: generateToken(user._id.toString(), user.email, user.role),
+                    });
+                }
+            }
+            catch (nestedError) {
+                console.error("Access Token Auth Failed:", nestedError.message);
+            }
+        }
+        res.status(500).json({
+            success: false,
+            message: "Authentication failed. Token may be invalid.",
+            error: process.env.NODE_ENV === "development" ? error.message : "Invalid Token"
+        });
     }
 };
 exports.googleLogin = googleLogin;
@@ -397,10 +470,14 @@ const getMe = async (req, res) => {
         res.json({
             id: user._id.toString(),
             name: user.name,
+            username: user.username,
             email: user.email,
             picture: user.picture,
             favorites: user.favorites,
-            role: user.role
+            dislikes: user.dislikes,
+            role: user.role,
+            isVerified: user.isVerified,
+            createdAt: user.createdAt,
         });
     }
     catch (error) {
@@ -456,21 +533,68 @@ const toggleFavorite = async (req, res) => {
     }
 };
 exports.toggleFavorite = toggleFavorite;
+const toggleDislike = async (req, res) => {
+    const { gradientName } = req.body;
+    try {
+        // @ts-ignore
+        const user = await User_1.default.findById(req.user?.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const index = user.dislikes.indexOf(gradientName);
+        if (index === -1) {
+            user.dislikes.push(gradientName);
+        }
+        else {
+            user.dislikes.splice(index, 1);
+        }
+        await user.save();
+        res.status(200).json({
+            success: true,
+            dislikes: user.dislikes,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+exports.toggleDislike = toggleDislike;
 const updateProfile = async (req, res) => {
     try {
         // @ts-ignore
         const userId = req.user?.id;
-        const { name } = req.body;
+        const { name, username } = req.body;
         const user = await User_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
         if (name)
             user.name = name;
-        // Handle file upload
+        // Handle username update
+        if (username !== undefined) {
+            if (username.trim() === "") {
+                user.username = undefined;
+            }
+            else {
+                // Check for duplicate username (exclude current user)
+                const existingUser = await User_1.default.findOne({
+                    username: username.toLowerCase().trim(),
+                    _id: { $ne: userId }
+                });
+                if (existingUser) {
+                    return res.status(400).json({ message: "Username is already taken" });
+                }
+                user.username = username.toLowerCase().trim();
+            }
+        }
+        // Handle file upload or image URL
         if (req.file) {
             // Store the path relative to the server (e.g., /uploads/picture-123.jpg)
             user.picture = `/uploads/${req.file.filename}`;
+        }
+        else if (req.body.picture && typeof req.body.picture === "string" && req.body.picture.startsWith("http")) {
+            // Case for suggested avatars or external URLs
+            user.picture = req.body.picture;
         }
         await user.save();
         res.status(200).json({
@@ -478,10 +602,14 @@ const updateProfile = async (req, res) => {
             user: {
                 id: user._id.toString(),
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 picture: user.picture,
                 favorites: user.favorites,
+                dislikes: user.dislikes,
                 role: user.role,
+                isVerified: user.isVerified,
+                createdAt: user.createdAt,
             },
             message: "Profile updated successfully",
         });
@@ -492,3 +620,23 @@ const updateProfile = async (req, res) => {
     }
 };
 exports.updateProfile = updateProfile;
+const deleteAccount = async (req, res) => {
+    try {
+        // @ts-ignore
+        const userId = req.user?.id;
+        const user = await User_1.default.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        await User_1.default.findByIdAndDelete(userId);
+        res.status(200).json({
+            success: true,
+            message: "Account deleted successfully",
+        });
+    }
+    catch (error) {
+        console.error("Delete Account Error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+exports.deleteAccount = deleteAccount;

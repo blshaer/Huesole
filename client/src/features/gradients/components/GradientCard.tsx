@@ -8,14 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { MagicCard } from "@/shared/ui/MagicCard";
-import { ChevronDown, Download, Eye, EyeOff, Pencil, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
+import { ChevronDown, Download, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ColorSwatches } from "./ColorSwatches";
+import { LikeDislike } from "./LikeDislike";
 import { GradientPreview } from "./GradientPreview";
 import { DownloadOptionsDropdown } from "./DownloadOptionsDropdown";
-import { cn } from "@/shared/lib/utils";
+
 
 import { Gradient, GradientCardProps } from "@/shared/types/types";
 import { CodePreview } from "./CodePreview";
@@ -262,45 +263,66 @@ export default function GradientCard({
   );
 
   const getGradientStyle = () => {
-    // If the gradient has a raw CSS string and we're in 'auto' mode
-    if (gradientShape === "auto" || (gradient.rawCss && !globalGradientShape) || (gradient as any).type === "default") {
+    // 1. Check for global force-shape overrides from SearchBox (if not "auto")
+    if (globalGradientShape && globalGradientShape !== "auto") {
+      if (globalGradientShape === "linear") {
+        return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
+      }
+      if (globalGradientShape === "radial") {
+        return `radial-gradient(circle, ${formattedColors.join(", ")})`;
+      }
+      if (globalGradientShape === "conic") {
+        return `conic-gradient(from ${angle}deg, ${formattedColors.join(", ")})`;
+      }
+    }
+
+    // 2. Handle native/auto rendering logic
+    const nativeType = (gradient as any).type || "linear";
+
+    // AI / High-fidelity logic for "default", "auto" or rawCss gradients
+    if (nativeType === "default" || nativeType === "auto" || (gradient.rawCss && (!globalGradientShape || globalGradientShape === "auto"))) {
       if (gradient.rawCss) {
         let css = gradient.rawCss;
-
         // Convert all colors in the raw CSS to the selected format
         gradient.colors.forEach((hexColor, index) => {
           const formattedColor = formattedColors[index];
-          css = css.split(new RegExp(hexColor, 'i')).join(formattedColor);
+          css = css.split(new RegExp(hexColor, "i")).join(formattedColor);
         });
 
         // Inject current angle into CSS if possible
-        if (css.includes('linear-gradient')) {
-          css = css.replace(/(-?\d+(\.\d+)?deg|to (top|bottom|left|right|top right|top left|bottom right|bottom left))/, `${angle}deg`);
-          return css;
-        }
-        if (css.includes('conic-gradient')) {
-          css = css.replace(/from\s+(\d+(\.\d+)?deg)/, `from ${angle}deg`);
-          return css;
+        if (css.includes("linear-gradient")) {
+          return css.replace(
+            /(-?\d+(\.\d+)?deg|to (top|bottom|left|right|top right|top left|bottom right|bottom left))/,
+            `${angle}deg`
+          );
+        } else if (css.includes("conic-gradient")) {
+          return css.replace(
+            /from\s+(-?\d+(\.\d+)?deg)/,
+            `from ${angle}deg`
+          );
         }
         return css;
       }
-      // Auto = "as-it-is" — use Segmented Conic to mimic the mesh look
-      return animatedGradientUtils.generateSegmentedConic(formattedColors, angle);
+
+      // Default AI style is the new Segmented Conic
+      if (nativeType === "default" || nativeType === "auto") {
+        return animatedGradientUtils.generateSegmentedConic(
+          formattedColors,
+          angle
+        );
+      }
     }
 
-    if (gradientShape === "linear") {
-      return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
-    }
-
-    if (gradientShape === "conic") {
+    // 3. Fallback to standard shapes based on native type
+    if (nativeType === "conic") {
       return `conic-gradient(from ${angle}deg, ${formattedColors.join(", ")})`;
     }
+    if (nativeType === "radial") {
+      return `radial-gradient(circle, ${formattedColors.join(", ")})`;
+    }
 
-    const angleRad = ((angle - 90) * Math.PI) / 180;
-    const offset = 25;
-    const posX = 50 + Math.cos(angleRad) * offset;
-    const posY = 50 + Math.sin(angleRad) * offset;
-    return `radial-gradient(circle at ${posX}% ${posY}%, ${formattedColors.join(", ")})`;
+    // Standard Linear fallback
+    return `linear-gradient(${angle}deg, ${formattedColors.join(", ")})`;
   };
 
   const getCodePreview = (): React.CSSProperties => {
@@ -406,9 +428,7 @@ export default function GradientCard({
     }
   };
 
-  const handleFavoriteToggle = () => {
-    onFavoriteToggle(gradient.name);
-  };
+
 
   const { theme } = useTheme();
 
@@ -419,45 +439,18 @@ export default function GradientCard({
     >
       <div className="relative md:absolute md:left-0 md:right-0 md:top-3.5 z-[70] flex items-center justify-between px-3.5 py-4 md:py-0 md:px-3.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 md:pointer-events-none">
         {/* User-specified Like/Dislike UI in TOP LEFT */}
-        <div className="disable-animation-on-theme-change pointer-events-auto inline-flex items-center rounded-md border border-solid border-white/10 backdrop-blur-sm bg-background/60 shadow-lg">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isDisliked && onDislikeToggle) onDislikeToggle(gradient.name);
-              onFavoriteToggle(gradient.name);
-            }}
-            className={cn(
-              "inline-flex items-center justify-center w-8 h-8 p-0 rounded-l-[5px] transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
-              isFavorite
-                ? "text-blue-500 bg-blue-500/10"
-                : "text-white/60 hover:text-white hover:bg-background/60"
-            )}
-            aria-pressed={isFavorite}
-            title="Like"
-          >
-            <ThumbsUp className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-          <div className="w-px h-4 bg-white/10"></div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isFavorite) onFavoriteToggle(gradient.name);
-              if (onDislikeToggle) onDislikeToggle(gradient.name);
-            }}
-            className={cn(
-              "inline-flex items-center justify-center w-8 h-8 p-0 rounded-r-[5px] transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset",
-              isDisliked && !isFavorite
-                ? "text-red-500 bg-red-500/10"
-                : "text-white/60 hover:text-white hover:bg-background/60"
-            )}
-            aria-pressed={isDisliked}
-            title="Dislike"
-          >
-            <ThumbsDown className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-        </div>
+        <LikeDislike
+          isLiked={isFavorite}
+          isDisliked={isDisliked}
+          onLikeToggle={() => {
+            if (isDisliked && onDislikeToggle) onDislikeToggle(gradient.name);
+            onFavoriteToggle(gradient.name);
+          }}
+          onDislikeToggle={() => {
+            if (isFavorite) onFavoriteToggle(gradient.name);
+            if (onDislikeToggle) onDislikeToggle(gradient.name);
+          }}
+        />
 
         <TooltipProvider>
           <div className="relative pointer-events-auto flex gap-0.5 px-1 py-1 items-center justify-center rounded-[8px] backdrop-blur-md transition-all duration-300 hover:bg-white/5"

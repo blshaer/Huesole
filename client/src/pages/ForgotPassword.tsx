@@ -82,7 +82,7 @@ const ForgotPassword = () => {
         <Button
           className="mt-2 h-11 w-full bg-blue-600 text-base font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-[0.98]"
           type="submit"
-          disabled={loading || cooldown > 0}
+          disabled={loading || cooldown > 0 || !identifier}
         >
           {loading ? (
             <span className="flex items-center gap-2">
@@ -100,6 +100,19 @@ const ForgotPassword = () => {
             </span>
           )}
         </Button>
+
+        <p className="px-8 text-center text-[11px] text-white/45 leading-relaxed">
+          By continuing, you agree to our{" "}
+          <Link to="/terms" className="underline text-white underline-offset-2 hover:text-primary transition-colors">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link to="/privacy" className="underline text-white underline-offset-2 hover:text-primary transition-colors">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+
       </form>
     </AuthLayout>
   );

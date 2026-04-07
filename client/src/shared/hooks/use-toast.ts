@@ -19,13 +19,18 @@ function toast({ title, description, variant }: ToastProps) {
   }
 }
 
+interface Toast extends ToastProps {
+  id: string;
+  action?: React.ReactNode;
+}
+
 function useToast() {
   return {
     toast,
     dismiss: (id?: string) => {
       sonnerToast.dismiss(id);
     },
-    toasts: [], // For compatibility
+    toasts: [] as Toast[], // For compatibility
   };
 }
 

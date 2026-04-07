@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteHomeGradient = exports.updateHomeGradient = exports.createHomeGradient = exports.deleteSupportMessage = exports.updateSupportStatus = exports.getSupportMessages = exports.banUser = exports.getUserMessages = exports.updateUserRole = exports.deleteUser = exports.getUsers = void 0;
+exports.updatePageContent = exports.getPageContentAdmin = exports.deleteHomeGradient = exports.updateHomeGradient = exports.createHomeGradient = exports.deleteSupportMessage = exports.updateSupportStatus = exports.getSupportMessages = exports.banUser = exports.getUserMessages = exports.updateUserRole = exports.deleteUser = exports.getUsers = void 0;
 const HomeGradient_1 = __importDefault(require("../models/HomeGradient"));
 const SupportMessage_1 = __importDefault(require("../models/SupportMessage"));
 const User_1 = __importDefault(require("../models/User"));
+const PageContent_1 = __importDefault(require("../models/PageContent"));
 // @desc    Get all users
 // @route   GET /api/admin/users
 // @access  Private/Admin
@@ -208,3 +209,42 @@ const deleteHomeGradient = async (req, res) => {
     }
 };
 exports.deleteHomeGradient = deleteHomeGradient;
+// --- Page Content Admin Controllers ---
+// @desc    Get or create page content
+// @route   GET /api/admin/page-content/:pageName
+// @access  Private/Admin
+const getPageContentAdmin = async (req, res) => {
+    try {
+        const { pageName } = req.params;
+        let content = await PageContent_1.default.findOne({ pageName: pageName.toLowerCase() });
+        if (!content) {
+            // Create default template if it doesn't exist
+            content = await PageContent_1.default.create({
+                pageName: pageName.toLowerCase(),
+                title: pageName.charAt(0).toUpperCase() + pageName.slice(1),
+                description: `Default description for ${pageName}`,
+                content: `<h1>${pageName}</h1><p>Edit this content in the admin dashboard.</p>`
+            });
+        }
+        res.status(200).json({ success: true, data: content });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+exports.getPageContentAdmin = getPageContentAdmin;
+// @desc    Update page content
+// @route   PUT /api/admin/page-content/:pageName
+// @access  Private/Admin
+const updatePageContent = async (req, res) => {
+    try {
+        const { pageName } = req.params;
+        const { title, description, content } = req.body;
+        const updatedContent = await PageContent_1.default.findOneAndUpdate({ pageName: pageName.toLowerCase() }, { title, description, content }, { new: true, upsert: true, runValidators: true });
+        res.status(200).json({ success: true, data: updatedContent });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+exports.updatePageContent = updatePageContent;

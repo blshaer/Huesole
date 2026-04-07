@@ -49,6 +49,15 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         required: [true, "Please add a name"],
     },
+    username: {
+        type: String,
+        unique: true,
+        sparse: true,
+        lowercase: true,
+        trim: true,
+        match: [/^[a-z0-9_.-]+$/, "Username can only contain lowercase letters, numbers, dots, hyphens, and underscores"],
+        maxlength: [30, "Username cannot exceed 30 characters"],
+    },
     email: {
         type: String,
         required: [true, "Please add an email"],
@@ -88,6 +97,11 @@ const UserSchema = new mongoose_1.Schema({
         default: Date.now,
     },
     favorites: [
+        {
+            type: String,
+        },
+    ],
+    dislikes: [
         {
             type: String,
         },

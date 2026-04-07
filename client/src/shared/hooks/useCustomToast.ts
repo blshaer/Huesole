@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 export const useCustomToast = () => {
   const showToast = useCallback((title: string, description: string) => {
-    toast("Notification");
+    toast(title, { description });
   }, []);
 
   return { showToast };

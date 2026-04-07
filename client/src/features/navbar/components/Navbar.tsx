@@ -91,14 +91,7 @@ export const Navbar = ({
     navigate("/login");
   };
 
-  const handleAIGenerateClick = () => {
-    if (!user) {
-      toast.error("Authentication Required", { description: "Please login first to use the AI Generator." });
-      navigate("/login");
-      return;
-    }
-    navigate("/ai-generator");
-  };
+
 
   return (
     <header className="disable-animation-on-theme-change container sticky top-0 z-[100] bg-background backdrop-blur-sm">
@@ -180,13 +173,11 @@ export const Navbar = ({
           )}
 
           <NavbarAiControls
-            user={user}
             isAIGeneratorPage={isAIGeneratorPage}
             result={result}
             isAnimated={isAnimated}
             animationSpeed={animationSpeed}
             setAnimationSpeed={setAnimationSpeed}
-            onRequireAuthNavigate={handleAIGenerateClick}
           />
 
           <NavbarColorPicker

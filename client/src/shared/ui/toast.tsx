@@ -32,6 +32,8 @@ const toastVariants = cva(
           "bg-[var(--card)] rounded-md text-[var(--card-foreground)] shadow-sm border border-[var(--border)] p-2 py-4",
         destructive:
           "destructive group border-[var(--destructive)] bg-[var(--destructive)] text-[var(--destructive-foreground)]",
+        success:
+          "success group border-emerald-500 bg-emerald-500 text-white",
       },
     },
     defaultVariants: {

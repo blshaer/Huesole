@@ -18,13 +18,13 @@ export default function Footer() {
 
 
           <nav className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
-            <Link to="/contact" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Contact</Link>
-            <Link to="/privacy" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Privacy</Link>
-            <Link to="/terms" className="hover:text-white transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Terms</Link>
+            <Link to="/contact" className="hover:text-white text-white/50 transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Contact</Link>
+            <Link to="/privacy" className="hover:text-white text-white/50   transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Privacy</Link>
+            <Link to="/terms" className="hover:text-white text-white/50  transition-colors" onClick={() => window.scrollTo({ top: 80, behavior: "smooth" })}>Terms</Link>
           </nav>
         </div>
 
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/30">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
           &copy; {new Date().getFullYear()} LumeGradients.
 
         </p>

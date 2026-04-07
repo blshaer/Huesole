@@ -48,7 +48,7 @@ const AppRoutes: React.FC = () => {
         transition={{ delay: 0.5 }}
         className="text-xs font-bold uppercase tracking-[0.3em] text-white/30"
       >
-        Initializing Gradly
+        Loading...
       </motion.div>
     </motion.div>
   );

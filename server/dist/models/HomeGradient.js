@@ -44,6 +44,14 @@ const HomeGradientSchema = new mongoose_1.Schema({
         type: [String],
         required: [true, "Please add colors"],
     },
+    colorsname: {
+        type: [String],
+        default: [],
+    },
+    keywords: {
+        type: [[String]],
+        default: [],
+    },
     type: {
         type: String,
         enum: ["linear", "radial", "conic"],
@@ -52,6 +60,14 @@ const HomeGradientSchema = new mongoose_1.Schema({
     angle: {
         type: Number,
         default: 90,
+    },
+    rawCss: {
+        type: String,
+        default: null,
+    },
+    order: {
+        type: Number,
+        default: 0,
     },
     createdAt: {
         type: Date,

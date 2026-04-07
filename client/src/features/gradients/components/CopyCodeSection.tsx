@@ -156,6 +156,8 @@ export const CopyCodeSection: React.FC<CopyCodeSectionProps> = ({
     { key: "json", label: "JSON", icon: JSONIcon, color: "#000000" },
   ];
 
+  const [selectedColorFormat, setSelectedColorFormat] = useState("HEX");
+
   return (
     <div className="max-w-full space-y-3">
       {/* Code Format Selector */}
@@ -224,6 +226,8 @@ export const CopyCodeSection: React.FC<CopyCodeSectionProps> = ({
             | "colors",
           );
         }}
+        selectedColorFormat={selectedColorFormat}
+        onColorFormatChange={setSelectedColorFormat}
       />
     </div>
   );

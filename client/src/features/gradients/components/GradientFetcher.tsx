@@ -6,8 +6,8 @@ import { ErrorDisplay } from "@/features/landing/components/ErrorDisplay";
 interface Gradient {
   name: string;
   colors: string[];
-  colorsname: string[];
-  keywords: string[][];
+  rawCss: string | null;
+  keywords: string[] | string[][];
 }
 
 const GradientFetcher: React.FC = () => {
@@ -73,11 +73,13 @@ const GradientFetcher: React.FC = () => {
             />
             <div className="text-sm text-muted-foreground">
               <p>
-                <strong>Colors:</strong> {gradient.colorsname.join(", ")}
+                <strong>Colors:</strong> {gradient.colors.join(", ")}
               </p>
               <p>
                 <strong>Keywords:</strong>{" "}
-                {gradient.keywords.flat().slice(0, 3).join(", ")}
+                {Array.isArray(gradient.keywords[0]) 
+                  ? (gradient.keywords as string[][]).flat().slice(0, 3).join(", ")
+                  : (gradient.keywords as string[]).slice(0, 3).join(", ")}
               </p>
             </div>
           </div>

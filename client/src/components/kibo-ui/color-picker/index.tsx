@@ -7,6 +7,7 @@ import {
   type ComponentProps,
   createContext,
   type HTMLAttributes,
+  Fragment,
   memo,
   useCallback,
   useContext,
@@ -433,7 +434,7 @@ export const ColorPickerFormat = ({
         {...props}
       >
         {rgb.map((value, index) => (
-          <React.Fragment key={index}>
+          <Fragment key={index}>
             <Input
               className="h-10 border-0 rounded-none bg-transparent px-2 text-xs shadow-none flex-1 focus-visible:ring-0"
               readOnly
@@ -441,7 +442,7 @@ export const ColorPickerFormat = ({
               value={value}
             />
             <div className="w-px h-4 bg-white/10" />
-          </React.Fragment>
+          </Fragment>
         ))}
         <PercentageInput value={Math.round(alpha)} />
       </div>
@@ -463,7 +464,7 @@ export const ColorPickerFormat = ({
         {...props}
       >
         {hsl.map((value, index) => (
-          <React.Fragment key={index}>
+          <Fragment key={index}>
             <Input
               className="h-10 border-0 rounded-none bg-transparent px-2 text-xs shadow-none flex-1 focus-visible:ring-0"
               readOnly
@@ -471,7 +472,7 @@ export const ColorPickerFormat = ({
               value={value}
             />
             <div className="w-px h-4 bg-white/10" />
-          </React.Fragment>
+          </Fragment>
         ))}
         <PercentageInput value={Math.round(alpha)} />
       </div>

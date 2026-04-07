@@ -1,9 +1,10 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { LikeDislike } from "./LikeDislike";
 import { Slider } from "@/shared/ui/slider";
 import { GeneratedGradient } from "../types";
 import { animatedGradientUtils } from "../utils/animatedGradientUtils";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
+import { useDislikes } from "@/features/gradients/hooks/useDislikes";
 import {
   Area,
   AreaChart,
@@ -76,8 +77,10 @@ export const RightSidebar = ({
 }: RightSidebarProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const { favorites, toggleFavorite } = useFavorites();
+  const { dislikes, toggleDislike } = useDislikes();
   
   const isFavorited = favorites.includes(result?.name || "");
+  const isDisliked = dislikes.includes(result?.name || "");
 
   // Controls
   const [steps, setSteps] = useState<number | null>(result?.steps ?? null);
@@ -322,32 +325,19 @@ export const RightSidebar = ({
           </div>
 
           {/* Favorite Button */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => !isFavorited && toggleFavorite(result.name || "")}
-              className="group"
-            >
-              <ThumbsUp
-                className={`h-5 w-5 ${
-                  isFavorited
-                    ? "fill-blue-500 text-blue-500"
-                    : "text-white/30 group-hover:text-white/60"
-                }`}
-              />
-            </button>
-            <button
-              onClick={() => isFavorited && toggleFavorite(result.name || "")}
-              className="group"
-            >
-              <ThumbsDown
-                className={`h-5 w-5 ${
-                  !isFavorited
-                    ? "text-white/60"
-                    : "text-white/30 group-hover:text-white/60"
-                }`}
-              />
-            </button>
-          </div>
+          <LikeDislike
+            variant="ghost"
+            isLiked={isFavorited}
+            isDisliked={isDisliked}
+            onLikeToggle={() => {
+              if (isDisliked) toggleDislike(result.name || "");
+              toggleFavorite(result.name || "");
+            }}
+            onDislikeToggle={() => {
+              if (isFavorited) toggleFavorite(result.name || "");
+              toggleDislike(result.name || "");
+            }}
+          />
         </div>
 
         {/* RGB Curves Chart - EvilCharts Aesthetic */}

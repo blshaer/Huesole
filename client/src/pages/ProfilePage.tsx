@@ -17,7 +17,6 @@ import { cn } from "@/shared/lib/utils";
 import axios from "@/shared/lib/axios";
 import {
   CheckCircle2,
-  Settings as SettingsIcon,
   LogOut,
   XCircle,
 } from "lucide-react";

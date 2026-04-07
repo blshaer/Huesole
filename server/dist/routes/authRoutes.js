@@ -18,7 +18,7 @@ const storage = multer_1.default.diskStorage({
     },
 });
 function checkFileType(file, cb) {
-    const filetypes = /jpg|jpeg|png/;
+    const filetypes = /jpg|jpeg|png|webp/;
     const extname = filetypes.test(path_1.default.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
     if (extname && mimetype) {
@@ -42,8 +42,10 @@ router.put("/reset-password/:token", authController_1.resetPassword);
 router.get("/verify-email/:token", authController_1.verifyEmail);
 router.put("/updatepassword", authMiddleware_1.protect, authController_1.updatePassword);
 router.put("/toggle-favorite", authMiddleware_1.protect, authController_1.toggleFavorite);
+router.put("/toggle-dislike", authMiddleware_1.protect, authController_1.toggleDislike);
 router.put("/update-profile", authMiddleware_1.protect, upload.single("picture"), authController_1.updateProfile);
 router.post("/resend-verification", authController_1.resendVerification);
 router.post("/google", authController_1.googleLogin);
 router.get("/me", authMiddleware_1.protect, authController_1.getMe);
+router.delete("/delete-account", authMiddleware_1.protect, authController_1.deleteAccount);
 exports.default = router;

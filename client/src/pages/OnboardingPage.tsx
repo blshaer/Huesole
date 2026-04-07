@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "@/shared/lib/axios";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import { RefreshCw, Sparkles, Check } from "lucide-react";
+import { RefreshCw, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Spinner } from "@/components/ui/spinner";
 

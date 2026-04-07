@@ -48,8 +48,7 @@ export function SupportWidget() {
         document.body.removeChild(textarea);
       }
       setCopied(true);
-      toast?.({
-        title: "Address copied!",
+      toast("Address copied!", {
         description: "Thank you for supporting my work.",
         duration: 1200,
       });

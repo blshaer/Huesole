@@ -17,7 +17,9 @@ const generateAIGradient = async (req, res) => {
         res.status(200).json({ success: true, data: gradient });
     }
     catch (error) {
-        res.status(500).json({ message: error.message });
+        const is503 = error.message?.includes("503") || error.status === 503;
+        const statusCode = is503 ? 503 : 500;
+        res.status(statusCode).json({ message: error.message });
     }
 };
 exports.generateAIGradient = generateAIGradient;
@@ -33,12 +35,20 @@ const saveCreatedGradient = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+        const gradientId = gradient.id || crypto_1.default.randomUUID();
         const newGradient = {
             ...gradient,
-            id: crypto_1.default.randomUUID(),
+            id: gradientId,
             createdAt: new Date(),
         };
-        user.createdGradients.push(newGradient);
+        const existingIndex = user.createdGradients.findIndex((g) => g.id === gradientId);
+        if (existingIndex === -1) {
+            user.createdGradients.push(newGradient);
+        }
+        else {
+            // Update existing entry
+            user.createdGradients[existingIndex] = newGradient;
+        }
         // Sort by createdAt descending
         user.createdGradients.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         await user.save();
@@ -64,6 +74,11 @@ const getCreatedGradients = async (req, res) => {
             colors: g.colors,
             type: g.type,
             angle: g.angle,
+            exposure: g.exposure,
+            contrast: g.contrast,
+            frequency: g.frequency,
+            phase: g.phase,
+            steps: g.steps,
             createdAt: g.createdAt
         }));
         res.status(200).json({ success: true, data: gradients });
@@ -96,6 +111,11 @@ const deleteCreatedGradient = async (req, res) => {
             colors: g.colors,
             type: g.type,
             angle: g.angle,
+            exposure: g.exposure,
+            contrast: g.contrast,
+            frequency: g.frequency,
+            phase: g.phase,
+            steps: g.steps,
             createdAt: g.createdAt
         }));
         res.status(200).json({ success: true, data: gradients });

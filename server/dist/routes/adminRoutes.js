@@ -24,4 +24,7 @@ router.delete("/support/:id", adminController_1.deleteSupportMessage);
 router.post("/home-gradients", adminController_1.createHomeGradient);
 router.put("/home-gradients/:id", adminController_1.updateHomeGradient);
 router.delete("/home-gradients/:id", adminController_1.deleteHomeGradient);
+// Page Content Management
+router.get("/page-content/:pageName", adminController_1.getPageContentAdmin);
+router.put("/page-content/:pageName", adminController_1.updatePageContent);
 exports.default = router;

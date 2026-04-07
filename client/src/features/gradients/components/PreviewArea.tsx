@@ -109,7 +109,7 @@ export const PreviewArea = ({
                   style={{
                     backgroundImage: (() => {
                       const raw = result.rawCss;
-                      if (raw) {
+                      if (raw && result.type === "default") {
                         // Inject current angle into rawCss for live rotation support
                         let css = raw;
                         if (css.includes('linear-gradient')) {
@@ -120,8 +120,11 @@ export const PreviewArea = ({
                         return css;
                       }
                       
+                      if (result.type === "linear") {
+                        return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+                      }
+
                       // Fallback for "default" or "auto" if rawCss is missing:
-                      // Use Segmented Conic to mimic the mesh look
                       return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
                     })(),
                     backgroundSize: isAnimated ? "400% 400%" : "cover",
@@ -141,7 +144,7 @@ export const PreviewArea = ({
                   style={{
                     backgroundImage: (() => {
                       const raw = result.rawCss;
-                      if (raw) {
+                      if (raw && result.type === "default") {
                         // Inject current angle into rawCss for live rotation support
                         let css = raw;
                         if (css.includes('linear-gradient')) {
@@ -159,6 +162,10 @@ export const PreviewArea = ({
                         return `radial-gradient(circle at ${
                           50 + Math.cos(((displayAngle - 90) * Math.PI) / 180) * 30
                         }% ${50 + Math.sin(((displayAngle - 90) * Math.PI) / 180) * 30}%, ${result.colors.join(", ")})`;
+                      }
+                      
+                      if (result.type === "linear") {
+                        return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
                       }
                       
                       // Default / Auto
