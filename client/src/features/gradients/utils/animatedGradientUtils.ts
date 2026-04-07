@@ -89,15 +89,20 @@ animation: ${keyframeName} ${animationDuration} ease infinite;
     const direction = getGradientDirection(angle);
     const hasMiddleColor = colors.length > 2;
 
+    // Break up class strings so Tailwind compiler doesn't try to parse them statically
+    const tFrom = "from-[";
+    const tVia = "via-[";
+    const tTo = "to-[";
+
     if (!isAnimated) {
       if (gradientType === "text") {
         return hasMiddleColor
-          ? `text-transparent bg-clip-text bg-gradient-${direction} from-[${colors[0]}] via-[${colors[1]}] to-[${colors[colors.length - 1]}]`
-          : `text-transparent bg-clip-text bg-gradient-${direction} from-[${colors[0]}] to-[${colors[colors.length - 1]}]`;
+          ? `text-transparent bg-clip-text bg-gradient-${direction} ${tFrom}${colors[0]}] ${tVia}${colors[1]}] ${tTo}${colors[colors.length - 1]}]`
+          : `text-transparent bg-clip-text bg-gradient-${direction} ${tFrom}${colors[0]}] ${tTo}${colors[colors.length - 1]}]`;
       } else {
         return hasMiddleColor
-          ? `bg-gradient-${direction} from-[${colors[0]}] via-[${colors[1]}] to-[${colors[colors.length - 1]}]`
-          : `bg-gradient-${direction} from-[${colors[0]}] to-[${colors[colors.length - 1]}]`;
+          ? `bg-gradient-${direction} ${tFrom}${colors[0]}] ${tVia}${colors[1]}] ${tTo}${colors[colors.length - 1]}]`
+          : `bg-gradient-${direction} ${tFrom}${colors[0]}] ${tTo}${colors[colors.length - 1]}]`;
       }
     }
 
@@ -113,7 +118,7 @@ animation: ${keyframeName} ${animationDuration} ease infinite;
     const baseClasses =
       gradientType === "text" ? "text-transparent bg-clip-text" : "";
 
-    const tailwindClasses = `${baseClasses} bg-gradient-${direction} from-[${colors[0]}] ${hasMiddleColor ? `via-[${colors[1]}] ` : ""}to-[${colors[colors.length - 1]}] bg-[length:400%_400%] ${animationClass}`;
+    const tailwindClasses = `${baseClasses} bg-gradient-${direction} ${tFrom}${colors[0]}] ${hasMiddleColor ? `${tVia}${colors[1]}] ` : ""}${tTo}${colors[colors.length - 1]}] bg-[length:400%_400%] ${animationClass}`;
 
     // Include the necessary CSS for animation
     const animationCSS = `
