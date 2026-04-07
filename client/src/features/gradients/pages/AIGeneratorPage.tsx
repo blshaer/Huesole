@@ -70,7 +70,6 @@ const AIGeneratorPage: React.FC = () => {
     };
   });
   
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(4);
   const [showAngleController, setShowAngleController] = useState(true);
@@ -99,10 +98,6 @@ const AIGeneratorPage: React.FC = () => {
 
   const handleAngleChange = (angle: number) => {
     setResult((prev) => ({ ...prev, angle }));
-  };
-
-  const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
   const toggleAngleController = () => {
@@ -172,7 +167,6 @@ const AIGeneratorPage: React.FC = () => {
         setAnimationSpeed={setAnimationSpeed}
         showAngleController={showAngleController}
         onToggleAngleController={toggleAngleController}
-        onToggleSidebar={toggleMobileSidebar}
         isLightGradient={isLightGradient}
         onCanvasSizeSelect={setCanvasSize}
         canvasSize={canvasSize}
@@ -193,8 +187,8 @@ const AIGeneratorPage: React.FC = () => {
               onAddColor={handleAddColor}
               onRemoveColor={handleRemoveColor}
               onMoveColor={handleMoveColor}
-              isMobileOpen={isMobileSidebarOpen}
-              onToggleMobile={toggleMobileSidebar}
+              isMobileOpen={false}
+              onToggleMobile={() => {}}
             />
           </div>
 

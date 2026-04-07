@@ -86,19 +86,19 @@ export const PreviewArea = ({
                   animate={{
                     opacity: 1,
                     width: canvasSize 
-                      ? "auto" 
+                      ? "100%" 
                       : isMobile && isKeyboardOpen ? "120px" : "min(40vh, 40vw)",
                     height: canvasSize ? "100%" : "auto",
-                    maxHeight: "100%",
+                    maxHeight: canvasSize ? "100%" : "min(40vh, 40vw)",
                     maxWidth: canvasSize ? "100%" : isMobile && !isKeyboardOpen ? "50vw" : "min(40vh, 40vw)",
                     aspectRatio: canvasSize ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
+                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "24px",
                   }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: 0.2,
+                  className="relative group flex items-center justify-center overflow-hidden shadow-2xl mx-auto"
+                  style={{
+                    objectFit: "contain",
+                    maxHeight: isMobile ? "68vh" : "100%",
                   }}
-                  className="relative group flex items-center justify-center overflow-hidden"
                 >
                 {/* Visual Backdrop Pulse */}
                 <motion.div

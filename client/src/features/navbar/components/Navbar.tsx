@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { toast } from "sonner";
 import { GeneratedGradient } from "@/features/gradients/types";
@@ -22,7 +21,6 @@ interface NavbarProps {
   animationSpeed?: number;
   setAnimationSpeed?: (value: number) => void;
   onToggleAngleController?: () => void;
-  onToggleSidebar?: () => void;
   isLightGradient?: boolean;
   showAngleController?: boolean;
   onCanvasSizeSelect?: (size: CanvasSize | null) => void;
@@ -34,7 +32,6 @@ export const Navbar = ({
   isAnimated = false,
   animationSpeed = 1,
   setAnimationSpeed,
-  onToggleSidebar,
   onToggleAngleController,
   showAngleController = false,
   onCanvasSizeSelect,
@@ -45,23 +42,11 @@ export const Navbar = ({
   const location = useLocation();
 
   const [isEyeDropperSupported, setIsEyeDropperSupported] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   const isAIGeneratorPage = location.pathname.startsWith("/ai-generator");
 
   useEffect(() => {
     setIsEyeDropperSupported("EyeDropper" in window);
-  }, []);
-
-  // Detect mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const handleColorPick = async () => {
@@ -145,16 +130,6 @@ export const Navbar = ({
         </nav>
 
         <div className="relative z-50 flex items-center  gap-3">
-          {/* Sidebar Toggle Button - Only show on AI Generator page and mobile */}
-          {isAIGeneratorPage && isMobile && onToggleSidebar && (
-            <button
-              onClick={onToggleSidebar}
-              className="flex items-center justify-center rounded-lg border border-border bg-background/80 p-2 transition-colors hover:bg-background/90 backdrop-blur-xl"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          )}
 
           {/* Angle Controller Toggle - Only show on AI Generator page when angle is supported (linear/conic) */}
           {isAIGeneratorPage && onToggleAngleController && (
