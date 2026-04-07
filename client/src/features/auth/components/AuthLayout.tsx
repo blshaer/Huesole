@@ -66,7 +66,7 @@ export const AuthLayout = ({
                     className="h-11 w-[280px] rounded-md border-primary/20 bg-background/50 font-medium transition-all hover:bg-background/80"
                     onClick={onGoogleClick}
                   >
-                    <img src="/app/assets/google.svg" alt="Google" className="mr-3 h-5 w-5" />
+                    <img src="/assets/google.svg" alt="Google" className="mr-3 h-5 w-5" />
                     Sign in with Google
                   </Button>
                 )}
