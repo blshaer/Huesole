@@ -133,10 +133,12 @@ export const Navbar = ({
 
           {/* Angle Controller Toggle - Only show on AI Generator page when angle is supported (linear/conic) */}
           {isAIGeneratorPage && onToggleAngleController && (
-            <NavbarAngleToggle
-              showAngleController={showAngleController}
-              onToggle={onToggleAngleController}
-            />
+            <div className="hidden md:block">
+              <NavbarAngleToggle
+                showAngleController={showAngleController}
+                onToggle={onToggleAngleController}
+              />
+            </div>
           )}
 
           {/* Canvas Size Selector - Only show on AI Generator page */}
@@ -164,6 +166,9 @@ export const Navbar = ({
             user={user!}
             loading={isLoading}
             onLogout={handleLogout}
+            showAngleController={showAngleController}
+            onToggleAngleController={onToggleAngleController}
+            isAIGeneratorPage={isAIGeneratorPage}
           />
         </div>
       </div>

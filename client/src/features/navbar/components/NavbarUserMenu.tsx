@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight, LayoutDashboard } from "lucide-react";
+import { ChevronRight, LayoutDashboard, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -12,11 +13,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { User } from "@/features/auth/context/AuthContext";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
+import { Switch } from "@/shared/ui/switch";
+import { Label } from "@/shared/ui/label";
 
 interface NavbarUserMenuProps {
   user: User;
   loading: boolean;
   onLogout: () => void;
+  showAngleController?: boolean;
+  onToggleAngleController?: () => void;
+  isAIGeneratorPage?: boolean;
 }
 
 const textVariants = {
@@ -29,7 +35,23 @@ const iconVariants = {
   hover: { opacity: 1, x: 0 },
 };
 
-export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps) {
+export function NavbarUserMenu({ 
+  user, 
+  loading, 
+  onLogout,
+  showAngleController,
+  onToggleAngleController,
+  isAIGeneratorPage
+}: NavbarUserMenuProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (loading) return null;
 
   if (!user) {
@@ -86,7 +108,7 @@ export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps)
           </Avatar>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-background border-border z-[9999]">
+      <DropdownMenuContent align="end" className="w-64 bg-background border-border z-[9999] p-2">
         <DropdownMenuLabel className="font-normal px-2 py-1.5">
           <div className="flex flex-col space-y-1">
             <p className="text-xs leading-none text-muted-foreground opacity-70 hover:text-primary transition-colors truncate max-w-[180px]">
@@ -95,6 +117,28 @@ export function NavbarUserMenu({ user, loading, onLogout }: NavbarUserMenuProps)
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+
+        {/* Mobile-only Angle Switch */}
+        {isMobile && isAIGeneratorPage && (
+          <>
+            <div className="flex items-center justify-between px-2 py-2 hover:bg-accent hover:text-accent-foreground rounded-sm transition-colors">
+              <div className="flex items-center gap-2">
+                {showAngleController ? (
+                  <Eye className="h-4 w-4 text-primary" />
+                ) : (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                )}
+                <Label htmlFor="angle-toggle" className="text-sm cursor-pointer">Angle Guide</Label>
+              </div>
+              <Switch 
+                id="angle-toggle"
+                checked={showAngleController}
+                onCheckedChange={onToggleAngleController}
+              />
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
 
         <Link to="/profile">
           <DropdownMenuItem className="cursor-pointer">
