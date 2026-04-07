@@ -75,9 +75,12 @@ export const ColorPicker = ({
   const [alpha, setAlpha] = useState(() => initialColor.alpha() * 100);
   const [mode, setMode] = useState("hex");
 
-  // Update state when controlled value changes, but avoid resetting hue for grayscale
+  const lastEmittedValueRef = useRef<string | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  // Update state when controlled value changes, but skip if it matches what we last sent
   useEffect(() => {
-    if (value) {
+    if (value && value !== lastEmittedValueRef.current) {
       try {
         const color = Color(value);
         const newHue = color.hue();
@@ -86,7 +89,6 @@ export const ColorPicker = ({
         const newAlpha = color.alpha() * 100;
 
         // Only update hue if the color actually has saturation and is not black/white
-        // This prevents the hue slider from jumping to 0 when picking grayscale colors
         if (newSat > 0 && newLight > 0 && newLight < 100) {
           setHue(newHue);
         }
@@ -100,7 +102,14 @@ export const ColorPicker = ({
     }
   }, [value]);
 
-  // Notify parent of changes with careful change detection
+  // Cleanup RAF on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  // Notify parent of changes with careful change detection and RAF throttling
   useEffect(() => {
     if (onChange) {
       const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
@@ -110,12 +119,17 @@ export const ColorPicker = ({
       else if (mode === "hsl") output = color.hsl().string();
       else output = color.rgb().string();
       
-      // Prevent infinite loops by only calling onChange if color string is actually different
-      const currentValString = value ? Color(value).rgb().string() : "";
       const newValString = color.rgb().string();
+      const currentValString = value ? Color(value).rgb().string() : "";
       
-      if (currentValString !== newValString) {
-        onChange(output);
+      if (currentValString !== newValString && output !== lastEmittedValueRef.current) {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        
+        rafRef.current = requestAnimationFrame(() => {
+          lastEmittedValueRef.current = output;
+          onChange(output);
+          rafRef.current = null;
+        });
       }
     }
   }, [hue, saturation, lightness, alpha, mode, onChange, value]);

@@ -1,3 +1,4 @@
+import React from "react";
 import { Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -25,7 +26,7 @@ interface ColorStopItemProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export const ColorStopItem = ({
+export const ColorStopItem = React.memo(({
   color,
   index,
   canRemove,
@@ -114,5 +115,5 @@ export const ColorStopItem = ({
       </Button>
     </div>
   );
-};
+});
 
