@@ -118,36 +118,31 @@ export const ColorStopsSection = ({
         </Button>
       </div>
 
-      {/* Modern Center Dialog for Adding Color */}
+      {/* Compact High Z-Index Color Picker for Addition */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-md bg-[#0d0f14]/95 border-white/10 backdrop-blur-3xl p-6 rounded-[28px] overflow-hidden">
-          <DialogHeader className="mb-4">
-            <DialogTitle className="text-xl font-bold text-white tracking-tight">Add Color Stop</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center gap-6 py-4">
-            <ColorPicker value={newColor} onChange={setNewColor} className="w-full bg-transparent border-none p-0">
-               <ColorPickerSelection className="h-48 rounded-2xl border border-white/5" />
-               <div className="flex items-center gap-4 py-4 w-full">
-                 <ColorPickerEyeDropper className="rounded-xl bg-white/5 border-white/10 hover:bg-white/10 transition-colors" />
-                 <div className="grid w-full gap-3">
+        <DialogContent className="max-w-[280px] bg-black/98 border-white/10 backdrop-blur-3xl p-4 rounded-[28px] overflow-hidden z-[10000] shadow-[0_20px_50px_rgba(0,0,0,1)] border-[0.5px]">
+          <div className="flex flex-col items-center gap-3">
+            <ColorPicker value={newColor} onChange={(val) => setNewColor(val)} className="w-full bg-transparent border-none p-0">
+               <ColorPickerSelection className="h-28 rounded-xl border border-white/5" />
+               <div className="flex items-center gap-3 py-2 w-full">
+                 <ColorPickerEyeDropper className="h-9 w-9 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 transition-colors shrink-0" />
+                 <div className="grid w-full gap-2.5">
                    <ColorPickerHue />
                    <ColorPickerAlpha />
                  </div>
                </div>
-               <div className="flex items-center gap-3 w-full bg-white/5 p-3 rounded-2xl border border-white/5">
-                 <ColorPickerOutput className="bg-transparent border-white/10 rounded-xl flex-1 h-9" />
-                 <ColorPickerFormat className="bg-transparent border-white/10 rounded-xl overflow-hidden h-9" />
+               <div className="flex items-center gap-2 w-full bg-white/5 px-2 py-1.5 rounded-xl border border-white/5">
+                 <ColorPickerOutput className="bg-transparent border-none text-[10px] flex-1 h-7 px-1 uppercase opacity-40 font-bold" />
+                 <div className="w-px h-3 bg-white/5" />
+                 <ColorPickerFormat className="bg-transparent border-none text-[10px] h-7 w-20 opacity-60 font-mono tracking-tight" />
                </div>
             </ColorPicker>
           </div>
-          <DialogFooter className="mt-6 flex gap-3 sm:gap-0">
-            <Button variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="text-white/40 hover:text-white flex-1 sm:flex-none">
-              Cancel
+          <div className="mt-4">
+            <Button onClick={handleConfirmAdd} className="w-full bg-white text-black hover:bg-neutral-100 rounded-xl font-bold h-11 text-xs uppercase tracking-widest transition-all active:scale-[0.98]">
+               Add Color
             </Button>
-            <Button onClick={handleConfirmAdd} className="bg-white text-black hover:bg-neutral-200 rounded-xl font-bold px-8 flex-1 sm:flex-none">
-               Confirm & Add
-            </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
