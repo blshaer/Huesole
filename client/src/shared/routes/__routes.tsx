@@ -42,14 +42,7 @@ const AppRoutes: React.FC = () => {
       exit={{ opacity: 0 }}
     >
       <VercelSpinner size={80} />
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="text-xs font-bold uppercase tracking-[0.3em] text-white/30"
-      >
-        Loading...
-      </motion.div>
+
     </motion.div>
   );
 
