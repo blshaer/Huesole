@@ -1,6 +1,7 @@
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { cn } from "@/shared/lib/utils";
 import Logo from "@/shared/ui/Logo";
+import { VercelSpinner } from "@/shared/ui/VercelSpinner";
 import { ChevronRight, Menu, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
@@ -12,8 +13,8 @@ const AdminLayout: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-background">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+            <div className="flex h-screen items-center justify-center bg-[#050505]">
+                <VercelSpinner size={64} />
             </div>
         );
     }
@@ -32,16 +33,8 @@ const AdminLayout: React.FC = () => {
             href: "/admin/users",
         },
         {
-            label: "Home Gradients",
-            href: "/admin/gradients",
-        },
-        {
             label: "Support Messages",
             href: "/admin/support",
-        },
-        {
-            label: "Manage Pages",
-            href: "/admin/pages",
         },
     ];
 
@@ -78,7 +71,7 @@ const AdminLayout: React.FC = () => {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed top-0 left-0 h-full w-64 border-r border-white/5 bg-black/95 backdrop-blur-xl transition-transform duration-300 ease-in-out lg:bg-black/40",
+                    "fixed top-0 left-0 h-full w-64 border-r border-white/10 bg-black/95 backdrop-blur-xl transition-transform duration-300 ease-in-out lg:bg-black/40",
                     "lg:z-30 lg:translate-x-0",
                     isMobileMenuOpen ? "z-50 translate-x-0" : "z-50 -translate-x-full lg:translate-x-0"
                 )}
@@ -101,7 +94,7 @@ const AdminLayout: React.FC = () => {
                                     className={cn(
                                         "flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300",
                                         isActive
-                                            ? "bg-indigo-500/10 text-indigo-400"
+                                            ? "bg-indigo-500/10 text-indigo-400 border border-white/5"
                                             : "text-white/70 hover:bg-white/5 hover:text-white"
                                     )}
                                 >

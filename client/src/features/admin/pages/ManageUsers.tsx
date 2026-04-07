@@ -15,7 +15,7 @@ import {
     DropdownMenuTrigger
 } from "@/shared/ui/dropdown-menu";
 import { Button } from "@/shared/ui/button";
-import { MoreHorizontal, Trash2, Loader2, Ban, UserCheck, MessageSquare, Heart, Sparkles, Clock, Mail, ChevronRight } from "lucide-react";
+import { MoreHorizontal, Trash2, Ban, UserCheck, MessageSquare, Heart, Clock, Mail, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { getFullImageUrl } from "@/shared/utils/imageUrl";
 import { toast } from "sonner";
@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib/utils";
+import { VercelSpinner } from "@/shared/ui/VercelSpinner";
 
 import { API_URL } from "@/shared/config";
 
@@ -33,7 +34,6 @@ interface User {
     email: string;
     picture?: string;
     favorites: string[];
-    createdGradients: any[];
     supportMessagesCount: number;
     isBanned: boolean;
     banMessage?: string;
@@ -150,8 +150,9 @@ const ManageUsers: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex h-[400px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            <div className="flex h-[400px] flex-col items-center justify-center gap-4">
+                <VercelSpinner size={80} />
+                <p className="text-sm font-medium text-white/40 animate-pulse">Loading users...</p>
             </div>
         );
     }
@@ -160,17 +161,16 @@ const ManageUsers: React.FC = () => {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight text-white">Manage Users</h1>
-                <p className="text-white/50 mt-1">Full control over user accounts and permissions.</p>
+                <p className="text-white/45 mt-1">Full control over user accounts and permissions.</p>
             </div>
 
-            <div className="rounded-[24px] border border-white/5 bg-black/40 backdrop-blur-3xl overflow-x-auto shadow-2xl custom-scrollbar">
+            <div className="rounded-[24px] border border-white/10 bg-black/40 backdrop-blur-3xl overflow-x-auto shadow-2xl custom-scrollbar">
                 <Table className="min-w-[700px]">
                     <TableHeader className="bg-white/[0.02]">
                         <TableRow className="border-white/5 hover:bg-transparent">
                             <TableHead className="w-[100px] text-white/70 font-bold uppercase text-[10px] tracking-widest pl-6">User</TableHead>
                             <TableHead className="text-white/70 font-bold uppercase text-[10px] tracking-widest">Email</TableHead>
                             <TableHead className="text-white/70 font-bold uppercase text-[10px] tracking-widest text-center">Favorites</TableHead>
-                            <TableHead className="text-white/70 font-bold uppercase text-[10px] tracking-widest text-center">Gradients</TableHead>
                             <TableHead className="text-white/70 font-bold uppercase text-[10px] tracking-widest text-center">Support</TableHead>
                             <TableHead className="text-white/70 font-bold uppercase text-[10px] tracking-widest">Joined</TableHead>
                             <TableHead className="text-right pr-6 text-white/70 font-bold uppercase text-[10px] tracking-widest">Actions</TableHead>
@@ -202,17 +202,6 @@ const ManageUsers: React.FC = () => {
                                         >
                                             <Heart size={12} fill="currentColor" />
                                             {user.favorites?.length || 0}
-                                        </button>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex justify-center">
-                                        <button
-                                            onClick={() => openUserDetails(user, "gradients")}
-                                            className="h-7 px-3 rounded-full bg-indigo-500/10 text-indigo-500 text-xs flex items-center justify-center font-bold gap-1.5 hover:bg-indigo-500/20 transition-all border border-indigo-500/20"
-                                        >
-                                            <Sparkles size={12} />
-                                            {user.createdGradients?.length || 0}
                                         </button>
                                     </div>
                                 </TableCell>
@@ -299,9 +288,6 @@ const ManageUsers: React.FC = () => {
                                     <TabsTrigger value="favorites" className="data-[state=active]:bg-transparent data-[state=active]:text-pink-500 data-[state=active]:border-b-2 border-pink-500 rounded-none px-0 h-14 bg-transparent text-white/40 font-bold uppercase text-[10px] tracking-widest transition-all">
                                         Favorites ({selectedUser.favorites?.length || 0})
                                     </TabsTrigger>
-                                    <TabsTrigger value="gradients" className="data-[state=active]:bg-transparent data-[state=active]:text-indigo-500 data-[state=active]:border-b-2 border-indigo-500 rounded-none px-0 h-14 bg-transparent text-white/40 font-bold uppercase text-[10px] tracking-widest transition-all">
-                                        Gradients ({selectedUser.createdGradients?.length || 0})
-                                    </TabsTrigger>
                                     <TabsTrigger value="messages" className="data-[state=active]:bg-transparent data-[state=active]:text-emerald-500 data-[state=active]:border-b-2 border-emerald-500 rounded-none px-0 h-14 bg-transparent text-white/40 font-bold uppercase text-[10px] tracking-widest transition-all">
                                         Support ({selectedUser.supportMessagesCount || 0})
                                     </TabsTrigger>
@@ -327,43 +313,11 @@ const ManageUsers: React.FC = () => {
                                     </ScrollArea>
                                 </TabsContent>
 
-                                <TabsContent value="gradients" className="flex-1 p-8 m-0 overflow-hidden">
-                                    <ScrollArea className="h-[380px] pr-4">
-                                        {selectedUser.createdGradients?.length === 0 ? (
-                                            <div className="flex flex-col items-center justify-center h-full text-white/20 pt-20">
-                                                <Sparkles size={40} className="mb-2 opacity-10" />
-                                                <p>No gradients created</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-4">
-                                                {selectedUser.createdGradients?.map((g) => (
-                                                    <div key={g.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-4 group hover:bg-white/[0.08] transition-all">
-                                                        <div
-                                                            className="h-12 w-12 rounded-xl border border-white/10 shadow-lg"
-                                                            style={{ background: `linear-gradient(${g.angle || 90}deg, ${g.colors.join(", ")})` }}
-                                                        />
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">{g.name}</div>
-                                                            <div className="text-[10px] text-white/30 font-mono flex gap-1 mt-1">
-                                                                {g.colors.map((c: string) => <span key={c}>{c}</span>)}
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-[10px] text-white/20 flex items-center gap-1 group-hover:text-white/40">
-                                                            <Clock size={10} />
-                                                            {new Date(g.createdAt).toLocaleDateString()}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </ScrollArea>
-                                </TabsContent>
-
                                 <TabsContent value="messages" className="flex-1 p-0 m-0 overflow-hidden">
                                     <ScrollArea className="h-[380px]">
                                         {loadingMessages ? (
                                             <div className="flex h-[300px] items-center justify-center">
-                                                <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
+                                                <VercelSpinner size={40} />
                                             </div>
                                         ) : userMessages.length === 0 ? (
                                             <div className="flex flex-col items-center justify-center h-full text-white/20 pt-20">
@@ -440,7 +394,7 @@ const ManageUsers: React.FC = () => {
                             disabled={!banMessage || isBanning}
                             className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold shadow-[0_0_20px_rgba(239,68,68,0.3)] disabled:opacity-50"
                         >
-                            {isBanning ? <Loader2 className="animate-spin" /> : "Ban User"}
+                            {isBanning ? <VercelSpinner size={20} /> : "Ban User"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
