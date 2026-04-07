@@ -64,8 +64,8 @@ export const PreviewArea = ({
   const displayAngle = currentAngle;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-4 min-h-[300px] overflow-hidden">
-      <div className="w-full h-full flex items-center justify-center relative max-w-full max-h-full">
+    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-6 md:p-10 lg:p-12 min-h-[450px] overflow-hidden">
+      <div className="w-full h-full flex items-center justify-center relative max-w-7xl mx-auto max-h-[844px] mb-8 md:mb-12">
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div 
@@ -79,26 +79,27 @@ export const PreviewArea = ({
               <p className="text-sm font-medium text-white/40">AI is composing your masterpiece...</p>
             </motion.div>
           ) : result ? (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={canvasSize?.label || "default-orb"}
-                initial={{ opacity: 0, aspectRatio: "1 / 1" }}
-                animate={{
-                  opacity: 1,
-                  width: canvasSize ? "100%" : isMobile && isKeyboardOpen ? "120px" : "min(40vh, 40vw)",
-                  maxWidth: canvasSize ? "min(100%, 500px)" : isMobile && !isKeyboardOpen ? "50vw" : "min(40vh, 40vw)",
-                  aspectRatio: canvasSize ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
-                  borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: 0.2,
-                }}
-                className="relative group flex items-center justify-center overflow-hidden"
-                style={{
-                  maxHeight: canvasSize ? "60vh" : "none",
-                }}
-              >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={canvasSize?.label || "default-orb"}
+                  initial={{ opacity: 0, aspectRatio: "1 / 1" }}
+                  animate={{
+                    opacity: 1,
+                    width: canvasSize 
+                      ? "auto" 
+                      : isMobile && isKeyboardOpen ? "120px" : "min(40vh, 40vw)",
+                    height: canvasSize ? "100%" : "auto",
+                    maxHeight: "100%",
+                    maxWidth: canvasSize ? "100%" : isMobile && !isKeyboardOpen ? "50vw" : "min(40vh, 40vw)",
+                    aspectRatio: canvasSize ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
+                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.2,
+                  }}
+                  className="relative group flex items-center justify-center overflow-hidden"
+                >
                 {/* Visual Backdrop Pulse */}
                 <motion.div
                   className="pointer-events-none absolute inset-0 -z-10 scale-105 opacity-60 blur-3xl transition-all duration-700"
@@ -107,24 +108,25 @@ export const PreviewArea = ({
                     borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
                   }}
                   style={{
-                    backgroundImage: (() => {
-                      const raw = result.rawCss;
-                      if (raw && result.type === "default") {
-                        // Inject current angle into rawCss for live rotation support
-                        let css = raw;
-                        if (css.includes('linear-gradient')) {
-                          css = css.replace(/(-?\d+(\.\d+)?deg|to (top|bottom|left|right|top right|top left|bottom right|bottom left))/, `${displayAngle}deg`);
-                        } else if (css.includes('conic-gradient')) {
-                          css = css.replace(/from\s+(-?\d+(\.\d+)?deg)/, `from ${displayAngle}deg`);
-                        }
-                        return css;
-                      }
-                      
+                    background: (() => {
                       if (result.type === "linear") {
                         return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
                       }
 
-                      // Fallback for "default" or "auto" if rawCss is missing:
+                      if (result.type === "default") {
+                        const raw = result.rawCss || "";
+                        if (raw.includes("radial-gradient")) {
+                          return `radial-gradient(circle at 50% 50%, ${result.colors.join(", ")})`;
+                        }
+                        if (raw.includes("conic-gradient")) {
+                          return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
+                        }
+                        if (raw.includes("linear-gradient")) {
+                          return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+                        }
+                        return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
+                      }
+
                       return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
                     })(),
                     backgroundSize: isAnimated ? "400% 400%" : "cover",
@@ -142,19 +144,7 @@ export const PreviewArea = ({
                   }}
                   className="h-full w-full shadow-2xl transition-all duration-700 relative z-10"
                   style={{
-                    backgroundImage: (() => {
-                      const raw = result.rawCss;
-                      if (raw && result.type === "default") {
-                        // Inject current angle into rawCss for live rotation support
-                        let css = raw;
-                        if (css.includes('linear-gradient')) {
-                          css = css.replace(/(-?\d+(\.\d+)?deg|to (top|bottom|left|right|top right|top left|bottom right|bottom left))/, `${displayAngle}deg`);
-                        } else if (css.includes('conic-gradient')) {
-                          css = css.replace(/from\s+(-?\d+(\.\d+)?deg)/, `from ${displayAngle}deg`);
-                        }
-                        return css;
-                      }
-
+                    background: (() => {
                       if (result.type === "conic") {
                         return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
                       }
@@ -163,12 +153,26 @@ export const PreviewArea = ({
                           50 + Math.cos(((displayAngle - 90) * Math.PI) / 180) * 30
                         }% ${50 + Math.sin(((displayAngle - 90) * Math.PI) / 180) * 30}%, ${result.colors.join(", ")})`;
                       }
-                      
                       if (result.type === "linear") {
                         return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
                       }
+
+                      if (result.type === "default") {
+                        const raw = result.rawCss || "";
+                        if (raw.includes("radial-gradient")) {
+                          return `radial-gradient(circle at ${
+                            50 + Math.cos(((displayAngle - 90) * Math.PI) / 180) * 30
+                          }% ${50 + Math.sin(((displayAngle - 90) * Math.PI) / 180) * 30}%, ${result.colors.join(", ")})`;
+                        }
+                        if (raw.includes("conic-gradient")) {
+                          return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
+                        }
+                        if (raw.includes("linear-gradient")) {
+                          return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+                        }
+                        return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
+                      }
                       
-                      // Default / Auto
                       return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
                     })(),
                     backgroundSize: isAnimated ? "400% 400%" : "cover",
