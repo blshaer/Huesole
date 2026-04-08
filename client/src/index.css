@@ -26,6 +26,14 @@
       margin-top: 0 !important;
       padding-bottom: 0 !important;
     }
+
+
+    .container {
+
+      @apply px-5;
+
+    }
+
   }
 
 

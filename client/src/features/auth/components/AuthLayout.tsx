@@ -33,7 +33,7 @@ export const AuthLayout = ({
   containerClassName = "",
 }: AuthLayoutProps) => {
   return (
-    <div className={`relative flex min-h-[90vh] items-center justify-center overflow-hidden p-6 ${containerClassName}`}>
+    <div className={`relative flex min-h-[90vh] max-md:px-0 items-center justify-center overflow-hidden max-md:px-0 p-6 ${containerClassName}`}>
       {/* Background Pulse Effect */}
 
       <Card className="border-border/40 bg-background/60 z-10 w-full max-w-md shadow-2xl backdrop-blur-xl transition-all duration-300">

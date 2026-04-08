@@ -127,7 +127,7 @@ const LoginPage = () => {
             <Label htmlFor="password">Password</Label>
             <Link
               to="/forgot-password"
-              className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary hover:underline"
+              className="text-xs underline font-medium text-muted-foreground transition-colors hover:text-primary hover:underline"
             >
               Forgot password?
             </Link>
@@ -158,7 +158,7 @@ const LoginPage = () => {
           )}
         </Button>
 
-        <p className="px-8 text-center text-[11px] text-white/45 leading-relaxed">
+        <p className="px-8 max-md:px-2 text-center max-md:text-left text-[11px] max-md:text-[10px] text-white/45 leading-relaxed">
           By continuing, you agree to our{" "}
           <Link to="/terms" className="underline text-white underline-offset-2 hover:text-primary transition-colors">
             Terms of Service

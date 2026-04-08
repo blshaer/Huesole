@@ -4,7 +4,6 @@ import { Slider } from "@/shared/ui/slider";
 import { GeneratedGradient } from "../types";
 import { animatedGradientUtils } from "../utils/animatedGradientUtils";
 import { useFavorites } from "@/features/gradients/hooks/useFavorites";
-import { useDislikes } from "@/features/gradients/hooks/useDislikes";
 import {
   Area,
   AreaChart,
@@ -79,10 +78,7 @@ export const RightSidebar = ({
 }: RightSidebarProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const { favorites, toggleFavorite } = useFavorites();
-  const { dislikes, toggleDislike } = useDislikes();
-  
   const isFavorited = favorites.includes(result?.name || "");
-  const isDisliked = dislikes.includes(result?.name || "");
 
   // Controls
   const [steps, setSteps] = useState<number | null>(result?.steps ?? null);
@@ -342,15 +338,7 @@ export const RightSidebar = ({
           <LikeDislike
             variant="ghost"
             isLiked={isFavorited}
-            isDisliked={isDisliked}
-            onLikeToggle={() => {
-              if (isDisliked) toggleDislike(result.name || "");
-              toggleFavorite(result.name || "");
-            }}
-            onDislikeToggle={() => {
-              if (isFavorited) toggleFavorite(result.name || "");
-              toggleDislike(result.name || "");
-            }}
+            onLikeToggle={() => toggleFavorite(result?.name || "")}
           />
         </div>
 

@@ -28,7 +28,12 @@ export const useCopyState = (
   const copyToClipboard = (text: string, key: keyof typeof copiedStates) => {
     navigator.clipboard.writeText(text);
     setCopiedStates((prev) => ({ ...prev, [key]: true }));
-    toast("Copied to clipboard ✅", { description: `The ${key} code has been copied to your clipboard.` });
+    
+    // Check if we are on mobile to suppress toast
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (!isMobile) {
+      toast("Copied to clipboard ✅", { description: `The ${key} code has been copied to your clipboard.` });
+    }
 
     // Add to copy history if gradient info is available
     if (gradientName && gradientColors) {

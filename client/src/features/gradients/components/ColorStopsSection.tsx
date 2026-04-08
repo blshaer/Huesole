@@ -3,7 +3,7 @@ import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { GeneratedGradient } from "../types";
 import { ColorStopItem } from "./ColorStopItem";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/ui/dialog";
+import { Dialog, DialogContent } from "@/shared/ui/dialog";
 import {
   ColorPicker,
   ColorPickerAlpha,
@@ -139,7 +139,7 @@ export const ColorStopsSection = ({
             </ColorPicker>
           </div>
           <div className="mt-4">
-            <Button onClick={handleConfirmAdd} className="w-full bg-white text-black hover:bg-neutral-100 rounded-xl font-bold h-11 text-xs uppercase tracking-widest transition-all active:scale-[0.98]">
+            <Button onClick={handleConfirmAdd} className="w-full hover:text-black bg-white text-black hover:bg-neutral-100 rounded-xl font-bold h-11 text-xs uppercase tracking-widest transition-all active:scale-[0.98]">
                Add Color
             </Button>
           </div>

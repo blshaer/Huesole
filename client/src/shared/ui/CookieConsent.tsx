@@ -24,12 +24,20 @@ export const CookieConsent: React.FC = () => {
 
   useEffect(() => {
     const consent = localStorage.getItem("cookie-consent");
+    let timer: NodeJS.Timeout;
     if (!consent) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setIsVisible(true);
       }, 1500);
-      return () => clearTimeout(timer);
     }
+
+    const handleOpen = () => setIsVisible(true);
+    window.addEventListener("open-cookie-consent", handleOpen);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("open-cookie-consent", handleOpen);
+    };
   }, []);
 
   const handleAccept = () => {

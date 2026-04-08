@@ -41,8 +41,7 @@ const AppRoutes: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <VercelSpinner size={80} />
-
+      <VercelSpinner size={40} />
     </motion.div>
   );
 

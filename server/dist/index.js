@@ -27,6 +27,10 @@ app.use((0, cors_1.default)({
     origin: [
         "https://lumegradients.free.nf",
         "https://lumegradients.onrender.com",
+        "https://lumegradinets.vercel.app",
+        "https://lumegradients.vercel.app",
+        "https://lumegradadients.vercel.app",
+        "https://gradlyai.onrender.com",
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",

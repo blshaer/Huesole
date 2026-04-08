@@ -62,7 +62,7 @@ const ForgotPassword = () => {
             </Label>
             <Link
               to="/login"
-              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+              className="flex text-white/45 hover:text-white underline   items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="h-3 w-3" />
               Back to Login
@@ -101,17 +101,6 @@ const ForgotPassword = () => {
           )}
         </Button>
 
-        <p className="px-8 text-center text-[11px] text-white/45 leading-relaxed">
-          By continuing, you agree to our{" "}
-          <Link to="/terms" className="underline text-white underline-offset-2 hover:text-primary transition-colors">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link to="/privacy" className="underline text-white underline-offset-2 hover:text-primary transition-colors">
-            Privacy Policy
-          </Link>
-          .
-        </p>
 
       </form>
     </AuthLayout>

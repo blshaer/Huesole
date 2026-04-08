@@ -28,8 +28,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   onGradientShapeChange,
 }) => {
   return (
-    <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-center lg:gap-6">
-      <div className="flex-1 w-full lg:max-w-xl">
+    <div className="mt-8 max-md:mt-0  flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-center lg:gap-6">
+      <div className="flex-1  w-full lg:max-w-xl">
         <SearchBox
           value={searchTerm}
           onChange={onSearchChange}

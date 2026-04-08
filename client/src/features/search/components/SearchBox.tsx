@@ -101,12 +101,20 @@ const RECOMMENDED_SUGGESTIONS = [
   { label: "warm", emoji: "🔥" },
 ];
 
-const SEARCH_PLACEHOLDERS = [
+const DESKTOP_PLACEHOLDERS = [
   "Search gradients...",
   "Try 'vibrant', 'nature', 'tropical'...",
   "Search by color: 'blue', 'purple'...",
   "Find by mood: 'warm', 'cool', 'dark'...",
   "Discover: 'sunset', 'ocean', 'pastel'...",
+];
+
+const MOBILE_PLACEHOLDERS = [
+  "Search gradients...",
+  "Try 'vibrant'...",
+  "Search by color...",
+  "Find by mood...",
+  "Discover 'sunset'...",
 ];
 
 export const SearchBox: FC<SearchBoxProps> = ({
@@ -122,8 +130,19 @@ export const SearchBox: FC<SearchBoxProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const placeholders = isMobile ? MOBILE_PLACEHOLDERS : DESKTOP_PLACEHOLDERS;
+
   const [currentPlaceholder, setCurrentPlaceholder] = useState(
-    SEARCH_PLACEHOLDERS[0],
+    placeholders[0],
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -133,15 +152,20 @@ export const SearchBox: FC<SearchBoxProps> = ({
     if (!value) {
       const interval = setInterval(() => {
         setCurrentPlaceholder((prev) => {
-          const currentIndex = SEARCH_PLACEHOLDERS.indexOf(prev);
-          return SEARCH_PLACEHOLDERS[
-            (currentIndex + 1) % SEARCH_PLACEHOLDERS.length
-          ];
+          const activePlaceholders = isMobile ? MOBILE_PLACEHOLDERS : DESKTOP_PLACEHOLDERS;
+          const currentIndex = activePlaceholders.indexOf(prev);
+          const nextIndex = (currentIndex + 1) % activePlaceholders.length;
+          return activePlaceholders[nextIndex];
         });
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [value]);
+  }, [value, isMobile]);
+
+  // Sync placeholder when switching isMobile
+  useEffect(() => {
+    setCurrentPlaceholder(placeholders[0]);
+  }, [isMobile]);
 
   // Generate autocomplete suggestions
   const suggestions = useMemo<(string | { label: string; emoji: string })[]>(() => {

@@ -4,7 +4,7 @@ export const HeroHeader: React.FC = () => (
 
 
     {/* Main Title */}
-    <h1 className="pt-6 text-center text-3xl font-medium text-primary dark:text-gray-50 sm:text-6xl">
+    <h1 className="pt-6 text-center text-4xl max-md:pt-0 font-medium text-primary dark:text-gray-50 sm:text-6xl">
       Collection of modern,
       <span className="relative ps-1">
         <span className="relative">Gradients</span>

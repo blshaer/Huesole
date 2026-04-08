@@ -96,7 +96,15 @@ const TermsPage: React.FC = () => {
             <div key={index} className="space-y-4">
               <h2 className="text-xl font-semibold text-white">{section.title}</h2>
               <div className="text-white/45 leading-relaxed whitespace-pre-line text-[15px]">
-                {section.content}
+                {section.content.split('\n').map((line, i, arr) => {
+                  const isSubHeading = /^\d+\.\d+\s/.test(line);
+                  return (
+                    <React.Fragment key={i}>
+                      {isSubHeading ? <span className="text-white font-medium">{line}</span> : line}
+                      {i < arr.length - 1 && '\n'}
+                    </React.Fragment>
+                  );
+                })}
               </div>
             </div>
           ))}

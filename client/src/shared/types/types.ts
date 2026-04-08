@@ -2,14 +2,14 @@ export interface GradientCardProps {
   gradient: Gradient;
   isFavorite: boolean;
   onFavoriteToggle: (name: string) => void;
-  isDisliked?: boolean;
-  onDislikeToggle?: (name: string) => void;
   editable?: boolean;
   onColorsChange?: (newColors: string[]) => void;
   onEditClick?: (gradient: Gradient) => void;
   onDeleteClick?: (gradient: Gradient & { id: string }) => void;
   globalGradientType?: "background" | "text";
   globalGradientShape?: "linear" | "radial" | "conic" | "auto";
+  isDisliked?: boolean;
+  onDislikeToggle?: (name: string) => void;
   isSelected?: boolean;
   onSelectToggle?: (name: string) => void;
 }

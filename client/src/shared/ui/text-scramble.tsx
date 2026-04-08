@@ -1,5 +1,5 @@
 import { motion, MotionProps } from "framer-motion";
-import { type JSX, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type TextScrambleProps = {
   children: string;
@@ -26,32 +26,35 @@ export function TextScramble({
   onScrambleComplete,
   ...props
 }: TextScrambleProps) {
-  const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements,
-  );
   const [displayText, setDisplayText] = useState(children);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const text = children;
 
-  const scramble = async () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
+  useEffect(() => {
+    if (!trigger) {
+      setDisplayText(children);
+      return;
+    }
 
+    let isCancelled = false;
     const steps = duration / speed;
     let step = 0;
 
     const interval = setInterval(() => {
+      if (isCancelled) {
+        clearInterval(interval);
+        return;
+      }
+
       let scrambled = "";
       const progress = step / steps;
 
-      for (let i = 0; i < text.length; i++) {
-        if (text[i] === " ") {
-          scrambled += " ";
+      for (let i = 0; i < children.length; i++) {
+        if (children[i] === " " || children[i] === "\n") {
+          scrambled += children[i];
           continue;
         }
 
-        if (progress * text.length > i) {
-          scrambled += text[i];
+        if (progress * children.length > i) {
+          scrambled += children[i];
         } else {
           scrambled +=
             characterSet[Math.floor(Math.random() * characterSet.length)];
@@ -63,22 +66,21 @@ export function TextScramble({
 
       if (step > steps) {
         clearInterval(interval);
-        setDisplayText(text);
-        setIsAnimating(false);
+        setDisplayText(children);
         onScrambleComplete?.();
       }
     }, speed * 1000);
-  };
 
-  useEffect(() => {
-    if (!trigger) return;
-    scramble();
-  }, [trigger]); // Only rescramble when trigger changes (e.g. dialog turns open)
+    return () => {
+      isCancelled = true;
+      clearInterval(interval);
+    };
+  }, [trigger, children, duration, speed, characterSet, onScrambleComplete]);
 
-  useEffect(() => {
-    // When code changes (e.g. switching format HEX->RGB), update instantly
-    setDisplayText(children);
-  }, [children]);
+  // Use a simple motion element if Component is a string, else use motion(Component)
+  const MotionComponent = typeof Component === 'string' 
+    ? (motion as any)[Component] 
+    : motion(Component as any);
 
   return (
     <MotionComponent className={className} {...props}>

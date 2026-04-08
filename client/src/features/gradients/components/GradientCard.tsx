@@ -24,6 +24,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/shared/ui/drawer";
 
 
 import { Gradient, GradientCardProps } from "@/shared/types/types";
@@ -718,8 +725,8 @@ export default function GradientCard({
 
         <>
           {isMobile ? (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger className="nofocus relative w-full">
+            <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DrawerTrigger className="nofocus relative w-full">
                 <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
                   <div className="flex items-center gap-2">
                     {SelectedFormatIcon && <SelectedFormatIcon />}
@@ -727,12 +734,12 @@ export default function GradientCard({
                   </div>
                   <ChevronDown className="h-4 w-4" />
                 </div>
-              </DialogTrigger>
-              <DialogContent className="max-w-[90vw] rounded-2xl bg-neutral-900 border-white/10 p-5 backdrop-blur-xl">
-                <DialogHeader>
-                  <DialogTitle className="text-white text-lg font-bold mb-4">Select Code Format</DialogTitle>
-                </DialogHeader>
-                <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[60vh] custom-scrollbar">
+              </DrawerTrigger>
+              <DrawerContent className="bg-neutral-900 border-white/10 p-5 backdrop-blur-xl">
+                <DrawerHeader>
+                  <DrawerTitle className="text-white text-lg font-bold mb-4">Select Code Format</DrawerTitle>
+                </DrawerHeader>
+                <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[60vh] custom-scrollbar pb-10">
                   {FORMATS.map((format) => (
                     <button
                       key={format.key}
@@ -752,8 +759,8 @@ export default function GradientCard({
                     </button>
                   ))}
                 </div>
-              </DialogContent>
-            </Dialog>
+              </DrawerContent>
+            </Drawer>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger className="nofocus relative w-full">

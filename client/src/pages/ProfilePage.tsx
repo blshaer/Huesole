@@ -423,9 +423,12 @@ const ProfilePage = () => {
                   <Switch checked={personalizedAds} onCheckedChange={setPersonalizedAds} disabled={!isCookieAccepted} />
                 </div>
                 {!isCookieAccepted && (
-                  <p className="text-xs text-amber-500/80 bg-amber-500/5 p-3 rounded-lg border border-amber-500/10 text-center">
+                  <button 
+                    onClick={() => window.dispatchEvent(new Event("open-cookie-consent"))}
+                    className="w-full text-xs text-amber-500/80 bg-amber-500/5 p-3 rounded-lg border border-amber-500/10 text-center hover:bg-amber-500/10 transition-colors cursor-pointer"
+                  >
                     Please accept cookies to manage privacy preferences.
-                  </p>
+                  </button>
                 )}
               </CardContent>
             </Card>

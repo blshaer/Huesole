@@ -18,7 +18,7 @@ export const FilterStatus: React.FC<FilterStatusProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 mt-2"
+          className="text-[10px] max-md:mt-4 max-md:mb-[-20px] text-white/70 max-md:text-[8px] max-md:ps-[3px] font-bold uppercase tracking-widest text-muted-foreground/40 mt-2"
         >
           Found {filteredCount} gradient{filteredCount !== 1 ? "s" : ""}
           {searchTerm && (

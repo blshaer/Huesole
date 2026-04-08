@@ -35,8 +35,8 @@ export function VercelStyleButton() {
                             variants={textVariants}
                             transition={{ duration: 0.25, ease: "easeOut" }}
                         >
-                            <span className="sm:hidden">Sign in</span>
-                            <span className="hidden sm:inline">Start Generating</span>
+                            <span className="md:hidden">Sign in</span>
+                            <span className="hidden md:inline">Start Generating</span>
                         </motion.span>
 
                         {/* Logo Layer */}
@@ -52,4 +52,4 @@ export function VercelStyleButton() {
             </Link>
         </div>
     );
-}
+}

@@ -51,15 +51,19 @@ export const CodePreviewInline = forwardRef<
       </div>
       <pre className="custom-scrollbar max-h-56 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed">
         <code>
-          <TextScramble
-            as="span"
-            duration={1.5}
-            speed={0.015}
-            trigger={trigger}
-            className="inline"
-          >
-            {code || "// Generate a gradient first..."}
-          </TextScramble>
+          {typeof window !== 'undefined' && window.innerWidth < 768 ? (
+            <span className="inline">{code || "// Generate a gradient first..."}</span>
+          ) : (
+            <TextScramble
+              as="span"
+              duration={1.5}
+              speed={0.015}
+              trigger={trigger}
+              className="inline"
+            >
+              {code || "// Generate a gradient first..."}
+            </TextScramble>
+          )}
         </code>
       </pre>
 
