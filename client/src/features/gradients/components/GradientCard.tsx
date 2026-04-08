@@ -1,3 +1,4 @@
+import { cn } from "@/shared/lib/utils";
 import { useColorFormat } from "@/features/gradients/hooks/useColorFormat";
 import { useCopyState } from "@/features/gradients/hooks/useCopyState";
 import { animatedGradientUtils } from "@/features/gradients/utils/animatedGradientUtils";
@@ -16,6 +17,13 @@ import { ColorSwatches } from "./ColorSwatches";
 import { LikeDislike } from "./LikeDislike";
 import { GradientPreview } from "./GradientPreview";
 import { DownloadOptionsDropdown } from "./DownloadOptionsDropdown";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shared/ui/dialog";
 
 
 import { Gradient, GradientCardProps } from "@/shared/types/types";
@@ -112,22 +120,48 @@ const JSONIcon = () => (
   </svg>
 );
 
+const FORMATS = [
+  { key: "tailwind", label: "Tailwind CSS", icon: TailwindIcon },
+  { key: "css", label: "CSS", icon: CSSIcon },
+  { key: "sass", label: "SASS/SCSS", icon: SassIcon },
+  { key: "bootstrap", label: "Bootstrap", icon: BootstrapIcon },
+  { key: "react-native", label: "React Native", icon: ReactNativeIcon },
+  { key: "flutter", label: "Flutter", icon: FlutterIcon },
+  { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
+  { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
+  { key: "vue", label: "Vue.js", icon: VueIcon },
+  { key: "angular", label: "Angular", icon: AngularIcon },
+  { key: "react", label: "React", icon: ReactIcon },
+  { key: "xml", label: "Android XML", icon: XMLIcon },
+  { key: "svg", label: "SVG", icon: SVGIcon },
+  { key: "json", label: "JSON", icon: JSONIcon },
+];
+
 export default function GradientCard({
   gradient,
   isFavorite,
   onFavoriteToggle,
-  isDisliked = false,
-  onDislikeToggle,
   editable = false,
   onColorsChange,
   onEditClick,
   onDeleteClick,
   globalGradientType,
   globalGradientShape,
+  isDisliked: _isDisliked,
+  onDislikeToggle: _onDislikeToggle,
 }: GradientCardProps) {
   const [activeTab, setActiveTab] = useState("tailwind");
   const [angle, setAngle] = useState((gradient as any).angle ?? 90);
   const [showAngleController, setShowAngleController] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (gradient.angle !== undefined) {
@@ -157,6 +191,14 @@ export default function GradientCard({
   const { copiedStates, copyToClipboard } = useCopyState();
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
+
+  const SelectedFormatIcon = useMemo(() => {
+    return FORMATS.find((f) => f.key === activeTab)?.icon;
+  }, [activeTab]);
+
+  const selectedFormatLabel = useMemo(() => {
+    return FORMATS.find((f) => f.key === activeTab)?.label || activeTab;
+  }, [activeTab]);
 
   const handleColorChange = (index: number, newColor: string) => {
     const newColors = [...gradient.colors];
@@ -441,15 +483,7 @@ export default function GradientCard({
         {/* User-specified Like/Dislike UI in TOP LEFT */}
         <LikeDislike
           isLiked={isFavorite}
-          isDisliked={isDisliked}
-          onLikeToggle={() => {
-            if (isDisliked && onDislikeToggle) onDislikeToggle(gradient.name);
-            onFavoriteToggle(gradient.name);
-          }}
-          onDislikeToggle={() => {
-            if (isFavorite) onFavoriteToggle(gradient.name);
-            if (onDislikeToggle) onDislikeToggle(gradient.name);
-          }}
+          onLikeToggle={() => onFavoriteToggle(gradient.name)}
         />
 
         <TooltipProvider>
@@ -544,7 +578,7 @@ export default function GradientCard({
 
       <div key={gradientType}>
         <div
-          className="relative mx-auto flex h-56 w-56 items-center justify-center"
+          className="relative mx-auto flex h-48 w-48 sm:h-56 sm:w-56 items-center justify-center"
           ref={containerRef}
         >
           <GradientPreview
@@ -668,7 +702,7 @@ export default function GradientCard({
 
       </div>
 
-      <footer className="flex flex-col items-start space-y-3 p-4 pt-2">
+      <footer className="flex flex-col items-start space-y-3 p-4 pt-2 max-md:pt-[30px]">
         <div className="flex-1 w-full overflow-hidden">
           <ColorSwatches
             colors={gradient.colors}
@@ -683,115 +717,75 @@ export default function GradientCard({
 
 
         <>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="nofocus relative w-full">
-              <div className="flex items-center justify-between  rounded-md border border-border bg-secondary p-2 text-sm text-primary">
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const formats = [
-                      {
-                        key: "tailwind",
-                        label: "Tailwind CSS",
-                        icon: TailwindIcon,
-                      },
-                      { key: "css", label: "CSS", icon: CSSIcon },
-                      { key: "sass", label: "SASS/SCSS", icon: SassIcon },
-                      {
-                        key: "bootstrap",
-                        label: "Bootstrap",
-                        icon: BootstrapIcon,
-                      },
-                      {
-                        key: "react-native",
-                        label: "React Native",
-                        icon: ReactNativeIcon,
-                      },
-                      { key: "flutter", label: "Flutter", icon: FlutterIcon },
-                      { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
-                      { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
-                      { key: "vue", label: "Vue.js", icon: VueIcon },
-                      { key: "angular", label: "Angular", icon: AngularIcon },
-                      { key: "react", label: "React", icon: ReactIcon },
-                      { key: "xml", label: "Android XML", icon: XMLIcon },
-                      { key: "svg", label: "SVG", icon: SVGIcon },
-                      { key: "json", label: "JSON", icon: JSONIcon },
-                    ];
-                    const IconComponent = formats.find(
-                      (f) => f.key === activeTab,
-                    )?.icon;
-                    return IconComponent ? <IconComponent /> : null;
-                  })()}
-                  <span>
-                    {(() => {
-                      const formats = [
-                        { key: "tailwind", label: "Tailwind CSS" },
-                        { key: "css", label: "CSS" },
-                        { key: "sass", label: "SASS/SCSS" },
-                        { key: "bootstrap", label: "Bootstrap" },
-                        { key: "react-native", label: "React Native" },
-                        { key: "flutter", label: "Flutter" },
-                        { key: "swiftui", label: "SwiftUI" },
-                        { key: "kotlin", label: "Kotlin" },
-                        { key: "vue", label: "Vue.js" },
-                        { key: "angular", label: "Angular" },
-                        { key: "react", label: "React" },
-                        { key: "xml", label: "Android XML" },
-                        { key: "svg", label: "SVG" },
-                        { key: "json", label: "JSON" },
-                      ];
-                      return (
-                        formats.find((f) => f.key === activeTab)?.label ||
-                        activeTab
-                      );
-                    })()}
-                  </span>
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-48 rounded-md border border-border bg-secondary p-1"
-            >
-              {[
-                {
-                  key: "tailwind",
-                  label: "Tailwind CSS",
-                  icon: TailwindIcon,
-                },
-                { key: "css", label: "CSS", icon: CSSIcon },
-                { key: "sass", label: "SASS/SCSS", icon: SassIcon },
-                { key: "bootstrap", label: "Bootstrap", icon: BootstrapIcon },
-                {
-                  key: "react-native",
-                  label: "React Native",
-                  icon: ReactNativeIcon,
-                },
-                { key: "flutter", label: "Flutter", icon: FlutterIcon },
-                { key: "swiftui", label: "SwiftUI", icon: SwiftUIIcon },
-                { key: "kotlin", label: "Kotlin", icon: KotlinIcon },
-                { key: "vue", label: "Vue.js", icon: VueIcon },
-                { key: "angular", label: "Angular", icon: AngularIcon },
-                { key: "react", label: "React", icon: ReactIcon },
-                { key: "xml", label: "Android XML", icon: XMLIcon },
-                { key: "svg", label: "SVG", icon: SVGIcon },
-                { key: "json", label: "JSON", icon: JSONIcon },
-              ].map((format) => (
-                <DropdownMenuItem
-                  key={format.key}
-                  onSelect={() => {
-                    setActiveTab(format.key);
-                  }}
-                  className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
-                >
+          {isMobile ? (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger className="nofocus relative w-full">
+                <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
                   <div className="flex items-center gap-2">
-                    <format.icon />
-                    <span>{format.label}</span>
+                    {SelectedFormatIcon && <SelectedFormatIcon />}
+                    <span>{selectedFormatLabel}</span>
                   </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <ChevronDown className="h-4 w-4" />
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-[90vw] rounded-2xl bg-neutral-900 border-white/10 p-5 backdrop-blur-xl">
+                <DialogHeader>
+                  <DialogTitle className="text-white text-lg font-bold mb-4">Select Code Format</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                  {FORMATS.map((format) => (
+                    <button
+                      key={format.key}
+                      onClick={() => {
+                        setActiveTab(format.key);
+                        setIsDialogOpen(false);
+                      }}
+                      className={cn(
+                        "flex flex-col items-center gap-2 rounded-xl border p-3 transition-all",
+                        activeTab === format.key
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-white/5 border-transparent text-white/70 hover:bg-white/10"
+                      )}
+                    >
+                      <format.icon />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-center">{format.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="nofocus relative w-full">
+                <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary">
+                  <div className="flex items-center gap-2">
+                    {SelectedFormatIcon && <SelectedFormatIcon />}
+                    <span>{selectedFormatLabel}</span>
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-48 rounded-md border border-border bg-secondary p-1"
+              >
+                {FORMATS.map((format) => (
+                  <DropdownMenuItem
+                    key={format.key}
+                    onSelect={() => {
+                      setActiveTab(format.key);
+                    }}
+                    className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
+                  >
+                    <div className="flex items-center gap-2">
+                      <format.icon />
+                      <span>{format.label}</span>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <CodePreview
             code={getCode(activeTab)}
             copiedStates={copiedStates}

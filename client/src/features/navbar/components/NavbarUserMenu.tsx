@@ -35,9 +35,9 @@ const iconVariants = {
   hover: { opacity: 1, x: 0 },
 };
 
-export function NavbarUserMenu({ 
-  user, 
-  loading, 
+export function NavbarUserMenu({
+  user,
+  loading,
   onLogout,
   showAngleController,
   onToggleAngleController,
@@ -62,13 +62,14 @@ export function NavbarUserMenu({
             initial="initial"
             whileHover="hover"
             whileTap={{ scale: 0.98 }}
-            className="relative overflow-hidden flex items-center justify-center w-[130px] h-9 bg-[#E0E0E0] text-black border border-black/10 rounded-md font-medium text-xs shadow-sm"
+            className="relative overflow-hidden flex items-center justify-center w-[80px] h-7 sm:w-[130px] sm:h-9 bg-[#E0E0E0] text-black border border-black/10 rounded-md font-medium text-[10px] sm:text-xs shadow-sm"
           >
             <motion.span
               variants={textVariants}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
-              Start Generating
+              <span className="md:hidden">Sign in</span>
+              <span className="hidden md:inline">Start Generating</span>
             </motion.span>
 
             <motion.span
@@ -130,7 +131,7 @@ export function NavbarUserMenu({
                 )}
                 <Label htmlFor="angle-toggle" className="text-sm cursor-pointer">Angle Guide</Label>
               </div>
-              <Switch 
+              <Switch
                 id="angle-toggle"
                 checked={showAngleController}
                 onCheckedChange={onToggleAngleController}

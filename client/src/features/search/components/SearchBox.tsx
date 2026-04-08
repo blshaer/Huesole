@@ -83,7 +83,7 @@ const ShapeIcons = {
   ),
 };
 
-const filterButtonStyle = "flex items-center gap-1 sm:gap-1.5 max-[527px]:gap-0.5 px-1.5 sm:px-2.5 max-[527px]:px-1 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-all rounded-md hover:bg-white/5";
+const filterButtonStyle = "flex items-center gap-1 sm:gap-1.5 max-[527px]:gap-0.5 px-1.5 sm:px-2.5 max-[527px]:px-1 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-all rounded-md hover:bg-white/5 ";
 
 const POPULAR_SUGGESTIONS = [
   { label: "sunset", emoji: "🌇" },
@@ -285,8 +285,8 @@ export const SearchBox: FC<SearchBoxProps> = ({
           </div>
         )}
 
-        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
-          <div className="flex items-center bg-white/[0.03] max-md:bg-[#1C1C1C] border border-white/5 rounded-full p-1 max-md:p-0.5 pr-2 sm:pr-2.5 gap-0.5 sm:gap-1">
+        <div className="absolute right-3 ma top-1/2   flex -translate-y-1/2 items-center gap-1">
+          <div className="flex items-center bg-white/[0.03] max-md:bg-[#1C1C1C] border border-white/5 rounded-full p-1 max-md:p-0.5 pr-2 sm:pr-2.5 gap-0.5 sm:gap-1 ">
             <DropdownMenu>
               <DropdownMenuTrigger className={filterButtonStyle}>
                 {TypeIcons[gradientType]}
@@ -309,7 +309,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className="w-[1px] h-2.5 bg-white/10" />
+            <div className="w-[1px]  h-2.5 bg-white/10" />
 
             <DropdownMenu>
               <DropdownMenuTrigger className={filterButtonStyle}>
@@ -372,7 +372,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
                         <span className="text-lg sm:text-xl leading-none transition-all duration-300">
                           {suggestion.emoji}
                         </span>
-                        <span className="flex-1 truncate text-[13px] sm:text-[14px] font-medium tracking-wide">
+                        <span className="flex-1 truncate text-[11px] sm:text-[14px] font-medium tracking-wide">
                           {suggestion.label}
                         </span>
                         <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white/10 group-hover:text-white/20 transition-colors">
@@ -402,7 +402,7 @@ export const SearchBox: FC<SearchBoxProps> = ({
                         <span className="text-lg sm:text-xl leading-none transition-all duration-300">
                           {suggestion.emoji}
                         </span>
-                        <span className="flex-1 truncate text-[13px] sm:text-[14px] font-medium tracking-wide">
+                        <span className="flex-1 truncate text-[11px] sm:text-[14px] font-medium tracking-wide">
                           {suggestion.label}
                         </span>
                         <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white/10 group-hover:text-white/20 transition-colors">
@@ -449,12 +449,12 @@ export const SearchBox: FC<SearchBoxProps> = ({
                         <span className="text-lg sm:text-xl leading-none transition-all duration-300">
                           {suggestion.emoji}
                         </span>
-                        <span className="flex-1 truncate text-[13px] sm:text-[14px] font-medium tracking-wide">
+                        <span className="flex-1 truncate text-[11px] sm:text-[14px] font-medium tracking-wide">
                           {suggestion.label}
                         </span>
                       </>
                     ) : (
-                      <span className="flex-1 truncate text-[13px] sm:text-[14px] font-medium tracking-wide pl-1">
+                      <span className="flex-1 truncate text-[11px] sm:text-[14px] font-medium tracking-wide pl-1">
                         {suggestion}
                       </span>
                     )}
