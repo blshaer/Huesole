@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight, LayoutDashboard, Eye, EyeOff } from "lucide-react";
+import { ChevronRight, LayoutDashboard, Eye, EyeOff, Sparkles, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -137,6 +137,25 @@ export function NavbarUserMenu({
                 onCheckedChange={onToggleAngleController}
               />
             </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {/* Mobile-only Quick Links */}
+        {isMobile && (
+          <>
+            <Link to="/ai-generator">
+              <DropdownMenuItem className="cursor-pointer">
+                <Sparkles className="mr-2 h-4 w-4" />
+                <span>AI Generator</span>
+              </DropdownMenuItem>
+            </Link>
+            <Link to="/favorites">
+              <DropdownMenuItem className="cursor-pointer">
+                <Heart className="mr-2 h-4 w-4" />
+                <span>Favorites</span>
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator />
           </>
         )}
