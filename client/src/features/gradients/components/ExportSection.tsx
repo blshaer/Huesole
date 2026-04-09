@@ -14,10 +14,18 @@ import { useCopyState } from "@/features/gradients/hooks/useCopyState";
 import { useColorFormat } from "@/features/gradients/hooks/useColorFormat";
 import { animatedGradientUtils } from "@/features/gradients/utils/animatedGradientUtils";
 import { GeneratedGradient } from "../types";
-import { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/shared/ui/drawer";
+import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { CodePreviewInline } from "./CodePreviewInline";
-import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/shared/lib/utils";
 
 // Icon components (same as before - keeping them for brevity)
 const TailwindIcon = () => (
@@ -151,7 +159,17 @@ export const ExportSection = ({
   const [selectedImageFormat, setSelectedImageFormat] = useState("png");
   const [selectedImageSize, setSelectedImageSize] = useState("md");
   const [isExporting, setIsExporting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isImageDrawerOpen, setIsImageDrawerOpen] = useState(false);
+  const [isFormatDrawerOpen, setIsFormatDrawerOpen] = useState(false);
   const previewRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   if (!result) return null;
 
@@ -360,156 +378,275 @@ export const ExportSection = ({
           Export Design
         </Label>
 
-        {/* Export as Image Dropdown - FIXED WITH PERSISTENT STATE */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-card/60 text-foreground/80 hover:bg-card/80 h-8 gap-1 rounded-md border-border px-2 text-[11px] nofocus"
-              disabled={isExporting}
-            >
-              <ImageIcon className="h-3 w-3" />
-              <span>{isExporting ? "Exporting..." : "Export Image"}</span>
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-56 rounded-md border border-border bg-secondary p-1"
-          >
-            <div className="text-foreground/60 px-2 py-1.5 text-xs font-semibold">
-              Format
-            </div>
-            {IMAGE_FORMATS.map((format) => (
-              <DropdownMenuItem
-                key={format.key}
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setSelectedImageFormat(format.key);
-                }}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageFormat === format.key
-                  ? "bg-primary/10 text-primary"
-                  : "text-foreground/80"
-                  }`}
+        {isMobile ? (
+          <Drawer open={isImageDrawerOpen} onOpenChange={setIsImageDrawerOpen}>
+            <DrawerTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-card/60 text-foreground/80 hover:bg-card/80 h-8 gap-1 rounded-md border-border px-2 text-[11px] nofocus"
+                disabled={isExporting}
               >
-                <div className="flex w-full items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    <span>{format.label}</span>
+                <ImageIcon className="h-3 w-3" />
+                <span>{isExporting ? "Exporting..." : "Export Image"}</span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="bg-[#0d0f14] border-white/10 p-5 backdrop-blur-xl">
+              <DrawerHeader>
+                <DrawerTitle className="text-white text-lg font-bold mb-4">Export Settings</DrawerTitle>
+              </DrawerHeader>
+              
+              <div className="space-y-6 pb-10">
+                <div className="space-y-3">
+                  <div className="text-foreground/60 text-xs font-semibold px-1">Format</div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {IMAGE_FORMATS.map((format) => (
+                      <button
+                        key={format.key}
+                        onClick={() => setSelectedImageFormat(format.key)}
+                        className={cn(
+                          "flex flex-col items-center gap-2 rounded-xl border p-3 transition-all",
+                          selectedImageFormat === format.key
+                            ? "bg-primary/10 border-primary text-primary"
+                            : "bg-white/5 border-transparent text-white/70 hover:bg-white/10"
+                        )}
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider">{format.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <AnimatePresence mode="wait">
-                    {selectedImageFormat === format.key && (
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
-                      >
-                        <Check className="h-4 w-4 text-primary" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
-              </DropdownMenuItem>
-            ))}
 
-            <div className="my-1 h-px bg-border" />
-
-            <div className="text-foreground/60 px-2 py-1.5 text-xs font-semibold">
-              Size
-            </div>
-            {IMAGE_SIZES.map((size) => (
-              <DropdownMenuItem
-                key={size.key}
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setSelectedImageSize(size.key);
-                }}
-                className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageSize === size.key
-                  ? "bg-primary/10 text-primary"
-                  : "text-foreground/80"
-                  }`}
-              >
-                <div className="flex w-full items-center justify-between">
-                  <span>{size.label}</span>
-                  <AnimatePresence mode="wait">
-                    {selectedImageSize === size.key && (
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0, rotate: -180 }}
-                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                        exit={{ scale: 0, opacity: 0, rotate: 180 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
+                <div className="space-y-3">
+                  <div className="text-foreground/60 text-xs font-semibold px-1">Resolution</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {IMAGE_SIZES.map((size) => (
+                      <button
+                        key={size.key}
+                        onClick={() => setSelectedImageSize(size.key)}
+                        className={cn(
+                          "flex items-center justify-between rounded-xl border px-4 py-3 transition-all",
+                          selectedImageSize === size.key
+                            ? "bg-primary/10 border-primary text-primary"
+                            : "bg-white/5 border-transparent text-white/70 hover:bg-white/10"
+                        )}
                       >
-                        <Check className="h-4 w-4 text-primary" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        <span className="text-xs font-medium">{size.label.split(" (")[0]}</span>
+                        {selectedImageSize === size.key && <Check className="h-4 w-4 text-primary" />}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </DropdownMenuItem>
-            ))}
 
-            <div className="my-1 h-px bg-border" />
-
-            <DropdownMenuItem
-              onSelect={() =>
-                handleDownloadImage(selectedImageFormat, selectedImageSize)
-              }
-              className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm font-medium text-primary"
-            >
-              <div className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                <span>
-                  Download as {activeImageFormat.label} (
-                  {activeImageSize.label.split(" ")[0]})
-                </span>
+                <div className="pt-2">
+                  <Button
+                    onClick={() => {
+                      handleDownloadImage(selectedImageFormat, selectedImageSize);
+                      setIsImageDrawerOpen(false);
+                    }}
+                    className="w-full h-12 bg-primary text-primary-foreground font-bold rounded-xl"
+                  >
+                    <Download className="mr-2 h-5 w-5" />
+                    Download {activeImageFormat.label}
+                  </Button>
+                </div>
               </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-card/60 text-foreground/80 hover:bg-card/80 h-8 gap-1 rounded-md border-border px-2 text-[11px] nofocus"
+                disabled={isExporting}
+              >
+                <ImageIcon className="h-3 w-3" />
+                <span>{isExporting ? "Exporting..." : "Export Image"}</span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-56 rounded-md border border-border bg-secondary p-1"
+            >
+              <div className="text-foreground/60 px-2 py-1.5 text-xs font-semibold">
+                Format
+              </div>
+              {IMAGE_FORMATS.map((format) => (
+                <DropdownMenuItem
+                  key={format.key}
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setSelectedImageFormat(format.key);
+                  }}
+                  className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageFormat === format.key
+                    ? "bg-primary/10 text-primary"
+                    : "text-foreground/80"
+                    }`}
+                >
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      <span>{format.label}</span>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      {selectedImageFormat === format.key && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        >
+                          <Check className="h-4 w-4 text-primary" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+
+              <div className="my-1 h-px bg-border" />
+
+              <div className="text-foreground/60 px-2 py-1.5 text-xs font-semibold">
+                Size
+              </div>
+              {IMAGE_SIZES.map((size) => (
+                <DropdownMenuItem
+                  key={size.key}
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setSelectedImageSize(size.key);
+                  }}
+                  className={`hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm ${selectedImageSize === size.key
+                    ? "bg-primary/10 text-primary"
+                    : "text-foreground/80"
+                    }`}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span>{size.label}</span>
+                    <AnimatePresence mode="wait">
+                      {selectedImageSize === size.key && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0, rotate: -180 }}
+                          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                          exit={{ scale: 0, opacity: 0, rotate: 180 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        >
+                          <Check className="h-4 w-4 text-primary" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+
+              <div className="my-1 h-px bg-border" />
+
+              <DropdownMenuItem
+                onSelect={() =>
+                  handleDownloadImage(selectedImageFormat, selectedImageSize)
+                }
+                className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm font-medium text-primary"
+              >
+                <div className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  <span>
+                    Download as {activeImageFormat.label} (
+                    {activeImageSize.label.split(" ")[0]})
+                  </span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <div className="space-y-2">
-        {/* Format dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex w-full cursor-pointer items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary transition-colors hover:bg-secondary/80 focus-visible:outline-none">
-              <div className="flex items-center gap-2">
-                <ActiveIcon />
-                <span>{activeFormat.label}</span>
+        {isMobile ? (
+          <Drawer open={isFormatDrawerOpen} onOpenChange={setIsFormatDrawerOpen}>
+            <DrawerTrigger asChild>
+              <div className="flex w-full cursor-pointer items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary transition-colors hover:bg-secondary/80 focus-visible:outline-none">
+                <div className="flex items-center gap-2">
+                  <ActiveIcon />
+                  <span>{activeFormat.label}</span>
+                </div>
+                <ChevronDown className="h-4 w-4" />
               </div>
-              <ChevronDown className="h-4 w-4" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-52 rounded-md border border-border bg-secondary p-1"
-          >
-            {FORMAT_DEFS.map((format) => {
-              const Icon = format.icon;
-              return (
-                <DropdownMenuItem
-                  key={format.key}
-                  onSelect={() => setActiveTab(format.key)}
-                  className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon />
-                    <span>{format.label}</span>
-                  </div>
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DrawerTrigger>
+            <DrawerContent className="bg-[#0d0f14] border-white/10 p-5 backdrop-blur-xl">
+              <DrawerHeader>
+                <DrawerTitle className="text-white text-lg font-bold mb-4">Select Code Category</DrawerTitle>
+              </DrawerHeader>
+              <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[60vh] custom-scrollbar pb-10">
+                {FORMAT_DEFS.map((format) => {
+                  const Icon = format.icon;
+                  return (
+                    <button
+                      key={format.key}
+                      onClick={() => {
+                        setActiveTab(format.key);
+                        setIsFormatDrawerOpen(false);
+                      }}
+                      className={cn(
+                        "flex flex-col items-center gap-2 rounded-xl border p-3 transition-all",
+                        activeTab === format.key
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-white/5 border-transparent text-white/70 hover:bg-white/10"
+                      )}
+                    >
+                      <Icon />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-center">{format.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex w-full cursor-pointer items-center justify-between rounded-md border border-border bg-secondary p-2 text-sm text-primary transition-colors hover:bg-secondary/80 focus-visible:outline-none">
+                <div className="flex items-center gap-2">
+                  <ActiveIcon />
+                  <span>{activeFormat.label}</span>
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-52 rounded-md border border-border bg-secondary p-1"
+            >
+              {FORMAT_DEFS.map((format) => {
+                const Icon = format.icon;
+                return (
+                  <DropdownMenuItem
+                    key={format.key}
+                    onSelect={() => setActiveTab(format.key)}
+                    className="hover:bg-primary/10 cursor-pointer rounded px-2 py-1.5 text-sm text-primary"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon />
+                      <span>{format.label}</span>
+                    </div>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
         {/* Code preview + copy */}
         <CodePreviewInline

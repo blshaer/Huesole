@@ -64,7 +64,7 @@ export const PreviewArea = ({
   const displayAngle = currentAngle;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-6 md:p-10 lg:p-12 min-h-[450px] overflow-hidden">
+    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-6 md:p-10 lg:p-12 min-h-[500px] md:min-h-[450px] overflow-hidden">
       <div className="w-full h-full flex items-center justify-center relative max-w-7xl mx-auto max-h-[844px] mb-8 md:mb-12">
         <AnimatePresence mode="wait">
           {loading ? (
@@ -87,10 +87,10 @@ export const PreviewArea = ({
                     opacity: 1,
                     width: canvasSize 
                       ? "100%" 
-                      : isMobile && isKeyboardOpen ? "120px" : "min(40vh, 40vw)",
+                      : isMobile && isKeyboardOpen ? "120px" : isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)",
                     height: canvasSize ? "100%" : "auto",
-                    maxHeight: canvasSize ? "100%" : "min(40vh, 40vw)",
-                    maxWidth: canvasSize ? "100%" : isMobile && !isKeyboardOpen ? "50vw" : "min(40vh, 40vw)",
+                    maxHeight: canvasSize ? "100%" : isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)",
+                    maxWidth: canvasSize ? "100%" : isMobile && !isKeyboardOpen ? "80vw" : "min(40vh, 40vw)",
                     aspectRatio: canvasSize ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
                     borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "24px",
                   }}

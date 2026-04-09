@@ -12,7 +12,8 @@ import { useAuth } from "@/features/auth/context/AuthContext";
 import { CanvasSize } from "@/features/navbar/components/NavbarCanvasSize";
 import Footer from "@/features/footer/components/Footer";
 import { serializeGradientToParams, deserializeGradientFromParams } from "@/features/gradients/utils/urlParams";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Download } from "lucide-react";
+import { ExportSection } from "@/features/gradients/components/ExportSection";
 
 const AIGeneratorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ const AIGeneratorPage: React.FC = () => {
 
   // Mobile bottom sheet state
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
-  const [mobileActiveTab, setMobileActiveTab] = useState<"colors" | "adjustments">("colors");
+  const [mobileActiveTab, setMobileActiveTab] = useState<"colors" | "adjustments" | "export">("colors");
 
   const { handleGenerate, loading } = useGradientGeneration({
     user,
@@ -152,7 +153,7 @@ const AIGeneratorPage: React.FC = () => {
     });
   }, []);
 
-  const openMobileSheet = (tab: "colors" | "adjustments") => {
+  const openMobileSheet = (tab: "colors" | "adjustments" | "export") => {
     setMobileActiveTab(tab);
     setMobileSheetOpen(true);
   };
@@ -266,6 +267,13 @@ const AIGeneratorPage: React.FC = () => {
             </svg>
             Adjustments
           </button>
+          <button
+            onClick={() => openMobileSheet("export")}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary/20 border border-primary/20 py-3 px-4 text-sm font-semibold text-primary hover:bg-primary/30 active:scale-95 transition-all"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
         </div>
 
         {/* Mobile Bottom Sheet */}
@@ -317,6 +325,16 @@ const AIGeneratorPage: React.FC = () => {
                         <path d="M85.49,5.42l-25.75,65.09c-.29.73-1.19,1-1.83.53-7.77-5.74-23.43-17.27-31.21-23.01-3.82-1.44,48.07-39.6,54.59-45.62.39-.36.97-.38,1.39-.07l2.43,1.79c.4.3.56.83.37,1.29Z" />
                       </svg> Adjustments
                     </button>
+                    <button
+                      onClick={() => setMobileActiveTab("export")}
+                      className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
+                        mobileActiveTab === "export"
+                          ? "bg-white text-black shadow"
+                          : "text-white/50 hover:text-white"
+                      }`}
+                    >
+                      <Download className="h-3.5 w-3.5" /> Export
+                    </button>
                   </div>
                   <button
                     onClick={() => setMobileSheetOpen(false)}
@@ -344,11 +362,17 @@ const AIGeneratorPage: React.FC = () => {
                     onToggleMobile={() => {}}
                     forceMobileVisible
                   />
-                ) : (
+                ) : mobileActiveTab === "adjustments" ? (
                   <RightSidebar
                     result={result}
                     setResult={setResult}
                     forceMobileVisible
+                  />
+                ) : (
+                  <ExportSection 
+                    result={result}
+                    isAnimated={isAnimated}
+                    animationSpeed={animationSpeed}
                   />
                 )}
               </div>

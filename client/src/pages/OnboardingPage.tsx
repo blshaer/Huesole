@@ -17,10 +17,6 @@ import {
   CardFooter,
 } from "@/shared/ui/card";
 
-const AVATAR_SEEDS = [
-  "Baraa", "Gradly", "Design", "Aura", "Nebula", "Lume", "Zen", "Orbit", "Pixel", "Vibe", "Echo", "Flux"
-];
-
 const generateUsernameSuggestions = (name: string): string[] => {
   const base = name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
   if (!base) return [];
@@ -86,10 +82,6 @@ const OnboardingPage = () => {
       const formData = new FormData();
       formData.append("username", username.trim());
       formData.append("name", name.trim());
-      
-      const randomSeed = AVATAR_SEEDS[Math.floor(Math.random() * AVATAR_SEEDS.length)];
-      formData.append("avatarSeed", randomSeed);
-      formData.append("avatarVariant", "marble");
       
       const response = await axios.put<{ user: any }>("/auth/update-profile", formData, {
         headers: {

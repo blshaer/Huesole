@@ -25,7 +25,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/context/AuthContext";
 
-
 interface UpdateProfileResponse {
   user: {
     name: string;
@@ -33,7 +32,6 @@ interface UpdateProfileResponse {
     picture?: string;
   };
 }
-
 
 const ProfilePage = () => {
   const { user, isLoading, updateUser, logout } = useAuth();
@@ -152,8 +150,6 @@ const ProfilePage = () => {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-
-
 
   const triggerFileSelect = () => {
     fileInputRef.current?.click();
@@ -319,7 +315,7 @@ const ProfilePage = () => {
                 <div className="flex items-center gap-6">
                   <Avatar className="h-20 w-20 border border-border">
                     <AvatarImage src={previewUrl && previewUrl !== "no-photo.jpg" ? getFullImageUrl(previewUrl) : undefined} alt={user.name} />
-                    <AvatarFallback className="text-xl bg-white/10 text-white">
+                    <AvatarFallback className="text-xl bg-gradient-to-br from-[#92A1C6] via-[#146A7C] to-[#C271B4] text-white">
                       {user.name && user.name.split(" ").length > 1
                         ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)
                         : user.name?.slice(0, 2) || "UA"}
@@ -327,7 +323,7 @@ const ProfilePage = () => {
                   </Avatar>
                   <div className="space-y-2">
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".jpg,.jpeg,.png,.webp" className="hidden" />
-                    <Button variant="outline" size="sm" onClick={triggerFileSelect} className="h-8 md:h-9 text-xs md:text-sm transition-all">
+                    <Button variant="outline" size="sm" onClick={triggerFileSelect} className="h-8 md:h-9 text-xs md:text-sm transition-all text-white border-white/20 hover:bg-white/5">
                       Change avatar
                     </Button>
                     <p className="text-xs text-white/45 mt-2">JPG, PNG or WebP. Max 5MB.<br /><span className="font-mono">256x256</span></p>

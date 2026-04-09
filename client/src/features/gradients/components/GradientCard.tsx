@@ -18,13 +18,6 @@ import { LikeDislike } from "./LikeDislike";
 import { GradientPreview } from "./GradientPreview";
 import { DownloadOptionsDropdown } from "./DownloadOptionsDropdown";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/shared/ui/dialog";
-import {
   Drawer,
   DrawerContent,
   DrawerHeader,

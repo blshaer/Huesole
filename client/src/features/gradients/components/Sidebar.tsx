@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from "react";
 import { ColorStopsSection } from "./ColorStopsSection";
-import { ExportSection } from "./ExportSection";
 import { BetaContactCard } from "./BetaContactCard";
 import { GeneratedGradient } from "../types";
 
@@ -85,9 +84,7 @@ export const Sidebar = ({
           onMoveColor={onMoveColor}
         />
 
-        <div className="max-md:block hidden">
-          <ExportSection result={result} />
-        </div>
+
       </div>
       
       {/* Fixed Footer for Beta Notice */}
