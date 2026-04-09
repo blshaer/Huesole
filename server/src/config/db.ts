@@ -5,7 +5,11 @@ dotenv.config();
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI || "");
+        const uri = (process.env.MONGO_URI || "").trim().replace(/^["']|["']$/g, "");
+        if (!uri) {
+           throw new Error("MONGO_URI is missing or empty");
+        }
+        const conn = await mongoose.connect(uri);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         throw error;
