@@ -327,7 +327,7 @@ const ProfilePage = () => {
                   </Avatar>
                   <div className="space-y-2">
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".jpg,.jpeg,.png,.webp" className="hidden" />
-                    <Button variant="outline" size="sm" onClick={triggerFileSelect} className="h-9 transition-all">
+                    <Button variant="outline" size="sm" onClick={triggerFileSelect} className="h-8 md:h-9 text-xs md:text-sm transition-all">
                       Change avatar
                     </Button>
                     <p className="text-xs text-white/45 mt-2">JPG, PNG or WebP. Max 5MB.<br /><span className="font-mono">256x256</span></p>
@@ -347,7 +347,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div className="flex justify-end pt-2 max-md:pt-0">
-                    <Button type="submit" disabled={profileLoading || !hasProfileChanges} className="h-9 px-4 shrink-0 transition-all font-medium py-2 bg-[#F8F8F8] text-black hover:bg-[#E5E5E5] disabled:opacity-50">
+                    <Button type="submit" disabled={profileLoading || !hasProfileChanges} className="h-8 md:h-9 px-4 text-xs md:text-sm shrink-0 transition-all font-medium py-2 bg-[#F8F8F8] text-black hover:bg-[#E5E5E5] disabled:opacity-50">
                       {profileLoading ? <Spinner size={16} className="mr-2 border-black" /> : null}
                       Save changes
                     </Button>
@@ -363,8 +363,8 @@ const ProfilePage = () => {
                   <CardTitle className="text-lg">Account</CardTitle>
                   <CardDescription className="text-sm mt-1 text-white/45">Manage your account settings</CardDescription>
                 </div>
-                <Button size="sm" onClick={() => { logout(); navigate("/"); }} className="gap-2 px-4 h-9 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all">
-                  <LogOut className="h-4 w-4" />
+                <Button size="sm" onClick={() => { logout(); navigate("/"); }} className="gap-2 px-4 h-8 md:h-9 text-xs md:text-sm bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all">
+                  <LogOut className="h-3.5 w-3.5 md:h-4 md:w-4" />
                   Sign out
                 </Button>
               </CardHeader>
@@ -447,7 +447,7 @@ const ProfilePage = () => {
                       Permanently delete your account and all data
                     </p>
                   </div>
-                  <Button variant="outline" className="h-9 shrink-0 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all" onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}>
+                  <Button variant="outline" className="h-8 md:h-9 text-xs md:text-sm shrink-0 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all" onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}>
                     Delete account
                   </Button>
                 </div>
@@ -459,11 +459,11 @@ const ProfilePage = () => {
                     </p>
                     <div className="flex items-center gap-3">
                       <Input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder="Type DELETE to confirm" className="max-w-xs border-red-500/20 focus-visible:ring-red-500/30 h-9" />
-                      <Button size="sm" disabled={deleteConfirmText !== "DELETE" || deleteLoading} onClick={handleDeleteAccount} className="h-9 bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all">
-                        {deleteLoading ? <Spinner size={16} className="mr-1.5" /> : null}
+                      <Button size="sm" disabled={deleteConfirmText !== "DELETE" || deleteLoading} onClick={handleDeleteAccount} className="h-8 md:h-9 text-xs md:text-sm bg-[#761618] text-white hover:bg-[#761618]/90 border-0 font-medium transition-all">
+                        {deleteLoading ? <Spinner size={14} className="mr-1.5" /> : null}
                         Permanently Delete
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }} className="h-9">
+                      <Button variant="ghost" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }} className="h-8 md:h-9 text-xs md:text-sm">
                         Cancel
                       </Button>
                     </div>
