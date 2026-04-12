@@ -1,81 +1,71 @@
-# Gradients CSS
+# LumeGradients
 
-![Cover](app/assets/cover.png)
+LumeGradients is a professional monorepo for generating and managing CSS gradients. It provides a specialized environment for discovering, composing, and fine-tuning visual design assets through AI-powered tools and an interactive interface.
 
-Gradients CSS is a modern, open-source React application for browsing, searching, and copying CSS gradients. Built with Vite, React, and Tailwind CSS, this project provides a clean user interface, advanced filtering, and easy integration for your web projects.
+## Core Features
 
-## Features
+- **AI-Powered Generation**: Integration with Google Gemini AI for natural language gradient composition.
+- **Canvas Sizing Engine**: Device-specific presets (iPhone, Tablet, Desktop) with automated viewport containment.
+- **Interactive Design Tools**: Visual angle controllers for linear, radial, and conic gradients.
+- **Dynamic Animation Controls**: High-performance animated gradients with real-time speed and color management.
+- **Responsive Architecture**: Specialized mobile optimization layer for zero-latency interactions.
+- **Asset Repository**: Curated gradient gallery with local favorites management and clipboard integration.
 
-- Gradient Gallery: Browse a curated collection of modern CSS gradients.
-- Search & Filter: Find gradients by color name, keyword, or favorites.
-- Favorites: Save your favorite gradients locally for quick access.
-- Copy to Clipboard: Instantly copy CSS or Tailwind code for any gradient.
-- Responsive UI: Mobile-friendly design with animated effects.
-- Fast & Lightweight: Powered by Vite and optimized for performance.
-- Customizable: Easily theme and extend with global CSS variables.
+## Technical Stack
 
-## Getting Started
+### Frontend
+- **Framework**: React 18, Vite
+- **Styling**: Tailwind CSS, Styled Components
+- **Animation**: Framer Motion, Motion, AOS, animate.css
+- **UI Components**: Radix UI (Primitives), Lucide React
+- **Graphics**: Three.js, @react-three/fiber, OGL
+- **Data Visualization**: Recharts
+
+### Backend
+- **Environment**: Node.js, Express
+- **Language**: TypeScript
+- **AI Integration**: @google/generative-ai (Gemini)
+- **Database**: MongoDB via Mongoose
+- **Security**: JWT, Bcryptjs, Google Auth Library
+- **Utilities**: Nodemailer, Multer, Axios
+
+## Installation
 
 ### Prerequisites
+- Node.js (v18+)
+- npm
 
-- Node.js (v18 or higher recommended)
-- pnpm, npm, or yarn
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/blshaer/gradlyai.git
-cd gradlyai
-
-# Install dependencies
-pnpm install # or npm install or yarn install
-```
-
-### Running the Application
+### Setup
 
 ```bash
-pnpm dev # or npm run dev or yarn dev
+# Install dependencies (from root)
+npm run install:all
 ```
 
-The application will be available at [http://localhost:5173](http://localhost:5173) by default.
+### Configuration
 
-## Project Structure
-
-```
-app/
-  css/           # Global styles and variables
-  assets/        # Images and cover assets
-src/
-  components/    # Reusable UI and layout components
-  pages/         # Main pages (Home, NotFound, etc.)
-  data/          # Gradient data and links
-  hooks/         # Custom React hooks
-  lib/           # Utility functions
-  routes/        # App routes
-  types/         # TypeScript types
-  ...
+Create a `.env` file in the `server` directory with the following variables:
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_uri
+GEMINI_API_KEY=your_gemini_api_key
+JWT_SECRET=your_jwt_secret
 ```
 
-## Customization
+### Development
 
-- Colors & Theme: Edit `src/index.css` to change global color variables (including grid color, backgrounds, etc).
-- Gradient Data: Update or extend `src/data/gradients.json` for your own collection.
+Execute the following command in the root directory to start the full stack:
+```bash
+npm run dev
+```
 
-## Contributing
+The application is accessible at `http://localhost:5173`.
 
-Contributions are welcome. Please open issues or pull requests for new features, bug fixes, or improvements.
+## Architecture
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/YourFeature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/YourFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
+- **client/**: React-based frontend with feature-based organization.
+- **server/**: TypeScript Express backend with Gemini AI integration.
 
 ---
 
-Developed by [blshaer](https://github.com/blshaer) and contributors.
+Developed by [blshaer](https://github.com/blshaer).
