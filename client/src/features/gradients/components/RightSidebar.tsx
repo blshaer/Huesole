@@ -307,7 +307,7 @@ export const RightSidebar = ({
 
   return (
     <aside className="relative  pt-4 z-20 flex h-full w-full flex-shrink-0 flex-col border-l border-border bg-background/40 backdrop-blur-3xl">
-      <div className="custom-scrollbar flex-1 overflow-y-auto px-6 pb-6 md:pb-12 space-y-6">
+      <div className="custom-scrollbar flex-1 overflow-y-auto px-4 pb-6 md:pb-12 space-y-6">
 
         {/* Color Swatches */}
         <div className="flex items-center pt-2 justify-between">

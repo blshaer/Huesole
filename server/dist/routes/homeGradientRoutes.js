@@ -37,7 +37,11 @@ router.get("/", async (req, res) => {
     }
     catch (error) {
         console.error("Home gradients error:", error);
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch gradients from database",
+            error: error.message
+        });
     }
 });
 exports.default = router;

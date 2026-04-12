@@ -174,8 +174,8 @@ const AIGeneratorPage: React.FC = () => {
       />
 
       {/* ========== DESKTOP LAYOUT (md+) — UNCHANGED ========== */}
-      <main className="hidden md:flex flex-1 container py-4 md:py-8 overflow-hidden">
-        <div className="grid h-full md:h-[78vh] w-full grid-cols-1 md:grid-cols-[380px_1fr] xl:grid-cols-[380px_1fr_320px] gap-6">
+      <main className="hidden md:flex flex-1 max-w-[1700px] mx-auto w-full py-2 md:py-4 px-4 md:px-8 overflow-hidden">
+        <div className="grid h-full md:h-[82vh] w-full grid-cols-1 md:grid-cols-[350px_1fr] xl:grid-cols-[350px_1fr_300px] gap-6">
           {/* Left Section: Main Sidebar */}
           <div className="hidden md:flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-3xl shadow-2xl">
             <Sidebar

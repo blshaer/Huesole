@@ -57,6 +57,16 @@ app.use(express_1.default.static(clientDistPath));
 app.get("*", (_req, res) => {
     res.sendFile(path_1.default.join(clientDistPath, "index.html"));
 });
+// Global error handler
+app.use((err, _req, res, _next) => {
+    console.error("💥 Global Error:", err);
+    res.status(500).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        error: process.env.NODE_ENV === "development" ? err : undefined,
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+    });
+});
 const startServer = async () => {
     try {
         await (0, db_1.default)();

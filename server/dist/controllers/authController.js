@@ -11,11 +11,22 @@ const axios_1 = __importDefault(require("axios"));
 const User_1 = __importDefault(require("../models/User"));
 const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
 const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-// Helper to generate token
+// Generate token helper
 const generateToken = (id, email, role) => {
-    return jsonwebtoken_1.default.sign({ id, email, role }, process.env.JWT_SECRET || "fallback_secret", {
+    const secret = process.env.JWT_SECRET || "fallback_secret";
+    if (secret === "fallback_secret" && process.env.NODE_ENV === "production") {
+        console.warn("⚠️ Warning: Using fallback JWT secret in production!");
+    }
+    return jsonwebtoken_1.default.sign({ id, email, role }, secret, {
         expiresIn: "30d",
     });
+};
+// Initialize OAuth Client helper to handle dynamic env updates if needed
+const getGoogleClient = () => {
+    if (!process.env.GOOGLE_CLIENT_ID) {
+        throw new Error("GOOGLE_CLIENT_ID is missing");
+    }
+    return new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 };
 const register = async (req, res) => {
     const { name, username, email, password } = req.body;
@@ -43,7 +54,7 @@ const register = async (req, res) => {
         // Generate verification token
         const verificationToken = user.getVerificationToken();
         await user.save();
-        const CLIENT_URL = process.env.CLIENT_URL;
+        const CLIENT_URL = process.env.CLIENT_URL || "https://lumegradients.vercel.app";
         const verifyLink = `${CLIENT_URL}/verify-email/${verificationToken}`;
         const emailHtml = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
@@ -84,7 +95,12 @@ const register = async (req, res) => {
     }
     catch (error) {
         console.error("Registration error:", error);
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+            details: error.name === "ValidationError" ? error.message : undefined
+        });
     }
 };
 exports.register = register;
@@ -145,8 +161,9 @@ const login = async (req, res) => {
         });
         res.status(500).json({
             success: false,
-            message: "Internal Server Error",
-            error: process.env.NODE_ENV === "development" ? error.message : undefined
+            message: "Internal Server Error during Login",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+            details: error.name === "ValidationError" ? error.message : undefined
         });
     }
 };
@@ -188,7 +205,8 @@ const verifyEmail = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: "Server Error" });
+        console.error("Verify Email Error:", error);
+        res.status(500).json({ message: "Internal Server Error during verification", error: error.message });
     }
 };
 exports.verifyEmail = verifyEmail;
@@ -240,7 +258,7 @@ const forgotPassword = async (req, res) => {
     }
     catch (error) {
         console.error("Forgot password error:", error);
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({ message: "Internal Server Error during password reset request", error: error.message });
     }
 };
 exports.forgotPassword = forgotPassword;
@@ -272,7 +290,8 @@ const resetPassword = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: "Server Error" });
+        console.error("Reset Password Error:", error);
+        res.status(500).json({ message: "Internal Server Error during password reset", error: error.message });
     }
 };
 exports.resetPassword = resetPassword;
@@ -324,7 +343,7 @@ const resendVerification = async (req, res) => {
     }
     catch (error) {
         console.error("Resend verification error:", error);
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({ message: "Internal Server Error during verification resend", error: error.message });
     }
 };
 exports.resendVerification = resendVerification;
@@ -335,7 +354,9 @@ const googleLogin = async (req, res) => {
             console.error("GOOGLE_CLIENT_ID is missing from environment variables.");
             return res.status(500).json({ success: false, message: "Server configuration error: Google Client ID missing." });
         }
-        const ticket = await client.verifyIdToken({
+        console.log("Verifying Google token for Client ID:", process.env.GOOGLE_CLIENT_ID.slice(0, 10) + "...");
+        const googleClient = getGoogleClient();
+        const ticket = await googleClient.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
@@ -401,7 +422,11 @@ const googleLogin = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("Google Auth Error Catch (likely Access Token):", error.message);
+        console.error("Google Auth Error Details:", {
+            message: error.message,
+            stack: error.stack,
+            clientId: process.env.GOOGLE_CLIENT_ID ? (process.env.GOOGLE_CLIENT_ID.slice(0, 10) + "...") : "MISSING"
+        });
         // Fallback for Access Tokens
         if (token && (token.length < 500 || !token.includes("."))) {
             try {

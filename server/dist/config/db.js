@@ -8,7 +8,11 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const connectDB = async () => {
     try {
-        const conn = await mongoose_1.default.connect(process.env.MONGO_URI || "");
+        const uri = (process.env.MONGO_URI || "").trim().replace(/^["']|["']$/g, "");
+        if (!uri) {
+            throw new Error("MONGO_URI is missing or empty");
+        }
+        const conn = await mongoose_1.default.connect(uri);
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     }
     catch (error) {

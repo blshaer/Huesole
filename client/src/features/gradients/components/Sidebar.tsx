@@ -74,7 +74,7 @@ export const Sidebar = ({
     <>
       <div
         ref={sidebarRef}
-        className="custom-scrollbar flex-1 space-y-8 overflow-hidden px-6 pb-6 md:pb-12"
+        className="custom-scrollbar flex-1 space-y-6 overflow-hidden px-4 pb-6 md:pb-12"
       >
         <ColorStopsSection
           result={result}
@@ -88,7 +88,7 @@ export const Sidebar = ({
       </div>
       
       {/* Fixed Footer for Beta Notice */}
-      <div className="mt-auto border-t border-white/5 p-6 bg-black/20 backdrop-blur-md">
+      <div className="mt-auto border-t border-white/5 p-4 bg-black/20 backdrop-blur-md">
         <BetaContactCard />
       </div>
 

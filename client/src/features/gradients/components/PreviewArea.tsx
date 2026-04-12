@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { VercelSpinner } from "@/shared/ui/VercelSpinner";
 import { GeneratedGradient } from "../types";
 import { AngleController } from "./AngleController";
@@ -63,9 +63,54 @@ export const PreviewArea = ({
   const isMobile = window.innerWidth < 768;
   const displayAngle = currentAngle;
 
+  // New sizing logic to ensure canvas always fits within the preview area (Containment)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const canvasDims = useMemo(() => {
+    if (!canvasSize || !containerSize.width || !containerSize.height) return null;
+    
+    // Default handles the "Default" preset gracefully
+    if (canvasSize.width === 0 || canvasSize.height === 0) return null;
+
+    const containerRatio = containerSize.width / containerSize.height;
+    const targetRatio = canvasSize.width / canvasSize.height;
+    
+    if (targetRatio > containerRatio) {
+      // Width limited
+      return {
+        width: containerSize.width,
+        height: containerSize.width / targetRatio,
+      };
+    } else {
+      // Height limited
+      return {
+        width: containerSize.height * targetRatio,
+        height: containerSize.height,
+      };
+    }
+  }, [canvasSize, containerSize]);
+
   return (
-    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-6 md:p-10 lg:p-12 min-h-[500px] md:min-h-[450px] overflow-hidden">
-      <div className="w-full h-full flex items-center justify-center relative max-w-7xl mx-auto max-h-[844px] mb-8 md:mb-12">
+    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-4 md:p-6 lg:p-8 min-h-[500px] md:min-h-[450px] overflow-hidden">
+      <div 
+        ref={containerRef}
+        className="w-full h-full flex items-center justify-center relative max-w-7xl mx-auto mb-4 md:mb-6 overflow-hidden"
+      >
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div 
@@ -85,27 +130,29 @@ export const PreviewArea = ({
                   initial={{ opacity: 0, aspectRatio: "1 / 1" }}
                   animate={{
                     opacity: 1,
-                    width: canvasSize 
-                      ? "100%" 
-                      : isMobile && isKeyboardOpen ? "120px" : isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)",
-                    height: canvasSize ? "100%" : "auto",
-                    maxHeight: canvasSize ? "100%" : isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)",
-                    maxWidth: canvasSize ? "100%" : isMobile && !isKeyboardOpen ? "80vw" : "min(40vh, 40vw)",
-                    aspectRatio: canvasSize ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "24px",
+                    width: canvasDims 
+                      ? canvasDims.width 
+                      : (isMobile && isKeyboardOpen ? 120 : isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)"),
+                    height: canvasDims 
+                      ? canvasDims.height 
+                      : (isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)"),
+                    maxWidth: "100%",
+                    maxHeight: "100%",
                   }}
                   className="relative group flex items-center justify-center overflow-hidden shadow-2xl mx-auto"
                   style={{
+                    aspectRatio: canvasSize && canvasSize.width > 0 ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
+                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "24px",
                     objectFit: "contain",
-                    maxHeight: isMobile ? "68vh" : "100%",
                   }}
                 >
+                  {/* No SVG needed with the new explicit size logic */}
                 {/* Visual Backdrop Pulse */}
                 <motion.div
                   className="pointer-events-none absolute inset-0 -z-10 scale-105 opacity-60 blur-3xl transition-all duration-700"
                   layout
                   animate={{
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
+                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
                   }}
                   style={{
                     background: (() => {
@@ -140,7 +187,7 @@ export const PreviewArea = ({
                 <motion.div
                   layout
                   animate={{
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
+                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
                   }}
                   className="h-full w-full shadow-2xl transition-all duration-700 relative z-10"
                   style={{
@@ -186,7 +233,7 @@ export const PreviewArea = ({
                 <motion.div 
                   layout
                   animate={{
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "16px",
+                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
                   }}
                   className="pointer-events-none absolute inset-0 z-20 border border-white/10 overflow-hidden shadow-inner" 
                 />
@@ -221,7 +268,7 @@ export const PreviewArea = ({
       </div>
 
       {/* Main AI Prompt Input - Always visible in the preview area */}
-      <div className="w-full max-w-2xl mt-8 relative z-[60]">
+      <div className="w-full max-w-2xl mt-4 relative z-[60]">
         <AIPromptSection loading={loading} onGenerate={onGenerate} />
       </div>
     </div>
