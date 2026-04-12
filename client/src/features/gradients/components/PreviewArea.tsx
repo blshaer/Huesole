@@ -68,7 +68,7 @@ export const PreviewArea = ({
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (isMobile || !containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setContainerSize({
@@ -79,196 +79,203 @@ export const PreviewArea = ({
     });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   const canvasDims = useMemo(() => {
-    if (!canvasSize || !containerSize.width || !containerSize.height) return null;
+    if (!canvasSize || canvasSize.width === 0 || canvasSize.height === 0) return null;
     
-    // Default handles the "Default" preset gracefully
-    if (canvasSize.width === 0 || canvasSize.height === 0) return null;
+    // Use stable window-based dimensions for mobile to avoid layout loops
+    const baseW = isMobile ? (typeof window !== 'undefined' ? window.innerWidth : 300) : (containerSize.width || 1000);
+    const baseH = isMobile ? (typeof window !== 'undefined' ? window.innerHeight : 600) : (containerSize.height || 600);
+    
+    const scaleFactor = isMobile ? 0.7 : 1.0;
+    const w = (isMobile ? baseW - 40 : baseW) * scaleFactor;
+    const h = (isMobile ? baseH - 320 : baseH) * scaleFactor;
 
-    const containerRatio = containerSize.width / containerSize.height;
+    const containerRatio = w / h;
     const targetRatio = canvasSize.width / canvasSize.height;
     
     if (targetRatio > containerRatio) {
       // Width limited
       return {
-        width: containerSize.width,
-        height: containerSize.width / targetRatio,
+        width: w,
+        height: w / targetRatio,
       };
     } else {
       // Height limited
       return {
-        width: containerSize.height * targetRatio,
-        height: containerSize.height,
+        width: h * targetRatio,
+        height: h,
       };
     }
-  }, [canvasSize, containerSize]);
+  }, [canvasSize, containerSize, isMobile]);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center relative bg-transparent p-4 md:p-6 lg:p-8 min-h-[500px] md:min-h-[450px] overflow-hidden">
+    <div className="flex flex-1 flex-col items-center justify-between relative bg-transparent p-2 md:p-6 lg:p-8 min-h-0 w-full overflow-hidden">
+      {/* Invisible Measurement Layer - To avoid circular dependency with canvas sizing */}
       <div 
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center relative max-w-7xl mx-auto mb-4 md:mb-6 overflow-hidden"
-      >
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div 
-              key="loading-state"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-4"
+        className="absolute inset-0 pointer-events-none invisible"
+        style={{ 
+          marginBottom: isMobile ? '160px' : '100px', 
+          marginTop: isMobile ? '20px' : '0px',
+          padding: isMobile ? '20px' : '0' 
+        }} // Added more space on mobile to make preview area smaller
+      />
+
+      <div className="w-full flex-1 flex items-center justify-center relative max-w-7xl mx-auto overflow-hidden">
+        {loading ? (
+          <motion.div 
+            key="loading-state"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center gap-4"
+          >
+            <VercelSpinner size={64} />
+            <p className="text-sm font-medium text-white/40">AI is composing your masterpiece...</p>
+          </motion.div>
+        ) : result ? (
+            <motion.div
+              key="canvas-display"
+              animate={{
+                opacity: 1,
+                width: canvasDims 
+                  ? canvasDims.width 
+                  : (isMobile ? (isKeyboardOpen ? 120 : "280px") : "min(40vh, 40vw)"),
+                height: canvasDims 
+                  ? canvasDims.height 
+                  : (isMobile ? "280px" : "min(40vh, 40vw)"),
+                maxWidth: "100%",
+                maxHeight: "100%",
+              }}
+              transition={isMobile ? { duration: 0 } : { duration: 0.15, ease: "circOut" }}
+              className="relative group flex items-center justify-center overflow-hidden shadow-2xl mx-auto"
+              style={{
+                aspectRatio: (canvasSize && canvasSize.width > 0) ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
+                borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "24px",
+                objectFit: "contain",
+              }}
             >
-              <VercelSpinner size={64} />
-              <p className="text-sm font-medium text-white/40">AI is composing your masterpiece...</p>
-            </motion.div>
-          ) : result ? (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={canvasSize?.label || "default-orb"}
-                  initial={{ opacity: 0, aspectRatio: "1 / 1" }}
-                  animate={{
-                    opacity: 1,
-                    width: canvasDims 
-                      ? canvasDims.width 
-                      : (isMobile && isKeyboardOpen ? 120 : isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)"),
-                    height: canvasDims 
-                      ? canvasDims.height 
-                      : (isMobile ? "min(55vh, 80vw)" : "min(40vh, 40vw)"),
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                  }}
-                  className="relative group flex items-center justify-center overflow-hidden shadow-2xl mx-auto"
-                  style={{
-                    aspectRatio: canvasSize && canvasSize.width > 0 ? `${canvasSize.width} / ${canvasSize.height}` : "1 / 1",
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "24px",
-                    objectFit: "contain",
-                  }}
-                >
-                  {/* No SVG needed with the new explicit size logic */}
-                {/* Visual Backdrop Pulse */}
-                <motion.div
-                  className="pointer-events-none absolute inset-0 -z-10 scale-105 opacity-60 blur-3xl transition-all duration-700"
-                  layout
-                  animate={{
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
-                  }}
-                  style={{
-                    background: (() => {
-                      if (result.type === "linear") {
-                        return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+              {/* Visual Backdrop Pulse */}
+              <motion.div
+                className="pointer-events-none absolute inset-0 -z-10 scale-105 opacity-60 blur-3xl transition-all duration-700"
+                animate={{
+                  borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
+                }}
+                transition={isMobile ? { duration: 0 } : { duration: 0.1 }}
+                style={{
+                  background: (() => {
+                    if (result.type === "linear") {
+                      return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+                    }
+
+                    if (result.type === "default") {
+                      const raw = result.rawCss || "";
+                      if (raw.includes("radial-gradient")) {
+                        return `radial-gradient(circle at 50% 50%, ${result.colors.join(", ")})`;
                       }
-
-                      if (result.type === "default") {
-                        const raw = result.rawCss || "";
-                        if (raw.includes("radial-gradient")) {
-                          return `radial-gradient(circle at 50% 50%, ${result.colors.join(", ")})`;
-                        }
-                        if (raw.includes("conic-gradient")) {
-                          return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
-                        }
-                        if (raw.includes("linear-gradient")) {
-                          return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
-                        }
-                        return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
-                      }
-
-                      return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
-                    })(),
-                    backgroundSize: isAnimated ? "400% 400%" : "cover",
-                    animation: isAnimated
-                      ? `gradientShift ${10 / animationSpeed}s ease infinite`
-                      : "none",
-                  }}
-                />
-
-                {/* Main Gradient Display */}
-                <motion.div
-                  layout
-                  animate={{
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
-                  }}
-                  className="h-full w-full shadow-2xl transition-all duration-700 relative z-10"
-                  style={{
-                    background: (() => {
-                      if (result.type === "conic") {
+                      if (raw.includes("conic-gradient")) {
                         return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
                       }
-                      if (result.type === "radial") {
+                      if (raw.includes("linear-gradient")) {
+                        return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+                      }
+                      return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
+                    }
+
+                    return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
+                  })(),
+                  backgroundSize: isAnimated ? "400% 400%" : "cover",
+                  animation: isAnimated
+                    ? `gradientShift ${10 / animationSpeed}s ease infinite`
+                    : "none",
+                }}
+              />
+
+              {/* Main Gradient Display */}
+              <motion.div
+                animate={{
+                  borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
+                }}
+                transition={isMobile ? { duration: 0 } : { duration: 0.1 }}
+                className="h-full w-full shadow-2xl transition-all duration-700 relative z-10"
+                style={{
+                  background: (() => {
+                    if (result.type === "conic") {
+                      return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
+                    }
+                    if (result.type === "radial") {
+                      return `radial-gradient(circle at ${
+                        50 + Math.cos(((displayAngle - 90) * Math.PI) / 180) * 30
+                      }% ${50 + Math.sin(((displayAngle - 90) * Math.PI) / 180) * 30}%, ${result.colors.join(", ")})`;
+                    }
+                    if (result.type === "linear") {
+                      return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
+                    }
+
+                    if (result.type === "default") {
+                      const raw = result.rawCss || "";
+                      if (raw.includes("radial-gradient")) {
                         return `radial-gradient(circle at ${
                           50 + Math.cos(((displayAngle - 90) * Math.PI) / 180) * 30
                         }% ${50 + Math.sin(((displayAngle - 90) * Math.PI) / 180) * 30}%, ${result.colors.join(", ")})`;
                       }
-                      if (result.type === "linear") {
+                      if (raw.includes("conic-gradient")) {
+                        return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
+                      }
+                      if (raw.includes("linear-gradient")) {
                         return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
                       }
-
-                      if (result.type === "default") {
-                        const raw = result.rawCss || "";
-                        if (raw.includes("radial-gradient")) {
-                          return `radial-gradient(circle at ${
-                            50 + Math.cos(((displayAngle - 90) * Math.PI) / 180) * 30
-                          }% ${50 + Math.sin(((displayAngle - 90) * Math.PI) / 180) * 30}%, ${result.colors.join(", ")})`;
-                        }
-                        if (raw.includes("conic-gradient")) {
-                          return `conic-gradient(from ${displayAngle}deg, ${result.colors.join(", ")})`;
-                        }
-                        if (raw.includes("linear-gradient")) {
-                          return `linear-gradient(${displayAngle}deg, ${result.colors.join(", ")})`;
-                        }
-                        return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
-                      }
-                      
                       return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
-                    })(),
-                    backgroundSize: isAnimated ? "400% 400%" : "cover",
-                    animation: isAnimated
-                      ? `gradientShift ${10 / animationSpeed}s ease infinite`
-                      : "none",
-                  }}
-                />
+                    }
+                    
+                    return animatedGradientUtils.generateSegmentedConic(result.colors, displayAngle);
+                  })(),
+                  backgroundSize: isAnimated ? "400% 400%" : "cover",
+                  animation: isAnimated
+                    ? `gradientShift ${10 / animationSpeed}s ease infinite`
+                    : "none",
+                }}
+              />
 
-                {/* Sleek Border Overlay */}
-                <motion.div 
-                  layout
-                  animate={{
-                    borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
-                  }}
-                  className="pointer-events-none absolute inset-0 z-20 border border-white/10 overflow-hidden shadow-inner" 
-                />
+              {/* Sleek Border Overlay */}
+              <motion.div 
+                animate={{
+                  borderRadius: (canvasSize?.label === "Default" || !canvasSize) ? "999px" : "20px",
+                }}
+                transition={isMobile ? { duration: 0 } : { duration: 0.1 }}
+                className="pointer-events-none absolute inset-0 z-20 border border-white/10 overflow-hidden shadow-inner" 
+              />
 
-                {/* Interactive Angle Controller Overlay */}
-                {!isKeyboardOpen && showAngleController && (
-                  <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-                    <div className="pointer-events-auto">
-                      <AngleController 
-                        angle={displayAngle} 
-                        onChange={handleAngleUpdate}
-                        size={220}
-                        isLight={isLightGradient}
-                      />
-                    </div>
+              {!isKeyboardOpen && showAngleController && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                  <div className="pointer-events-auto">
+                    <AngleController 
+                      angle={displayAngle} 
+                      onChange={handleAngleUpdate}
+                      size={isMobile ? 150 : 220}
+                      isLight={isLightGradient}
+                    />
                   </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <motion.div
-              key="empty-state"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative group flex items-center justify-center overflow-hidden w-[min(40vh,40vw)] h-[min(40vh,40vw)] rounded-full border border-white/5 bg-white/[0.02] backdrop-blur-3xl shadow-inner"
-            >
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-               <div className="text-white/10 text-[min(1.5vh,12px)] font-bold uppercase tracking-[0.2em] animate-pulse">Waiting for prompt</div>
+                </div>
+              )}
             </motion.div>
-          )}
-        </AnimatePresence>
+        ) : (
+          <motion.div
+            key="empty-state"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={isMobile ? { duration: 0 } : undefined}
+            className="relative group flex items-center justify-center overflow-hidden w-[min(40vh,40vw)] h-[min(40vh,40vw)] rounded-full border border-white/5 bg-white/[0.02] backdrop-blur-3xl shadow-inner"
+          >
+             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+             <div className="text-white/10 text-[min(1.5vh,12px)] font-bold uppercase tracking-[0.2em] animate-pulse">Waiting for prompt</div>
+          </motion.div>
+        )}
       </div>
 
       {/* Main AI Prompt Input - Always visible in the preview area */}
-      <div className="w-full max-w-2xl mt-4 relative z-[60]">
+      <div className="w-full max-w-2xl mt-2 md:mt-4 relative z-[60]">
         <AIPromptSection loading={loading} onGenerate={onGenerate} />
       </div>
     </div>
