@@ -5,15 +5,7 @@
 @layer components {
   .container {
     @apply w-full mx-auto px-6;
-    max-width: none;
-
-  }
-
-
-  @media screen and (min-width: 1297px) {
-    .container {
-      @apply px-16;
-    }
+    max-width: 72rem;
   }
 
 
