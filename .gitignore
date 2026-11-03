@@ -1,8 +1,10 @@
-.vercel
 node_modules
-
 dist
-# Local Netlify folder
-.netlify
+.env
+.env.*
+!.env.example
 
 .vercel
+.netlify
+.DS_Store
+*.log

@@ -1,71 +1,80 @@
-# LumeGradients
+# Huesole
 
-LumeGradients is a professional monorepo for generating and managing CSS gradients. It provides a specialized environment for discovering, composing, and fine-tuning visual design assets through AI-powered tools and an interactive interface.
+Huesole is a free collection of CSS gradients, at [Huesole.com](https://huesole.com). A gradient is a named list of hex stops in one JSON file. The site searches that file, previews each gradient, and copies it as Tailwind, CSS, or SVG.
 
-## Core Features
+## What it does
 
-- **AI-Powered Generation**: Integration with Google Gemini AI for natural language gradient composition.
-- **Canvas Sizing Engine**: Device-specific presets (iPhone, Tablet, Desktop) with automated viewport containment.
-- **Interactive Design Tools**: Visual angle controllers for linear, radial, and conic gradients.
-- **Dynamic Animation Controls**: High-performance animated gradients with real-time speed and color management.
-- **Responsive Architecture**: Specialized mobile optimization layer for zero-latency interactions.
-- **Asset Repository**: Curated gradient gallery with local favorites management and clipboard integration.
+- Search by name, color, or mood, with suggestions as you type. The address keeps the query, the page, the preview (`background` or `text`), and the shape (`linear`, `radial`, or `conic`).
+- Each card shows the stops, a draggable angle, and the gradient as its own CSS or forced into a linear, radial, or conic fill.
+- Copy Tailwind CSS, CSS, or SVG. Stops can be HEX, RGB, or HSL. A swatch copies that one color. On Chromium, the eyedropper in the navbar copies a color from the screen.
+- Favorites stay in this browser, under `huesole.favorites`. Older saved favorites are copied over the first time the app loads. Several cards can be selected and their names copied together.
 
-## Technical Stack
+## Run it
 
-### Frontend
-- **Framework**: React 18, Vite
-- **Styling**: Tailwind CSS, Styled Components
-- **Animation**: Framer Motion, Motion, AOS, animate.css
-- **UI Components**: Radix UI (Primitives), Lucide React
-- **Graphics**: Three.js, @react-three/fiber, OGL
-- **Data Visualization**: Recharts
+You need Node.js 18 or later.
 
-### Backend
-- **Environment**: Node.js, Express
-- **Language**: TypeScript
-- **AI Integration**: @google/generative-ai (Gemini)
-- **Database**: MongoDB via Mongoose
-- **Security**: JWT, Bcryptjs, Google Auth Library
-- **Utilities**: Nodemailer, Multer, Axios
-
-## Installation
-
-### Prerequisites
-- Node.js (v18+)
-- npm
-
-### Setup
-
-```bash
-# Install dependencies (from root)
-npm run install:all
-```
-
-### Configuration
-
-Create a `.env` file in the `server` directory with the following variables:
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_uri
-GEMINI_API_KEY=your_gemini_api_key
-JWT_SECRET=your_jwt_secret
-```
-
-### Development
-
-Execute the following command in the root directory to start the full stack:
-```bash
+```sh
+git clone https://github.com/blshaer/Huesole.git
+cd Huesole
+npm install
 npm run dev
 ```
 
-The application is accessible at `http://localhost:5173`.
+Open http://localhost:5173.
 
-## Architecture
+## Checks
 
-- **client/**: React-based frontend with feature-based organization.
-- **server/**: TypeScript Express backend with Gemini AI integration.
+```sh
+npm run lint
+npm run format:check
+npm run build          # tsc, then the Vite build into dist/
+```
 
----
+## The collection
 
-Developed by [blshaer](https://github.com/blshaer).
+All 694 gradients live in [`src/lib/gradients.json`](src/lib/gradients.json). A name has to be unique: favorites and the copy-names action both use it. The newer palettes come first, then the original set.
+
+```json
+{
+  "name": "Morning Harbor",
+  "colors": ["#0F2027", "#203A43", "#2C5364"],
+  "colorsname": ["navy", "blue", "teal"],
+  "keywords": ["ocean", "dark", "calm"],
+  "type": "linear",
+  "angle": 156,
+  "rawCss": "linear-gradient(156deg, #0F2027 0%, #203A43 46%, #2C5364 100%)"
+}
+```
+
+| Field | Required | What it is |
+| --- | --- | --- |
+| `name` | yes | Title, search text, and the favorites key |
+| `colors` | yes | `#RRGGBB` stops, in order |
+| `colorsname` | no | Color words search can match, such as `blue` or `gold` |
+| `keywords` | no | Mood and subject words, as a flat list |
+| `type` | no | `linear`, `radial`, or `conic`, used when the shape filter is auto |
+| `angle` | no | Starting angle in degrees |
+| `rawCss` | no | Exact CSS for uneven stops. Every hex in it also has to be in `colors` |
+
+## Layout
+
+| Path | What's there |
+| --- | --- |
+| `src/pages` | Every route: home, favorites, privacy, terms, errors |
+| `src/layout` | Navbar, logo, and footer |
+| `src/features/home` | Hero and pagination |
+| `src/features/gradients` | Cards, hooks, copy formats, and the gradient model |
+| `src/features/search` | Search box and the result count |
+| `src/components/ui` | Shared interface primitives |
+| `src/lib/gradients.json` | The collection |
+| `public` | Icons and the social preview image |
+
+Routes: `/`, `/favorites`, `/privacy`, `/terms`.
+
+## Deploy
+
+`npm run build` writes a static site to `dist/`. [`vercel.json`](vercel.json) sends every path to `index.html`, so the client routes work on Vercel. Any static host can serve that folder.
+
+## License
+
+Huesole is licensed under the [MIT License](LICENSE). Copyright 2026 [Baraa Alshaer](https://blshaer.com).

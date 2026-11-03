@@ -1,0 +1,342 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container {
+    @apply w-full mx-auto px-6;
+    max-width: none;
+
+  }
+
+
+  @media screen and (min-width: 1297px) {
+    .container {
+      @apply px-16;
+    }
+  }
+
+
+
+  @media screen and (max-width: 754px) {
+    .home-page-header {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+
+    .container {
+
+      @apply px-5;
+
+    }
+
+  }
+
+
+
+
+
+
+  /* Responsive grid improvements */
+  .gradient-grid {
+    @apply grid gap-8 pt-6;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  /* Smooth transitions for interactive elements */
+  .interactive-element {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .interactive-element:hover {
+    @apply scale-105 transform shadow-xl;
+  }
+
+  /* Enhanced focus states */
+  .focus-enhanced:focus {
+    @apply ring-primary/30 outline-none ring-2 ring-offset-2 ring-offset-background;
+  }
+
+  /* Mobile-optimized touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}
+
+@layer utilities {
+
+  /* Gradient animation keyframes */
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  .animate-gradient {
+    animation: gradientShift 4s ease infinite;
+    background-size: 400% 400%;
+  }
+
+  .animate-shimmer {
+    background-image: linear-gradient(90deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  /* Search input enhancement */
+  .search-enhanced {
+    @apply relative transition-all duration-300;
+  }
+
+  .search-enhanced:focus-within {
+    @apply ring-primary/20 scale-105 transform shadow-lg ring-2;
+  }
+}
+
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  height: auto;
+  min-height: 100vh;
+}
+
+:root {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --headline: #fafafa;
+  --paragraph: #d4d4d4;
+
+  --nav: #0a0a0aee;
+
+  --placeholder: #737373;
+
+  --border: #262626;
+
+  --muted: #171717;
+  --muted-foreground: #a1a1a1;
+
+  --card: #171717;
+  --card-foreground: #fafafa;
+
+  --input: #171717;
+
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+
+  --destructive: #fe6e00;
+  --destructive-foreground: #ffffff;
+
+  --ring: #404040;
+
+  --radius: 0.5rem;
+
+  --success: #00bb7f;
+  --success-foreground: #ffffff;
+
+  --warning: #fe6e00;
+  --warning-foreground: #ffffff;
+
+  --info: #00a5ef;
+  --info-foreground: #ffffff;
+
+  --highlight: #00bb7f;
+  --highlight-foreground: #0a0a0a;
+
+  --focus: #a1a1a1;
+
+  --selection: #fafafa;
+  --selection-foreground: #0a0a0a;
+
+  --code: #fafafa;
+  --code-background: #171717;
+
+  --link: #77d4ff;
+  --link-hover: #00a5ef;
+  --button: #fafafa;
+  --button-border: #262626;
+  --button-text: #0a0a0a;
+  --button-text-hover: #0a0a0a;
+  --button-hover: #e5e5e5;
+  --outline-button-text: #fafafa;
+  --active: #fafafa;
+  --active-text: #0a0a0a;
+
+  --chart-1: #77d4ff;
+  --chart-2: #00a5ef;
+  --chart-3: #0084cc;
+  --chart-4: #0069a4;
+  --chart-5: #005986;
+
+  --grid-color: rgba(250, 250, 250, 0.06);
+}
+
+::selection {
+  background-color: var(--selection);
+  color: var(--selection-foreground);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Inter, "Inter Fallback", sans-serif;
+}
+
+/* For testing  */
+.test1 {
+  @apply border-2 border-black bg-green-300 text-black;
+}
+
+.test2 {
+  @apply border-2 border-black bg-red-300 text-black;
+}
+
+.test3 {
+  @apply border-2 border-black bg-blue-300 text-black;
+}
+
+.test4 {
+  @apply border-2 border-black bg-yellow-300 text-black;
+}
+
+* {
+  border-color: var(--border);
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #737373;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #404040 transparent;
+}
+
+[data-sonner-toaster] {
+  font-family: Inter, "Inter Fallback", sans-serif;
+  --width: 320px;
+}
+
+[data-sonner-toaster][data-x-position="right"] {
+  right: 96px;
+}
+
+[data-sonner-toaster][data-x-position="right"] [data-sonner-toast] {
+  right: 0;
+  left: auto;
+}
+
+[data-sonner-toaster][data-theme="dark"] {
+  --normal-bg: #171717;
+  --normal-bg-hover: #1f1f1f;
+  --normal-border: #2e2e2e;
+  --normal-border-hover: #3a3a3a;
+  --normal-text: #fafafa;
+  --border-radius: 14px;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  width: max-content;
+  max-width: var(--width);
+  padding: 12px 14px;
+  gap: 10px;
+  align-items: flex-start;
+  background: #171717;
+  border-color: #2e2e2e;
+  color: #fafafa;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-icon] {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0 0;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-icon] svg {
+  width: 16px;
+  height: 16px;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-icon] {
+  color: #4ade80;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] [data-icon] {
+  color: #f87171;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-content] {
+  gap: 2px;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.011em;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: #a1a1a1;
+}
+
+[data-sonner-toaster] [data-description].huesole-toast-value {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #e5e5e5;
+}
