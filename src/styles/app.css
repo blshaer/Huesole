@@ -268,7 +268,7 @@ body {
 }
 
 [data-sonner-toaster][data-x-position="right"] {
-  right: 96px;
+  right: 24px;
 }
 
 [data-sonner-toaster][data-x-position="right"] [data-sonner-toast] {

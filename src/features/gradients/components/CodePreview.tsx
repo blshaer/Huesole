@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTrigger,
@@ -11,7 +12,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface CodePreviewProps {
@@ -78,32 +79,44 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
     copyToClipboard(code, activeTab);
   };
 
-  const CodeHeader = () => (
-    <div className="flex flex-row items-center max-md:flex-col max-md:py-4 max-md:gap-4 justify-between border-b border-[#262626] pb-4">
-      <div className="flex flex-col gap-1">
-        <div className="text-sm font-semibold uppercase tracking-widest text-[#a1a1a1]">
-          Code Preview
-        </div>
-        <div className="text-lg font-bold text-[#fafafa]">
-          {String(activeTab).charAt(0).toUpperCase() + String(activeTab).slice(1)}
-        </div>
+  const formatLabel =
+    activeTab === "svg" ? "SVG" : activeTab === "css" ? "CSS" : "Tailwind CSS";
+
+  const CodeHeader = ({ showClose = false }: { showClose?: boolean }) => (
+    <div className="flex items-center justify-between gap-4 border-b border-[#262626] pb-4">
+      <div className="min-w-0">
+        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#a1a1a1]">
+          Code
+        </p>
+        <h2 className="mt-1 text-base font-semibold leading-none text-[#fafafa]">
+          {formatLabel}
+        </h2>
       </div>
 
-      <div className="flex items-center gap-2 rounded-full border border-[#262626] bg-[#262626] p-1">
-        {["HEX", "RGB", "HSL"].map((format) => (
-          <button
-            key={format}
-            onClick={() => onColorFormatChange(format)}
-            className={cn(
-              "px-3 py-1.5 text-[10px] font-bold tracking-wider transition-all rounded-full",
-              selectedColorFormat === format
-                ? "bg-[#fafafa] text-[#0a0a0a]"
-                : "text-[#a1a1a1] hover:text-[#fafafa]"
-            )}
-          >
-            {format}
-          </button>
-        ))}
+      <div className="flex shrink-0 items-center gap-2">
+        <div className="flex items-center rounded-full bg-[#262626] p-1">
+          {["HEX", "RGB", "HSL"].map((format) => (
+            <button
+              key={format}
+              type="button"
+              onClick={() => onColorFormatChange(format)}
+              className={cn(
+                "rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wider",
+                selectedColorFormat === format
+                  ? "bg-[#fafafa] text-[#0a0a0a]"
+                  : "text-[#a1a1a1] hover:text-[#fafafa]",
+              )}
+            >
+              {format}
+            </button>
+          ))}
+        </div>
+        {showClose && (
+          <DialogClose className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#a1a1a1] hover:bg-[#262626] hover:text-[#fafafa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#525252]">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+        )}
       </div>
     </div>
   );
@@ -190,9 +203,9 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
             </div>
           </div>
 
-          <DialogContent className="max-w-4xl border-[#262626] bg-[#171717]">
+          <DialogContent className="max-w-4xl border-[#262626] bg-[#171717] [&>button]:hidden">
             <DialogHeader>
-              <CodeHeader />
+              <CodeHeader showClose />
             </DialogHeader>
             <CodeMain />
           </DialogContent>

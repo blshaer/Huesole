@@ -10,7 +10,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme="dark"
-      offset={{ top: "24px", right: "96px", bottom: "24px", left: "24px" }}
+      offset={{ top: "24px", right: "24px", bottom: "24px", left: "24px" }}
       gap={10}
       duration={CONFIRM_MS}
       visibleToasts={3}
